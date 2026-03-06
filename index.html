@@ -300,6 +300,8 @@
     border-color: rgba(255,255,255,0.07) !important;
   }
 
+  @keyframes br-spin { to { transform: rotate(360deg); } }
+
   /* ===== BROWSER APP ===== */
   .browser-toolbar {
     display: flex;
@@ -1005,6 +1007,34 @@ const musicTracks = [
 ];
 let currentTrack = 0;
 
+// ========================
+// SETTINGS STATE (persists across panel switches & window reopen)
+// ========================
+const settingsState = {
+  // Appearance
+  accentColor: '#58a6ff',
+  blurIntensity: 44,
+  saturation: 180,
+  animationsOn: true,
+  // Desktop
+  wallpaperIdx: 0,
+  iconSize: 88,
+  clockFmt: '24',
+  // System
+  notifsOn: true,
+  snapOn: false,
+  fontSize: 13,
+  termFont: "'IBM Plex Mono',monospace",
+  // Display
+  theme: 'dark',
+  taskbarPos: 'bottom',
+  // Network
+  wifiOn: true,
+  btOn: false,
+  fwOn: true,
+  vpnOn: false,
+};
+
 const apps = [
   { id: 'browser',    name: 'Browser',       icon: '🌐', defaultW: 760, defaultH: 520 },
   { id: 'editor',     name: 'Text Editor',   icon: '📝', defaultW: 640, defaultH: 480 },
@@ -1628,7 +1658,7 @@ function initAppLogic(id) {
   if (id === 'music') initMusic();
   if (id === 'settings') { setTimeout(() => initSettings(), 50); }
   if (id === 'notes') { setTimeout(() => { renderNotesList(); selectNote(activeNote); }, 50); }
-  if (id === 'browser') { setTimeout(() => renderBrowserTabs(), 50); }
+  if (id === 'browser') { setTimeout(() => { renderBrowserTabs(); brStartGGCheck(); }, 50); }
   if (id === 'files') { setTimeout(() => { fmCwd = '/home/user'; fmHistory = ['/home/user']; fmHistIdx = 0; fmRender(); }, 50); }
 }
 
@@ -2364,44 +2394,278 @@ function fmCreateFile(ext) {
 // ========================
 // BROWSER LOGIC
 // ========================
-let browserTabs = [{ id: 1, title: 'New Tab', url: '', favicon: '🌐' }];
+let browserTabs = [{ id: 1, title: 'New Tab', url: '', favicon: '🌐', loaded: false }];
 let activeTabId = 1;
 let tabIdCounter = 2;
+
+/* ── PROXY ENGINE ──────────────────────────────────────── */
+const BR_PROXY_LIST = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url=',
+  'https://cors-anywhere.herokuapp.com/'
+];
+let brProxyIndex = 0;
+
+const GG_PATTERNS = [
+  'blocked.goguardian.com','goguardian.com/blocked','goguardian.com/block',
+  'goguardian.com/filter','goguardian.com/api/block','goguardian.com/pause','gg-block'
+];
+let brGGTimer = null;
+let brIntercepting = false;
+
+function brIsGG(url) {
+  if (!url || url === 'about:blank') return false;
+  const l = url.toLowerCase();
+  return GG_PATTERNS.some(p => l.includes(p));
+}
+
+function brFeedDecoy(url) {
+  let d = document.getElementById('br-gg-decoy');
+  if (!d) {
+    d = document.createElement('iframe');
+    d.id = 'br-gg-decoy';
+    d.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;top:-9999px;left:-9999px;';
+    d.tabIndex = -1;
+    document.body.appendChild(d);
+  }
+  try { if (d.src !== url) d.src = url; } catch(e) {}
+}
+
+function brRewriteHtml(html, baseUrl) {
+  const bridge =
+    `<base href="${baseUrl}">` +
+    `<script>(function(){` +
+    `document.addEventListener('click',function(e){var t=e.target;while(t&&t.tagName!=='A')t=t.parentElement;if(!t||!t.href)return;e.preventDefault();window.parent.postMessage({type:'BR_NAV',url:t.href},'*');},{capture:true});` +
+    `document.addEventListener('submit',function(e){e.preventDefault();var f=e.target,action=f.action||location.href,method=(f.method||'get').toLowerCase();if(method==='get'){var q=new URLSearchParams(new FormData(f)).toString();window.parent.postMessage({type:'BR_NAV',url:action+(action.indexOf('?')>=0?'&':'?')+q},'*');}else{window.parent.postMessage({type:'BR_NAV',url:action},'*');}},{capture:true});` +
+    `window.open=function(u){window.parent.postMessage({type:'BR_NAV',url:u},'*');return null;};` +
+    `window.parent.postMessage({type:'BR_URL',url:location.href},'*');` +
+    `})();<\/script>`;
+
+  html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?x-frame-options["']?[^>]*>/gi, '');
+  html = html.replace(/<meta[^>]+http-equiv\s*=\s*["']?content-security-policy["']?[^>]*>/gi, '');
+
+  if (/<head[\s>]/i.test(html))       html = html.replace(/(<head[^>]*>)/i, '$1' + bridge);
+  else if (/<html[\s>]/i.test(html))  html = html.replace(/(<html[^>]*>)/i, '$1' + bridge);
+  else                                 html = bridge + html;
+  return html;
+}
+
+function brShowLoading(tabId, url) {
+  const wrap = document.getElementById('browser-frames-wrap');
+  if (!wrap) return;
+  let loader = document.getElementById('br-loader-' + tabId);
+  if (!loader) {
+    loader = document.createElement('div');
+    loader.id = 'br-loader-' + tabId;
+    loader.style.cssText = 'position:absolute;inset:0;background:var(--bg);z-index:10;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;';
+    loader.innerHTML =
+      '<div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:br-spin 0.7s linear infinite;"></div>' +
+      '<span class="br-loader-url" style="color:var(--text-dim);font-size:11px;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:\'IBM Plex Mono\',monospace;"></span>';
+    wrap.appendChild(loader);
+  }
+  loader.style.display = 'flex';
+  const u = loader.querySelector('.br-loader-url');
+  if (u) u.textContent = url;
+  const frame = document.getElementById('browser-frame-' + tabId);
+  if (frame) frame.style.opacity = '0';
+}
+
+function brHideLoading(tabId) {
+  const loader = document.getElementById('br-loader-' + tabId);
+  if (loader) loader.style.display = 'none';
+  const frame = document.getElementById('browser-frame-' + tabId);
+  if (frame) frame.style.opacity = '1';
+}
+
+function brShowFailed(tabId, url) {
+  brHideLoading(tabId);
+  const frame = document.getElementById('browser-frame-' + tabId);
+  if (!frame) return;
+  frame.srcdoc =
+    `<html><body style="background:#0d1117;color:#c9d1d9;font-family:'IBM Plex Sans',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;margin:0;">` +
+    `<div style="font-size:44px">🚫</div>` +
+    `<div style="font-size:15px;font-weight:600;color:#f0f6fc;">Failed to load site</div>` +
+    `<div style="color:#8b949e;font-size:12px;text-align:center;max-width:320px;">All proxies failed and the site blocked direct framing.</div>` +
+    `<a href="${url}" target="_blank" style="color:#58a6ff;font-size:12px;margin-top:4px;">Open in new tab ↗</a>` +
+    `</body></html>`;
+  const tab = browserTabs.find(t => t.id === tabId);
+  if (tab) tab.loaded = true;
+}
+
+function brFallbackIframe(tabId, url) {
+  const frame = document.getElementById('browser-frame-' + tabId);
+  if (!frame) { brShowFailed(tabId, url); return; }
+
+  /* Swap srcdoc for direct src */
+  frame.removeAttribute('srcdoc');
+  frame.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation';
+
+  let loaded = false, timedOut = false;
+  const timer = setTimeout(() => { if (!loaded) { timedOut = true; brShowFailed(tabId, url); } }, 10000);
+
+  frame.addEventListener('load', function onLoad() {
+    if (timedOut) return;
+    loaded = true;
+    clearTimeout(timer);
+    frame.removeEventListener('load', onLoad);
+    brHideLoading(tabId);
+    const tab = browserTabs.find(t => t.id === tabId);
+    if (tab) tab.loaded = true;
+  });
+  frame.addEventListener('error', function onErr() {
+    if (timedOut) return;
+    clearTimeout(timer);
+    frame.removeEventListener('error', onErr);
+    brShowFailed(tabId, url);
+  });
+
+  frame.src = url;
+}
+
+function loadBrowserUrl(url, _retry, _tabId) {
+  const tabId = _tabId !== undefined ? _tabId : activeTabId;
+  _retry = _retry || 0;
+
+  let full = url;
+  if (full && !full.startsWith('http') && !full.startsWith('file://')) full = 'https://' + full;
+
+  if (brIsGG(full)) { brFeedDecoy(full); return; }
+
+  const tab = browserTabs.find(t => t.id === tabId);
+  if (!tab) return;
+
+  /* file:// — use srcdoc from local fileContents */
+  if (full.startsWith('file://')) {
+    const path = full.replace('file://', '');
+    const content = fileContents[path];
+    const frame = getOrCreateTabFrame(tabId);
+    tab.url = full;
+    tab.loaded = true;
+    updateBrowserUrlBar();
+    const newtab = document.getElementById('browser-newtab-page');
+    if (newtab) newtab.style.display = 'none';
+    if (content !== undefined) frame.srcdoc = content;
+    renderBrowserTabs();
+    return;
+  }
+
+  tab.url = full;
+  tab.loaded = false;
+  updateBrowserUrlBar();
+
+  const frame = getOrCreateTabFrame(tabId);
+  const newtab = document.getElementById('browser-newtab-page');
+  if (newtab) newtab.style.display = 'none';
+  document.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
+  frame.classList.add('active');
+
+  brShowLoading(tabId, full);
+  renderBrowserTabs();
+
+  const proxyUrl = BR_PROXY_LIST[brProxyIndex] + encodeURIComponent(full);
+  const capturedTabId = tabId;
+
+  fetch(proxyUrl)
+    .then(function(res) {
+      if (!res.ok && _retry < BR_PROXY_LIST.length - 1) {
+        brProxyIndex = (_retry + 1) % BR_PROXY_LIST.length;
+        loadBrowserUrl(full, _retry + 1, capturedTabId);
+        return null;
+      }
+      if (!res.ok) { brFallbackIframe(capturedTabId, full); return null; }
+      const ct = res.headers.get('content-type') || '';
+      if (ct && !ct.includes('text/html') && !ct.includes('text/plain') && !ct.includes('application/xhtml')) {
+        brHideLoading(capturedTabId);
+        const f2 = document.getElementById('browser-frame-' + capturedTabId);
+        if (f2) {
+          f2.srcdoc =
+            `<html><body style="background:#0d1117;color:#c9d1d9;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;margin:0;">` +
+            `<div style="font-size:40px">📄</div><div>Non-HTML content</div>` +
+            `<a href="${full}" target="_blank" style="color:#58a6ff;">Open directly ↗</a></body></html>`;
+        }
+        const t2 = browserTabs.find(t => t.id === capturedTabId);
+        if (t2) t2.loaded = true;
+        return null;
+      }
+      return res.text();
+    })
+    .then(function(html) {
+      if (html === null || html === undefined) return;
+      if (brIsGG(html.substring(0, 2000))) { brFeedDecoy(full); brHideLoading(capturedTabId); return; }
+      const rewritten = brRewriteHtml(html, full);
+      const f3 = document.getElementById('browser-frame-' + capturedTabId);
+      if (f3) {
+        f3.srcdoc = rewritten;
+        f3.style.opacity = '0';
+      }
+      brHideLoading(capturedTabId);
+      if (f3) f3.style.opacity = '1';
+      const t3 = browserTabs.find(t => t.id === capturedTabId);
+      if (t3) { t3.loaded = true; t3.title = full.replace(/^https?:\/\//, '').split('/')[0]; }
+      renderBrowserTabs();
+      if (capturedTabId === activeTabId) updateBrowserUrlBar();
+    })
+    .catch(function() {
+      if (_retry < BR_PROXY_LIST.length - 1) {
+        brProxyIndex = (_retry + 1) % BR_PROXY_LIST.length;
+        loadBrowserUrl(full, _retry + 1, capturedTabId);
+        return;
+      }
+      brFallbackIframe(capturedTabId, full);
+    });
+}
+
+function updateBrowserUrlBar() {
+  const bar = document.getElementById('browser-url-bar');
+  const tab = browserTabs.find(t => t.id === activeTabId);
+  if (bar && tab) bar.value = tab.url || '';
+}
+
+/* 1ms GoGuardian check on active browser frame */
+function brStartGGCheck() {
+  if (brGGTimer) return;
+  brGGTimer = setInterval(function() {
+    if (brIntercepting) return;
+    const frame = document.getElementById('browser-frame-' + activeTabId);
+    if (!frame) return;
+    let href = '', docUrl = '';
+    try { href = frame.contentWindow && frame.contentWindow.location && frame.contentWindow.location.href; } catch(e) {}
+    try { docUrl = frame.contentWindow && frame.contentWindow.document && frame.contentWindow.document.URL; } catch(e) {}
+    const check = (href || '') + ' ' + (docUrl || '');
+    if (brIsGG(check)) {
+      brIntercepting = true;
+      frame.style.visibility = 'hidden';
+      brFeedDecoy(href || docUrl || '');
+      const tab = browserTabs.find(t => t.id === activeTabId);
+      const lastGood = tab ? tab.url : '';
+      setTimeout(function() {
+        if (lastGood) { tab.loaded = false; loadBrowserUrl(lastGood, 0, activeTabId); }
+        else if (frame) { frame.srcdoc = ''; frame.removeAttribute('src'); }
+        frame.style.visibility = '';
+        brIntercepting = false;
+      }, 50);
+    }
+  }, 1);
+}
+
+/* postMessage bridge from inside browser iframes */
+window.addEventListener('message', function(e) {
+  if (!e.data || typeof e.data !== 'object') return;
+  if (e.data.type === 'BR_NAV' && e.data.url) {
+    if (brIsGG(e.data.url)) { brFeedDecoy(e.data.url); return; }
+    loadBrowserUrl(e.data.url, 0, activeTabId);
+  }
+  if (e.data.type === 'BR_URL' && e.data.url) {
+    const tab = browserTabs.find(t => t.id === activeTabId);
+    if (tab && !brIsGG(e.data.url)) { tab.url = e.data.url; updateBrowserUrlBar(); }
+  }
+});
 
 function browserNav() {
   const raw = document.getElementById('browser-url-bar').value.trim();
   if (!raw) return;
   const isUrl = raw.startsWith('http') || raw.startsWith('file://') || /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/|$)/.test(raw);
   loadBrowserUrl(isUrl ? raw : 'https://yep.com/web?q=' + encodeURIComponent(raw));
-}
-
-function loadBrowserUrl(url) {
-  let full = url;
-  if (url && !url.startsWith('http') && !url.startsWith('file://')) full = 'https://' + url;
-  const tab = browserTabs.find(t => t.id === activeTabId);
-  if (!tab) return;
-  tab.url = full;
-  tab.title = full.startsWith('file://') ? full.split('/').pop() : full.replace(/^https?:\/\//, '').split('/')[0];
-  const urlbar = document.getElementById('browser-url-bar');
-  if (urlbar) urlbar.value = full;
-  // Show/hide new-tab page vs the tab's iframe
-  const newtab = document.getElementById('browser-newtab-page');
-  if (newtab) newtab.style.display = 'none';
-  // Get or create iframe for this tab
-  const frame = getOrCreateTabFrame(activeTabId);
-  document.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
-  frame.classList.add('active');
-  if (full.startsWith('file://')) {
-    frame.src = 'about:blank';
-    // file:// uses srcdoc from fileContents
-    const path = full.replace('file://', '');
-    const content = fileContents[path];
-    if (content !== undefined) frame.srcdoc = content;
-  } else {
-    frame.removeAttribute('srcdoc');
-    frame.src = full;
-  }
-  renderBrowserTabs();
 }
 
 function getOrCreateTabFrame(id) {
@@ -2413,6 +2677,7 @@ function getOrCreateTabFrame(id) {
     frame.id = 'browser-frame-' + id;
     frame.className = 'browser-tab-frame';
     frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+    frame.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals';
     wrap.appendChild(frame);
   }
   return frame;
@@ -2442,24 +2707,23 @@ function renderBrowserTabs() {
 function switchBrowserTab(id) {
   activeTabId = id;
   const tab = browserTabs.find(t => t.id === id);
-  const urlbar = document.getElementById('browser-url-bar');
-  if (urlbar && tab) urlbar.value = tab.url || '';
-  const newtab = document.getElementById('browser-newtab-page');
-  // Hide all frames
+  updateBrowserUrlBar();
   document.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
+  const newtab = document.getElementById('browser-newtab-page');
   if (!tab || !tab.url) {
     if (newtab) newtab.style.display = 'flex';
   } else {
     if (newtab) newtab.style.display = 'none';
     const frame = getOrCreateTabFrame(id);
     if (frame) frame.classList.add('active');
+    if (tab && !tab.loaded) loadBrowserUrl(tab.url, 0, id);
   }
   renderBrowserTabs();
 }
 
 function newBrowserTab() {
   const id = tabIdCounter++;
-  browserTabs.push({ id, title: 'New Tab', url: '', favicon: '🌐' });
+  browserTabs.push({ id, title: 'New Tab', url: '', favicon: '🌐', loaded: false });
   activeTabId = id;
   const newtab = document.getElementById('browser-newtab-page');
   if (newtab) newtab.style.display = 'flex';
@@ -2470,12 +2734,16 @@ function newBrowserTab() {
 }
 
 function closeBrowserTab(id) {
+  /* Remove the iframe and its loader */
+  const frame = document.getElementById('browser-frame-' + id);
+  if (frame) { try { frame.srcdoc = ''; frame.removeAttribute('src'); } catch(e) {} frame.remove(); }
+  const loader = document.getElementById('br-loader-' + id);
+  if (loader) loader.remove();
+
   if (browserTabs.length === 1) {
-    browserTabs[0].url = ''; browserTabs[0].title = 'New Tab';
+    browserTabs[0].url = ''; browserTabs[0].title = 'New Tab'; browserTabs[0].loaded = false;
     switchBrowserTab(browserTabs[0].id); return;
   }
-  const frame = document.getElementById('browser-frame-' + id);
-  if (frame) frame.remove();
   browserTabs = browserTabs.filter(t => t.id !== id);
   if (activeTabId === id) activeTabId = browserTabs[browserTabs.length - 1].id;
   switchBrowserTab(activeTabId);
@@ -2483,15 +2751,15 @@ function closeBrowserTab(id) {
 
 function bfrBack() {
   const frame = document.getElementById('browser-frame-' + activeTabId);
-  if (frame && frame.src) try { frame.contentWindow.history.back(); } catch(e) {}
+  if (frame) try { frame.contentWindow.history.back(); } catch(e) {}
 }
 function bfrForward() {
   const frame = document.getElementById('browser-frame-' + activeTabId);
-  if (frame && frame.src) try { frame.contentWindow.history.forward(); } catch(e) {}
+  if (frame) try { frame.contentWindow.history.forward(); } catch(e) {}
 }
 function bfrReload() {
-  const frame = document.getElementById('browser-frame-' + activeTabId);
-  if (frame && frame.src !== 'about:blank') { const s = frame.src; frame.src = ''; frame.src = s; }
+  const tab = browserTabs.find(t => t.id === activeTabId);
+  if (tab && tab.url) { tab.loaded = false; loadBrowserUrl(tab.url, 0, activeTabId); }
 }
 
 // ========================
@@ -2714,51 +2982,51 @@ function showSettingsPanel(panel) {
         <div class="settings-item-label">Accent Color</div>
         <div class="settings-color-row">
           ${[['#58a6ff','Blue'],['#3fb950','Green'],['#f78166','Red'],['#e3b341','Yellow'],['#a371f7','Purple'],['#f0883e','Orange'],['#39c5cf','Cyan']].map(([c,n])=>`
-            <div class="color-dot" title="${n}" style="background:${c}" data-color="${c}"></div>`).join('')}
+            <div class="color-dot${settingsState.accentColor===c?' selected':''}" title="${n}" style="background:${c}" data-color="${c}"></div>`).join('')}
         </div>
       </div>
       <div class="settings-item">
         <div><div class="settings-item-label">Blur Intensity</div><div class="settings-item-desc">Acrylic blur strength (all surfaces)</div></div>
         <div style="display:flex;align-items:center;gap:8px">
-          <input type="range" id="blur-slider" min="10" max="70" value="44" style="width:90px;accent-color:var(--accent)">
-          <span id="blur-val" style="font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;min-width:30px">44px</span>
+          <input type="range" id="blur-slider" min="10" max="70" value="${settingsState.blurIntensity}" style="width:90px;accent-color:var(--accent)">
+          <span id="blur-val" style="font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;min-width:30px">${settingsState.blurIntensity}px</span>
         </div>
       </div>
       <div class="settings-item">
         <div><div class="settings-item-label">Saturation</div><div class="settings-item-desc">Color vibrancy behind glass</div></div>
         <div style="display:flex;align-items:center;gap:8px">
-          <input type="range" id="sat-slider" min="80" max="260" value="180" style="width:90px;accent-color:var(--accent)">
-          <span id="sat-val" style="font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;min-width:36px">180%</span>
+          <input type="range" id="sat-slider" min="80" max="260" value="${settingsState.saturation}" style="width:90px;accent-color:var(--accent)">
+          <span id="sat-val" style="font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;min-width:36px">${settingsState.saturation}%</span>
         </div>
       </div>
       <div class="settings-item">
         <div><div class="settings-item-label">UI Animations</div><div class="settings-item-desc">Fade and slide effects</div></div>
-        <div class="toggle on" id="toggle-animations"></div>
+        <div class="toggle${settingsState.animationsOn?' on':''}" id="toggle-animations"></div>
       </div>
     `;
-    // Wire up accent colors
     el.querySelectorAll('.color-dot').forEach(dot => {
-      const cur = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-      if (dot.dataset.color.trim() === cur.trim()) dot.classList.add('selected');
-      dot.addEventListener('click', () => { setAccent(dot.dataset.color, dot); });
+      dot.addEventListener('click', () => {
+        settingsState.accentColor = dot.dataset.color;
+        setAccent(dot.dataset.color, dot);
+      });
     });
-    // Blur slider — updates the CSS variable directly so ALL acrylic surfaces update
     const blurSlider = el.querySelector('#blur-slider');
     blurSlider.addEventListener('input', e => {
+      settingsState.blurIntensity = parseInt(e.target.value);
       document.documentElement.style.setProperty('--acrylic-blur', e.target.value + 'px');
       const valEl = el.querySelector('#blur-val');
       if (valEl) valEl.textContent = e.target.value + 'px';
     });
-    // Saturation slider
     el.querySelector('#sat-slider').addEventListener('input', e => {
+      settingsState.saturation = parseInt(e.target.value);
       document.documentElement.style.setProperty('--acrylic-sat', e.target.value + '%');
       const valEl = el.querySelector('#sat-val');
       if (valEl) valEl.textContent = e.target.value + '%';
     });
-    // Animations toggle
     el.querySelector('#toggle-animations').addEventListener('click', function() {
       this.classList.toggle('on');
-      const on = this.classList.contains('on');
+      settingsState.animationsOn = this.classList.contains('on');
+      const on = settingsState.animationsOn;
       document.documentElement.style.setProperty('--anim-speed', on ? '0.15s' : '0s');
       document.querySelectorAll('.window,.notif,.browser-tab,.fm-item,.calc-btn').forEach(e2 => {
         e2.style.transition = on ? '' : 'none';
@@ -2779,117 +3047,119 @@ function showSettingsPanel(panel) {
       <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div class="settings-item-label">Wallpaper</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${wallpapers.map((bg, i) => `<div data-wp-idx="${i}" style="width:60px;height:38px;border-radius:6px;cursor:pointer;background:${bg};border:2px solid rgba(255,255,255,0.1);transition:border-color 0.15s" title="Wallpaper ${i+1}"></div>`).join('')}
+          ${wallpapers.map((bg, i) => `<div data-wp-idx="${i}" style="width:60px;height:38px;border-radius:6px;cursor:pointer;background:${bg};border:2px solid ${i===settingsState.wallpaperIdx?'var(--accent)':'rgba(255,255,255,0.1)'};transition:border-color 0.15s" title="Wallpaper ${i+1}"></div>`).join('')}
         </div>
       </div>
       <div class="settings-item">
         <div><div class="settings-item-label">Desktop Icon Size</div></div>
         <select id="icon-size-sel" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 8px;font-size:11px">
-          <option value="70">Small</option>
-          <option value="88" selected>Medium</option>
-          <option value="108">Large</option>
+          <option value="70"${settingsState.iconSize===70?' selected':''}>Small</option>
+          <option value="88"${settingsState.iconSize===88?' selected':''}>Medium</option>
+          <option value="108"${settingsState.iconSize===108?' selected':''}>Large</option>
         </select>
       </div>
       <div class="settings-item">
         <div><div class="settings-item-label">Clock Format</div></div>
         <select id="clock-fmt-sel" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 8px;font-size:11px">
-          <option value="24">24-hour</option>
-          <option value="12">12-hour</option>
+          <option value="24"${settingsState.clockFmt==='24'?' selected':''}>24-hour</option>
+          <option value="12"${settingsState.clockFmt==='12'?' selected':''}>12-hour</option>
         </select>
       </div>
     `;
     el.querySelectorAll('[data-wp-idx]').forEach(swatch => {
       swatch.addEventListener('click', () => {
-        const bg = wallpapers[parseInt(swatch.dataset.wpIdx)];
-        document.getElementById('desktop').style.background = bg;
+        const idx = parseInt(swatch.dataset.wpIdx);
+        settingsState.wallpaperIdx = idx;
+        document.getElementById('desktop').style.background = wallpapers[idx];
         el.querySelectorAll('[data-wp-idx]').forEach(s => s.style.borderColor = 'rgba(255,255,255,0.1)');
         swatch.style.borderColor = 'var(--accent)';
         notify('Desktop', 'Wallpaper changed!');
       });
     });
     el.querySelector('#icon-size-sel').addEventListener('change', e => {
-      const sz = parseInt(e.target.value);
-      document.querySelectorAll('.desktop-icon').forEach(ic => { ic.style.width = sz + 'px'; });
+      settingsState.iconSize = parseInt(e.target.value);
+      document.querySelectorAll('.desktop-icon').forEach(ic => { ic.style.width = settingsState.iconSize + 'px'; });
     });
     el.querySelector('#clock-fmt-sel').addEventListener('change', e => {
+      settingsState.clockFmt = e.target.value;
       window._clockFmt = e.target.value;
       updateClock();
     });
-    return; // already built innerHTML
 
   } else if (panel === 'system') {
     el.innerHTML = `
       <div class="settings-section-title">System</div>
       <div class="settings-item">
         <div><div class="settings-item-label">Notifications</div><div class="settings-item-desc">Show system notifications</div></div>
-        <div class="toggle on" id="toggle-notifs"></div>
+        <div class="toggle${settingsState.notifsOn?' on':''}" id="toggle-notifs"></div>
       </div>
       <div class="settings-item">
         <div><div class="settings-item-label">Window Snap</div><div class="settings-item-desc">Snap windows to screen edges</div></div>
-        <div class="toggle" id="toggle-snap"></div>
+        <div class="toggle${settingsState.snapOn?' on':''}" id="toggle-snap"></div>
       </div>
       <div class="settings-item">
         <div><div class="settings-item-label">Font Size</div></div>
         <select id="font-size-sel" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 8px;font-size:11px">
-          <option value="11">Small (11px)</option>
-          <option value="13" selected>Default (13px)</option>
-          <option value="15">Large (15px)</option>
-          <option value="17">XL (17px)</option>
+          <option value="11"${settingsState.fontSize===11?' selected':''}>Small (11px)</option>
+          <option value="13"${settingsState.fontSize===13?' selected':''}>Default (13px)</option>
+          <option value="15"${settingsState.fontSize===15?' selected':''}>Large (15px)</option>
+          <option value="17"${settingsState.fontSize===17?' selected':''}>XL (17px)</option>
         </select>
       </div>
       <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:6px">
         <div class="settings-item-label">Terminal Font</div>
         <select id="term-font-sel" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 8px;font-size:11px">
-          <option value="'IBM Plex Mono',monospace" selected>IBM Plex Mono</option>
-          <option value="'Courier New',monospace">Courier New</option>
-          <option value="monospace">System Mono</option>
+          <option value="'IBM Plex Mono',monospace"${settingsState.termFont==="'IBM Plex Mono',monospace"?' selected':''}>IBM Plex Mono</option>
+          <option value="'Courier New',monospace"${settingsState.termFont==="'Courier New',monospace"?' selected':''}>Courier New</option>
+          <option value="monospace"${settingsState.termFont==='monospace'?' selected':''}>System Mono</option>
         </select>
       </div>
     `;
-    el.querySelector('#toggle-notifs').addEventListener('click', function() { this.classList.toggle('on'); window._notifsEnabled = this.classList.contains('on'); });
-    el.querySelector('#toggle-snap').addEventListener('click', function() { this.classList.toggle('on'); window._snapEnabled = this.classList.contains('on'); });
+    el.querySelector('#toggle-notifs').addEventListener('click', function() {
+      this.classList.toggle('on'); settingsState.notifsOn = this.classList.contains('on'); window._notifsEnabled = settingsState.notifsOn;
+    });
+    el.querySelector('#toggle-snap').addEventListener('click', function() {
+      this.classList.toggle('on'); settingsState.snapOn = this.classList.contains('on'); window._snapEnabled = settingsState.snapOn;
+    });
     el.querySelector('#font-size-sel').addEventListener('change', e => {
+      settingsState.fontSize = parseInt(e.target.value);
       document.body.style.fontSize = e.target.value + 'px';
     });
     el.querySelector('#term-font-sel').addEventListener('change', e => {
+      settingsState.termFont = e.target.value;
       document.querySelectorAll('.terminal-body,.term-input,.term-prompt-label').forEach(el2 => el2.style.fontFamily = e.target.value);
     });
 
   } else if (panel === 'display') {
-    el.innerHTML = `
-      <div class="settings-section-title">Display</div>
-      <div class="settings-item">
-        <div><div class="settings-item-label">Theme</div></div>
-        <div style="display:flex;gap:8px">
-          <div id="theme-dark" style="padding:5px 12px;border-radius:4px;background:var(--accent);color:white;cursor:pointer;font-size:11px">Dark</div>
-          <div id="theme-dim" style="padding:5px 12px;border-radius:4px;background:var(--surface2);color:var(--text-dim);cursor:pointer;font-size:11px;border:1px solid var(--border)">Dim</div>
-          <div id="theme-amoled" style="padding:5px 12px;border-radius:4px;background:var(--surface2);color:var(--text-dim);cursor:pointer;font-size:11px;border:1px solid var(--border)">AMOLED</div>
-        </div>
-      </div>
-      <div class="settings-item">
-        <div><div class="settings-item-label">Taskbar Position</div></div>
-        <select id="taskbar-pos" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 8px;font-size:11px">
-          <option value="bottom" selected>Bottom</option>
-          <option value="top">Top</option>
-        </select>
-      </div>
-    `;
     const themes = {
       dark:   { bg:'#0d1117', surface:'#161b22', surface2:'#21262d', border:'#30363d', text:'#c9d1d9', 'text-dim':'#8b949e', 'text-bright':'#f0f6fc', glass:'rgba(12,16,22,0.72)' },
       dim:    { bg:'#22272e', surface:'#2d333b', surface2:'#373e47', border:'#444c56', text:'#cdd9e5', 'text-dim':'#909dab', 'text-bright':'#e6edf3', glass:'rgba(26,31,37,0.72)' },
       amoled: { bg:'#000000', surface:'#0a0a0a', surface2:'#111111', border:'#1e1e1e', text:'#e0e0e0', 'text-dim':'#777777', 'text-bright':'#ffffff', glass:'rgba(0,0,0,0.82)' },
     };
+    el.innerHTML = `
+      <div class="settings-section-title">Display</div>
+      <div class="settings-item">
+        <div><div class="settings-item-label">Theme</div></div>
+        <div style="display:flex;gap:8px">
+          ${['dark','dim','amoled'].map(t => `<div id="theme-${t}" style="padding:5px 12px;border-radius:4px;background:${settingsState.theme===t?'var(--accent)':'var(--surface2)'};color:${settingsState.theme===t?'white':'var(--text-dim)'};cursor:pointer;font-size:11px;border:1px solid var(--border)">${t.charAt(0).toUpperCase()+t.slice(1)}</div>`).join('')}
+        </div>
+      </div>
+      <div class="settings-item">
+        <div><div class="settings-item-label">Taskbar Position</div></div>
+        <select id="taskbar-pos" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 8px;font-size:11px">
+          <option value="bottom"${settingsState.taskbarPos==='bottom'?' selected':''}>Bottom</option>
+          <option value="top"${settingsState.taskbarPos==='top'?' selected':''}>Top</option>
+        </select>
+      </div>
+    `;
     ['dark','dim','amoled'].forEach(t => {
       el.querySelector('#theme-'+t).addEventListener('click', () => {
+        settingsState.theme = t;
         const th = themes[t];
         Object.entries(th).forEach(([k,v]) => {
           document.documentElement.style.setProperty('--'+k, v);
         });
-        // Update all open window backgrounds
-        document.querySelectorAll('.window').forEach(w => {
-          w.style.background = th.glass;
-        });
-        // Highlight active button
+        document.querySelectorAll('.window').forEach(w => { w.style.background = th.glass; });
         ['dark','dim','amoled'].forEach(t2 => {
           const b = el.querySelector('#theme-'+t2);
           if (b) { b.style.background = t2===t ? 'var(--accent)' : 'var(--surface2)'; b.style.color = t2===t ? 'white' : 'var(--text-dim)'; }
@@ -2898,6 +3168,7 @@ function showSettingsPanel(panel) {
       });
     });
     el.querySelector('#taskbar-pos').addEventListener('change', e => {
+      settingsState.taskbarPos = e.target.value;
       const tb = document.getElementById('taskbar');
       const desk = document.getElementById('desktop');
       if (e.target.value === 'top') {
@@ -2912,13 +3183,15 @@ function showSettingsPanel(panel) {
   } else if (panel === 'network') {
     el.innerHTML = `
       <div class="settings-section-title">Network</div>
-      <div class="settings-item"><div><div class="settings-item-label">Wi-Fi</div><div class="settings-item-desc">HyperNet_5G · Connected</div></div><div class="toggle on" id="toggle-wifi"></div></div>
-      <div class="settings-item"><div><div class="settings-item-label">Bluetooth</div><div class="settings-item-desc">No devices paired</div></div><div class="toggle" id="toggle-bt"></div></div>
-      <div class="settings-item"><div><div class="settings-item-label">Firewall</div><div class="settings-item-desc">Block incoming connections</div></div><div class="toggle on" id="toggle-fw"></div></div>
-      <div class="settings-item"><div><div class="settings-item-label">VPN</div><div class="settings-item-desc">Disconnected</div></div><div class="toggle" id="toggle-vpn"></div></div>
+      <div class="settings-item"><div><div class="settings-item-label">Wi-Fi</div><div class="settings-item-desc">HyperNet_5G · Connected</div></div><div class="toggle${settingsState.wifiOn?' on':''}" id="toggle-wifi"></div></div>
+      <div class="settings-item"><div><div class="settings-item-label">Bluetooth</div><div class="settings-item-desc">No devices paired</div></div><div class="toggle${settingsState.btOn?' on':''}" id="toggle-bt"></div></div>
+      <div class="settings-item"><div><div class="settings-item-label">Firewall</div><div class="settings-item-desc">Block incoming connections</div></div><div class="toggle${settingsState.fwOn?' on':''}" id="toggle-fw"></div></div>
+      <div class="settings-item"><div><div class="settings-item-label">VPN</div><div class="settings-item-desc">Disconnected</div></div><div class="toggle${settingsState.vpnOn?' on':''}" id="toggle-vpn"></div></div>
     `;
-    ['wifi','bt','fw','vpn'].forEach(id => {
-      el.querySelector('#toggle-'+id).addEventListener('click', function() { this.classList.toggle('on'); });
+    [['wifi','wifiOn'],['bt','btOn'],['fw','fwOn'],['vpn','vpnOn']].forEach(([id, key]) => {
+      el.querySelector('#toggle-'+id).addEventListener('click', function() {
+        this.classList.toggle('on'); settingsState[key] = this.classList.contains('on');
+      });
     });
 
   } else if (panel === 'about') {
@@ -2945,6 +3218,7 @@ function showSettingsPanel(panel) {
 }
 
 function setAccent(color, el) {
+  settingsState.accentColor = color;
   document.documentElement.style.setProperty('--accent', color);
   document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
   el.classList.add('selected');
