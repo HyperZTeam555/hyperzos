@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HyperZOS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #f78166;
+    --accent4: #e3b341;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --text-bright: #f0f6fc;
+    --titlebar: #1c2128;
+    --glass: rgba(18, 24, 32, 0.75);
+    --glass-border: rgba(255,255,255,0.06);
+    --radius: 10px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    user-select: none;
+  }
+
+  /* ACRYLIC BLUR mixin — applied to windows, menus, notifications */
+  .acrylic {
+    background: var(--glass) !important;
+    backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
+    border: 1px solid var(--glass-border) !important;
+  }
+  .acrylic::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: inherit;
+    background:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none; z-index: 0; opacity: 0.5;
+  }
+  .acrylic > * { position: relative; z-index: 1; }
+
+  /* DESKTOP */
+  #desktop {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - 44px);
+    background: radial-gradient(ellipse at 20% 30%, #0d2137 0%, #0d1117 50%, #0a0f1a 100%);
+    overflow: hidden;
+  }
+
+  #desktop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(88, 166, 255, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(63, 185, 80, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Subtle grid */
+  #desktop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(48,54,61,0.15) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(48,54,61,0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* DESKTOP ICONS */
+  .desktop-icon {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 80px;
+    transition: background 0.15s;
+  }
+  .desktop-icon:hover { background: rgba(88,166,255,0.1); }
+  .desktop-icon:active { background: rgba(88,166,255,0.2); }
+  .desktop-icon .icon-img {
+    font-size: 32px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  }
+  .desktop-icon span {
+    font-size: 11px;
+    color: var(--text);
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    line-height: 1.3;
+  }
+
+  /* TASKBAR */
+  #taskbar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 44px;
+    background: rgba(10, 13, 18, 0.6);
+    backdrop-filter: blur(40px) saturate(200%) brightness(0.9);
+    -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(0.9);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    z-index: 9999;
+    box-shadow: 0 -1px 20px rgba(0,0,0,0.4);
+  }
+
+  #start-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #1f6feb, #388bfd);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  #start-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  #taskbar-apps {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .taskbar-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: all 0.15s;
+    white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
+  }
+  .taskbar-item:hover { background: var(--surface); color: var(--text); }
+  .taskbar-item.active { border-color: var(--accent); color: var(--accent); background: rgba(31,111,235,0.12); }
+
+  #taskbar-clock {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: right;
+    flex-shrink: 0;
+    padding: 0 8px;
+  }
+  #taskbar-clock .time { color: var(--text); font-size: 13px; }
+
+  /* WINDOWS */
+  .window {
+    position: absolute;
+    background: var(--glass);
+    backdrop-filter: blur(40px) saturate(180%) brightness(1.08);
+    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.08);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 300px;
+    min-height: 200px;
+    transition: box-shadow 0.15s;
+  }
+  .window.focused {
+    border-color: rgba(88,166,255,0.3);
+    box-shadow: var(--shadow), 0 0 0 1px rgba(88,166,255,0.12), inset 0 1px 0 rgba(255,255,255,0.07);
+  }
+  .window.minimized { display: none; }
+
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    height: 36px;
+    background: var(--titlebar);
+    border-bottom: 1px solid var(--border);
+    cursor: move;
+    flex-shrink: 0;
+  }
+  .titlebar-btns {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .tbtn {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .tbtn:hover { filter: brightness(1.3); }
+  .tbtn.close { background: #f78166; }
+  .tbtn.min   { background: #e3b341; }
+  .tbtn.max   { background: #3fb950; }
+
+  .titlebar-title {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    flex: 1;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+  .titlebar-icon { font-size: 14px; }
+
+  .window-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* RESIZE HANDLE */
+  .resize-handle {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 14px; height: 14px;
+    cursor: nwse-resize;
+    opacity: 0.4;
+  }
+  .resize-handle::after {
+    content: '';
+    position: absolute;
+    bottom: 3px; right: 3px;
+    width: 8px; height: 8px;
+    border-right: 2px solid var(--text-dim);
+    border-bottom: 2px solid var(--text-dim);
+  }
+
+  /* ===== BROWSER APP ===== */
+  .browser-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .browser-nav-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 13px; flex-shrink: 0;
+  }
+  .browser-nav-btn:hover { color: var(--text); background: var(--border); }
+  .browser-url {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    outline: none;
+  }
+  .browser-url:focus { border-color: var(--accent); }
+  .browser-go {
+    background: var(--accent);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .browser-go:hover { filter: brightness(1.1); }
+  .browser-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 4px 6px 0;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .browser-tab {
+    padding: 4px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 11px;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .browser-tab.active { background: var(--titlebar); color: var(--text); border-color: var(--accent); }
+  .browser-tab .tab-close { opacity: 0.5; font-size: 10px; }
+  .browser-tab .tab-close:hover { opacity: 1; color: var(--accent3); }
+  .browser-iframe-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: white;
+  }
+  .browser-iframe-wrap iframe {
+    width: 100%; height: 100%;
+    border: none;
+  }
+  .browser-newtab {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; background: var(--bg); gap: 20px; padding: 30px;
+  }
+  .browser-newtab h2 { font-size: 22px; color: var(--text-bright); font-family: 'IBM Plex Mono', monospace; }
+  .browser-newtab p { color: var(--text-dim); font-size: 12px; }
+  .browser-quicklinks { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .browser-quicklink {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .browser-quicklink:hover { border-color: var(--accent); color: var(--text); transform: translateY(-2px); }
+  .browser-quicklink .ql-icon { font-size: 22px; }
+
+  /* ===== TEXT EDITOR ===== */
+  .editor-toolbar {
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px 10px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .ed-btn {
+    background: transparent; border: 1px solid transparent;
+    border-radius: 4px; color: var(--text-dim);
+    padding: 3px 8px; cursor: pointer; font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: all 0.15s;
+  }
+  .ed-btn:hover { background: var(--surface2); border-color: var(--border); color: var(--text); }
+  .ed-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+  .editor-filename {
+    margin-left: auto; font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-dim);
+    background: transparent; border: none; outline: none;
+    text-align: right; max-width: 150px; color: var(--text);
+  }
+  .editor-content {
+    flex: 1; display: flex; overflow: hidden;
+  }
+  .editor-lines {
+    padding: 10px 6px; background: var(--surface2);
+    border-right: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: var(--text-dim); line-height: 1.6;
+    text-align: right; min-width: 36px;
+    overflow: hidden; pointer-events: none;
+    user-select: none;
+  }
+  .editor-textarea {
+    flex: 1; padding: 10px 12px;
+    background: transparent; border: none; outline: none;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: var(--text); line-height: 1.6;
+    resize: none; white-space: pre; overflow-wrap: normal; overflow: auto;
+    tab-size: 2;
+  }
+  .editor-statusbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 3px 12px; background: var(--titlebar);
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--text-dim); flex-shrink: 0;
+  }
+  .ed-status-accent { color: var(--accent); }
+
+  /* ===== TERMINAL ===== */
+  .terminal-body {
+    flex: 1; overflow-y: auto; padding: 12px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    line-height: 1.6; color: var(--accent2);
+    background: #0a0e14;
+    cursor: text;
+  }
+  .terminal-body::-webkit-scrollbar { width: 4px; }
+  .terminal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .term-line { margin-bottom: 2px; word-break: break-all; white-space: pre-wrap; }
+  .term-prompt { color: var(--accent); }
+  .term-error { color: var(--accent3); }
+  .term-info  { color: var(--accent4); }
+  .term-input-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    background: #0a0e14;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    cursor: text;
+  }
+  .term-prompt-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: var(--accent); flex-shrink: 0; white-space: nowrap;
+  }
+  .term-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: var(--accent2); caret-color: var(--accent2);
+    min-width: 0;
+  }
+
+  /* ===== FILE MANAGER ===== */
+  .fm-toolbar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; background: var(--surface); border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .fm-path {
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 3px 8px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--text); outline: none;
+  }
+  .fm-body { flex: 1; display: flex; overflow: hidden; }
+  .fm-sidebar {
+    width: 130px; border-right: 1px solid var(--border);
+    padding: 8px 0; overflow-y: auto; flex-shrink: 0;
+    background: var(--surface2);
+  }
+  .fm-sidebar-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; cursor: pointer; font-size: 11px;
+    color: var(--text-dim); transition: all 0.1s;
+  }
+  .fm-sidebar-item:hover { background: var(--border); color: var(--text); }
+  .fm-sidebar-item.active { background: rgba(31,111,235,0.15); color: var(--accent); }
+  .fm-sidebar-section { padding: 10px 12px 4px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+  .fm-main { flex: 1; padding: 12px; overflow-y: auto; }
+  .fm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+  .fm-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 8px 4px; border-radius: 6px; cursor: pointer;
+    transition: all 0.15s; text-align: center;
+  }
+  .fm-item:hover { background: rgba(88,166,255,0.1); }
+  .fm-item.selected { background: rgba(88,166,255,0.2); border: 1px solid rgba(88,166,255,0.4); }
+  .fm-item .fm-icon { font-size: 28px; line-height: 1; }
+  .fm-item span { font-size: 10px; color: var(--text-dim); word-break: break-word; }
+  .fm-statusbar {
+    padding: 3px 12px; background: var(--titlebar);
+    border-top: 1px solid var(--border);
+    font-size: 10px; color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace; flex-shrink: 0;
+  }
+  .fm-list-row {
+    display: flex; align-items: center; gap: 0;
+    padding: 5px 8px; border-radius: 4px; cursor: pointer;
+    font-size: 12px; color: var(--text); transition: background 0.1s;
+  }
+  .fm-list-row:hover { background: rgba(88,166,255,0.08); }
+  .fm-list-selected { background: rgba(88,166,255,0.2) !important; }
+
+  /* ===== CALCULATOR ===== */
+  .calc-body {
+    flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+    background: var(--bg);
+  }
+  .calc-display {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px;
+    text-align: right;
+  }
+  .calc-expr { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); min-height: 16px; }
+  .calc-val { font-family: 'IBM Plex Mono', monospace; font-size: 28px; color: var(--text-bright); margin-top: 4px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .calc-btn {
+    padding: 12px 8px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--surface);
+    color: var(--text); font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; cursor: pointer; transition: all 0.1s; text-align: center;
+  }
+  .calc-btn:hover { background: var(--surface2); border-color: var(--accent); }
+  .calc-btn:active { transform: scale(0.95); }
+  .calc-btn.op { color: var(--accent); }
+  .calc-btn.eq { background: var(--accent); color: white; border-color: var(--accent); }
+  .calc-btn.eq:hover { filter: brightness(1.1); }
+  .calc-btn.clear { color: var(--accent3); }
+  .calc-btn.span2 { grid-column: span 2; }
+
+  /* ===== NOTES ===== */
+  .notes-sidebar {
+    width: 140px; border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; background: var(--surface2); flex-shrink: 0;
+  }
+  .notes-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 8px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .notes-toolbar span { font-size: 11px; color: var(--text-dim); font-weight: 500; }
+  .notes-new-btn {
+    background: var(--accent); border: none; color: white;
+    width: 20px; height: 20px; border-radius: 4px;
+    cursor: pointer; font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .notes-list { flex: 1; overflow-y: auto; }
+  .note-item {
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.1s;
+  }
+  .note-item:hover { background: var(--surface); }
+  .note-item.active { background: rgba(31,111,235,0.15); }
+  .note-item-title { font-size: 11px; color: var(--text); font-weight: 500; }
+  .note-item-preview { font-size: 10px; color: var(--text-dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .notes-edit { flex: 1; display: flex; flex-direction: column; }
+  .notes-title-input {
+    padding: 8px 12px; background: var(--surface);
+    border: none; border-bottom: 1px solid var(--border);
+    color: var(--text-bright); font-size: 13px; font-weight: 500;
+    outline: none; flex-shrink: 0;
+  }
+  .notes-content-input {
+    flex: 1; padding: 12px; background: transparent;
+    border: none; outline: none; resize: none;
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 12px;
+    color: var(--text); line-height: 1.7;
+  }
+
+  /* ===== SETTINGS ===== */
+  .settings-body {
+    flex: 1; display: flex; overflow: hidden;
+  }
+  .settings-nav {
+    width: 150px; border-right: 1px solid var(--border);
+    background: var(--surface2); padding: 8px 0; flex-shrink: 0;
+  }
+  .settings-nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; cursor: pointer; font-size: 12px;
+    color: var(--text-dim); transition: all 0.1s;
+  }
+  .settings-nav-item:hover { background: var(--border); color: var(--text); }
+  .settings-nav-item.active { background: rgba(31,111,235,0.15); color: var(--accent); }
+  .settings-panel { flex: 1; padding: 18px; overflow-y: auto; }
+  .settings-section-title { font-size: 15px; font-weight: 600; color: var(--text-bright); margin-bottom: 14px; }
+  .settings-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 8px;
+  }
+  .settings-item-label { font-size: 12px; color: var(--text); }
+  .settings-item-desc { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .toggle {
+    width: 36px; height: 20px; background: var(--border);
+    border-radius: 10px; cursor: pointer; position: relative;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 14px; height: 14px; background: white;
+    border-radius: 50%; transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(16px); }
+  .settings-color-row { display: flex; gap: 8px; margin-top: 4px; }
+  .color-dot {
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.15s;
+  }
+  .color-dot.selected, .color-dot:hover { border-color: white; transform: scale(1.15); }
+
+  /* ===== CLOCK APP ===== */
+  .clock-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg); gap: 8px; }
+  .clock-digital { font-family: 'IBM Plex Mono', monospace; font-size: 52px; color: var(--text-bright); letter-spacing: 0.05em; }
+  .clock-date { font-size: 14px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+  .clock-canvas { margin-top: 10px; }
+
+  /* ===== MUSIC PLAYER ===== */
+  .music-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: var(--bg); gap: 16px; }
+  .music-cover {
+    width: 120px; height: 120px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px; box-shadow: 0 8px 24px rgba(88,166,255,0.3);
+    animation: spin-slow 8s linear infinite; animation-play-state: paused;
+  }
+  .music-cover.playing { animation-play-state: running; }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .music-title { font-size: 15px; font-weight: 600; color: var(--text-bright); text-align: center; }
+  .music-artist { font-size: 12px; color: var(--text-dim); }
+  .music-progress-wrap { width: 100%; }
+  .music-progress {
+    width: 100%; height: 4px; background: var(--border);
+    border-radius: 2px; cursor: pointer; position: relative;
+  }
+  .music-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s linear; }
+  .music-time-row { display: flex; justify-content: space-between; font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--text-dim); margin-top: 4px; }
+  .music-controls { display: flex; align-items: center; gap: 16px; }
+  .music-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 22px; color: var(--text-dim); transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .music-btn:hover { color: var(--text); transform: scale(1.1); }
+  .music-btn.main {
+    width: 46px; height: 46px; background: var(--accent);
+    border-radius: 50%; color: white; font-size: 18px;
+  }
+  .music-btn.main:hover { filter: brightness(1.1); transform: scale(1.05); }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* START MENU */
+  #start-menu {
+    position: fixed; bottom: 52px; left: 8px;
+    width: 300px;
+    background: rgba(14, 19, 26, 0.7);
+    backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+    z-index: 9998;
+    display: none; overflow: hidden;
+    animation: slide-up 0.2s ease;
+  }
+  #start-menu.open { display: block; }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .sm-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); }
+  .sm-header h3 { font-family: 'IBM Plex Mono', monospace; color: var(--accent); font-size: 13px; letter-spacing: 0.05em; }
+  .sm-header p { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .sm-apps { padding: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .sm-app {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 6px; cursor: pointer;
+    transition: all 0.1s;
+  }
+  .sm-app:hover { background: rgba(88,166,255,0.1); }
+  .sm-app .sm-icon { font-size: 20px; }
+  .sm-app span { font-size: 11px; color: var(--text); }
+  .sm-footer {
+    padding: 8px 10px; border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end;
+  }
+  .sm-shutdown {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 4px;
+    background: rgba(247,129,102,0.1); border: 1px solid rgba(247,129,102,0.3);
+    color: var(--accent3); cursor: pointer; font-size: 11px; transition: all 0.15s;
+  }
+  .sm-shutdown:hover { background: rgba(247,129,102,0.2); }
+
+  /* Boot screen */
+  #boot {
+    position: fixed; inset: 0; z-index: 99999;
+    background: #0d1117;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+    transition: opacity 0.6s;
+  }
+  #boot.hidden { opacity: 0; pointer-events: none; }
+  .boot-logo { font-family: 'IBM Plex Mono', monospace; font-size: 36px; font-weight: 600; color: var(--accent); letter-spacing: 0.1em; }
+  .boot-sub { font-size: 12px; color: var(--text-dim); letter-spacing: 0.2em; text-transform: uppercase; }
+  .boot-bar-wrap { width: 200px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .boot-bar { height: 100%; width: 0; background: var(--accent); border-radius: 2px; transition: width 2s ease; }
+  .boot-ver { font-size: 10px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; position: absolute; bottom: 20px; }
+
+  /* Context menu */
+  #ctx-menu {
+    position: fixed; z-index: 9997;
+    background: rgba(14, 19, 26, 0.75);
+    backdrop-filter: blur(40px) saturate(180%) brightness(1.12);
+    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.12);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+    padding: 4px;
+    min-width: 160px; display: none;
+    animation: ctx-appear 0.1s ease;
+  }
+  @keyframes ctx-appear { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .ctx-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 4px; cursor: pointer;
+    font-size: 12px; color: var(--text); transition: background 0.1s;
+  }
+  .ctx-item:hover { background: rgba(88,166,255,0.12); }
+  .ctx-sep { height: 1px; background: rgba(255,255,255,0.06); margin: 3px 0; }
+
+  /* Notification toast */
+  #notif-container { position: fixed; top: 14px; right: 14px; z-index: 99998; display: flex; flex-direction: column; gap: 6px; }
+  .notif {
+    background: rgba(14, 19, 26, 0.72);
+    backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+    -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1);
+    border: 1px solid rgba(255,255,255,0.07); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 10px 14px;
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
+    max-width: 260px;
+    animation: notif-in 0.3s ease;
+    font-size: 12px;
+  }
+  @keyframes notif-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  .notif-title { color: var(--text-bright); font-weight: 500; margin-bottom: 3px; }
+  .notif-body { color: var(--text-dim); font-size: 11px; }
+
+  /* LOGIN SCREEN */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 99997;
+    background: radial-gradient(ellipse at 30% 40%, #0d2137 0%, #0a0d14 60%, #050709 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  }
+  #login-screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(48,54,61,0.12) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(48,54,61,0.12) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  .login-os-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 42px; font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    text-shadow: 0 0 40px rgba(88,166,255,0.4);
+  }
+  .login-os-ver {
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 0.25em; text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 48px;
+  }
+  .login-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #1f6feb 0%, #388bfd 50%, #3fb950 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; margin-bottom: 16px;
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.25), 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .login-username {
+    font-size: 18px; font-weight: 500;
+    color: var(--text-bright); margin-bottom: 24px;
+    letter-spacing: 0.03em;
+  }
+  .login-box {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    width: 300px;
+  }
+  .login-input-wrap {
+    width: 100%; position: relative;
+  }
+  .login-input {
+    width: 100%; padding: 12px 44px 12px 16px;
+    background: rgba(22,27,34,0.8);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-bright); font-size: 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    outline: none; letter-spacing: 0.05em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,0.15); }
+  .login-input::placeholder { color: var(--text-dim); letter-spacing: normal; }
+  .login-submit {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, #1f6feb, #388bfd);
+    border: none; border-radius: 8px;
+    color: white; font-size: 14px; font-weight: 600;
+    font-family: 'IBM Plex Sans', sans-serif;
+    cursor: pointer; letter-spacing: 0.04em;
+    transition: all 0.2s;
+  }
+  .login-submit:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(31,111,235,0.4); }
+  .login-submit:active { transform: translateY(0); }
+  .login-error {
+    color: var(--accent3); font-size: 12px;
+    animation: shake 0.3s ease; display: none;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+  }
+  .login-hint { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+  .login-time {
+    position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+    text-align: center;
+  }
+  .login-clock { font-family: 'IBM Plex Mono', monospace; font-size: 52px; font-weight: 300; color: var(--text-bright); letter-spacing: -0.02em; }
+  .login-date  { font-size: 13px; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+  .login-screen-hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- BOOT SCREEN -->
+<div id="boot">
+  <div class="boot-logo">HyperZOS</div>
+  <div class="boot-sub">Version 1.0.0 · Kernel 6.8.2</div>
+  <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
+  <div class="boot-ver">© 2025 HyperZOS Systems. All rights reserved.</div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="login-screen-hidden">
+  <div class="login-time">
+    <div class="login-clock" id="login-clock">00:00</div>
+    <div class="login-date" id="login-date"></div>
+  </div>
+  <div class="login-os-name">HyperZOS</div>
+  <div class="login-os-ver">Version 1.0.0</div>
+  <div class="login-avatar">👤</div>
+  <div class="login-username">User</div>
+  <div class="login-box">
+    <div class="login-input-wrap">
+      <input class="login-input" id="login-password" type="password" placeholder="Enter password..." onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-error" id="login-error">Incorrect password. Try: guest</div>
+    <button class="login-submit" onclick="doLogin()">Sign In →</button>
+    <div class="login-hint">Hint: password is "guest" (or leave blank)</div>
+  </div>
+</div>
+
+<!-- DESKTOP -->
+<div id="desktop" id="desktop">
+  <!-- Desktop icons injected by JS -->
+</div>
+
+<!-- TASKBAR -->
+<div id="taskbar">
+  <button id="start-btn" onclick="toggleStartMenu()">⊞ HyperZ</button>
+  <div id="taskbar-apps"></div>
+  <div id="taskbar-clock">
+    <div class="time" id="clock-time"></div>
+    <div id="clock-date-taskbar" style="font-size:10px"></div>
+  </div>
+</div>
+
+<!-- START MENU -->
+<div id="start-menu">
+  <div class="sm-header">
+    <h3>HyperZOS</h3>
+    <p>Welcome back, User</p>
+  </div>
+  <div class="sm-apps" id="sm-apps-grid"></div>
+  <div class="sm-footer">
+    <div class="sm-shutdown" onclick="shutdown()">⏻ Shut Down</div>
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx-menu"></div>
+
+<!-- NOTIFICATION CONTAINER -->
+<div id="notif-container"></div>
+
+<script>
+// ========================
+// GLOBAL STATE
+// ========================
+let windows = {};
+let zCounter = 100;
+let focusedWindow = null;
+let termHistory = [];
+let termHistIdx = -1;
+let notesList = [
+  { id: 1, title: 'Welcome', content: 'Welcome to HyperZOS!\nThis is your first note. You can create more using the + button.' },
+  { id: 2, title: 'TODO', content: '- Explore the apps\n- Try the browser\n- Write some code in the text editor\n- Calculate something' }
+];
+let activeNote = 1;
+let musicPlaying = false;
+let musicProgress = 0;
+let musicInterval = null;
+const musicTracks = [
+  { title: 'Neon Dreams', artist: 'Synth Wave • 3:42', emoji: '🎵' },
+  { title: 'Binary Sunset', artist: 'Lo-Fi Code • 4:17', emoji: '🌅' },
+  { title: 'Debug Session', artist: 'Ambient Tech • 2:58', emoji: '🔧' },
+];
+let currentTrack = 0;
+
+const apps = [
+  { id: 'browser',    name: 'Browser',       icon: '🌐', defaultW: 760, defaultH: 520 },
+  { id: 'editor',     name: 'Text Editor',   icon: '📝', defaultW: 640, defaultH: 480 },
+  { id: 'terminal',   name: 'Terminal',      icon: '💻', defaultW: 560, defaultH: 380 },
+  { id: 'files',      name: 'Files',         icon: '📁', defaultW: 620, defaultH: 440 },
+  { id: 'calc',       name: 'Calculator',    icon: '🔢', defaultW: 280, defaultH: 400 },
+  { id: 'notes',      name: 'Notes',         icon: '🗒️',  defaultW: 520, defaultH: 400 },
+  { id: 'music',      name: 'Music',         icon: '🎵', defaultW: 300, defaultH: 440 },
+  { id: 'settings',   name: 'Settings',      icon: '⚙️',  defaultW: 540, defaultH: 420 },
+  { id: 'clock',      name: 'Clock',         icon: '🕐', defaultW: 300, defaultH: 320 },
+];
+
+// ========================
+// BOOT + LOGIN
+// ========================
+window.addEventListener('load', () => {
+  const bar = document.getElementById('boot-bar');
+  setTimeout(() => bar.style.width = '100%', 50);
+  setTimeout(() => {
+    // Hide boot, show login
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('login-screen-hidden');
+    document.getElementById('login-password').focus();
+    updateLoginClock();
+    setInterval(updateLoginClock, 1000);
+  }, 2400);
+});
+
+function updateLoginClock() {
+  const now = new Date();
+  const lc = document.getElementById('login-clock');
+  const ld = document.getElementById('login-date');
+  if (lc) lc.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  if (ld) ld.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function doLogin() {
+  const pw = document.getElementById('login-password').value;
+  const err = document.getElementById('login-error');
+  if (pw === '' || pw === 'guest') {
+    // Success
+    document.getElementById('login-screen').classList.add('login-screen-hidden');
+    buildDesktop();
+    updateClock();
+    setInterval(updateClock, 1000);
+    notify('HyperZOS', 'Welcome back, User!');
+  } else {
+    err.style.display = 'block';
+    err.style.animation = 'none';
+    requestAnimationFrame(() => err.style.animation = 'shake 0.3s ease');
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').focus();
+  }
+}
+
+// ========================
+// DESKTOP ICONS
+// ========================
+function buildDesktop() {
+  const desktop = document.getElementById('desktop');
+  const positions = [
+    [20,20],[20,110],[20,200],[20,290],[20,380],[20,470],[20,560],[20,650],[20,740]
+  ];
+  apps.forEach((app, i) => {
+    const el = document.createElement('div');
+    el.className = 'desktop-icon';
+    el.style.left = positions[i][0] + 'px';
+    el.style.top = positions[i][1] + 'px';
+    el.innerHTML = `<div class="icon-img">${app.icon}</div><span>${app.name}</span>`;
+    el.ondblclick = () => openApp(app.id);
+    desktop.appendChild(el);
+  });
+
+  // Start menu grid
+  const grid = document.getElementById('sm-apps-grid');
+  apps.forEach(app => {
+    const el = document.createElement('div');
+    el.className = 'sm-app';
+    el.innerHTML = `<span class="sm-icon">${app.icon}</span><span>${app.name}</span>`;
+    el.onclick = () => { openApp(app.id); closeStartMenu(); };
+    grid.appendChild(el);
+  });
+
+  // Desktop right-click
+  desktop.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    showCtxMenu(e.clientX, e.clientY, [
+      { label: '🔄 Refresh Desktop', action: () => {} },
+      { label: '📋 Paste', action: () => {} },
+      { sep: true },
+      { label: '🖥️ Display Settings', action: () => openApp('settings') },
+      { label: '⚙️ System Settings', action: () => openApp('settings') },
+    ]);
+  });
+}
+
+// ========================
+// WINDOW SYSTEM
+// ========================
+function openApp(id) {
+  if (windows[id]) {
+    // Bring to front
+    const win = document.getElementById('win-' + id);
+    if (win) {
+      win.classList.remove('minimized');
+      bringToFront(id);
+      return;
+    }
+  }
+
+  const app = apps.find(a => a.id === id);
+  if (!app) return;
+
+  const win = document.createElement('div');
+  win.className = 'window focused';
+  win.id = 'win-' + id;
+  win.style.width = app.defaultW + 'px';
+  win.style.height = app.defaultH + 'px';
+  // Cascade windows
+  const offset = Object.keys(windows).length * 24;
+  win.style.left = Math.min(Math.max(100 + offset, 100), window.innerWidth - app.defaultW - 40) + 'px';
+  win.style.top = Math.min(Math.max(60 + offset, 40), window.innerHeight - app.defaultH - 80) + 'px';
+  win.style.zIndex = ++zCounter;
+
+  win.innerHTML = `
+    <div class="titlebar" id="tb-${id}">
+      <div class="titlebar-btns">
+        <button class="tbtn close" onclick="closeWin('${id}')"></button>
+        <button class="tbtn min"   onclick="minimizeWin('${id}')"></button>
+        <button class="tbtn max"   onclick="maximizeWin('${id}')"></button>
+      </div>
+      <span class="titlebar-icon">${app.icon}</span>
+      <span class="titlebar-title">${app.name}</span>
+      <div style="width:52px"></div>
+    </div>
+    <div class="window-body" id="body-${id}">${buildAppContent(id)}</div>
+    <div class="resize-handle" id="rh-${id}"></div>
+  `;
+
+  document.getElementById('desktop').appendChild(win);
+  windows[id] = { id, minimized: false, title: app.name, icon: app.icon };
+
+  makeDraggable(win, document.getElementById('tb-' + id));
+  makeResizable(win, document.getElementById('rh-' + id));
+  win.addEventListener('mousedown', () => bringToFront(id));
+
+  updateTaskbar();
+  bringToFront(id);
+  initAppLogic(id);
+}
+
+function buildAppContent(id) {
+  switch(id) {
+    case 'browser': return buildBrowser();
+    case 'editor':  return buildEditor();
+    case 'terminal':return buildTerminal();
+    case 'files':   return buildFiles();
+    case 'calc':    return buildCalc();
+    case 'notes':   return buildNotes();
+    case 'music':   return buildMusic();
+    case 'settings':return buildSettings();
+    case 'clock':   return buildClock();
+    default: return `<div style="padding:20px;color:var(--text-dim)">App not found</div>`;
+  }
+}
+
+function closeWin(id) {
+  const win = document.getElementById('win-' + id);
+  if (win) win.remove();
+  delete windows[id];
+  if (id === 'music') { clearInterval(musicInterval); musicPlaying = false; }
+  updateTaskbar();
+}
+
+function minimizeWin(id) {
+  const win = document.getElementById('win-' + id);
+  if (win) win.classList.add('minimized');
+  windows[id].minimized = true;
+  updateTaskbar();
+}
+
+function maximizeWin(id) {
+  const win = document.getElementById('win-' + id);
+  if (!win) return;
+  if (win.dataset.restored) {
+    win.style.left = win.dataset.ox; win.style.top = win.dataset.oy;
+    win.style.width = win.dataset.ow; win.style.height = win.dataset.oh;
+    delete win.dataset.restored;
+  } else {
+    win.dataset.ox = win.style.left; win.dataset.oy = win.style.top;
+    win.dataset.ow = win.style.width; win.dataset.oh = win.style.height;
+    win.style.left = '0'; win.style.top = '0';
+    win.style.width = '100vw'; win.style.height = 'calc(100vh - 44px)';
+    win.dataset.restored = '1';
+  }
+}
+
+function bringToFront(id) {
+  if (focusedWindow && focusedWindow !== id) {
+    const prev = document.getElementById('win-' + focusedWindow);
+    if (prev) prev.classList.remove('focused');
+  }
+  const win = document.getElementById('win-' + id);
+  if (win) { win.style.zIndex = ++zCounter; win.classList.add('focused'); }
+  focusedWindow = id;
+  updateTaskbar();
+}
+
+// ========================
+// TASKBAR
+// ========================
+function updateTaskbar() {
+  const bar = document.getElementById('taskbar-apps');
+  bar.innerHTML = '';
+  Object.values(windows).forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'taskbar-item' + (focusedWindow === w.id && !w.minimized ? ' active' : '');
+    el.innerHTML = `<span>${w.icon}</span><span style="max-width:100px;overflow:hidden;text-overflow:ellipsis">${w.title}</span>`;
+    el.onclick = () => {
+      const win = document.getElementById('win-' + w.id);
+      if (!win) return;
+      if (win.classList.contains('minimized')) {
+        win.classList.remove('minimized');
+        windows[w.id].minimized = false;
+        bringToFront(w.id);
+      } else if (focusedWindow === w.id) {
+        minimizeWin(w.id);
+      } else {
+        bringToFront(w.id);
+      }
+    };
+    bar.appendChild(el);
+  });
+}
+
+// ========================
+// DRAG & RESIZE
+// ========================
+function makeDraggable(win, handle) {
+  let ox, oy, wx, wy, dragging = false;
+  handle.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('tbtn')) return;
+    dragging = true;
+    ox = e.clientX; oy = e.clientY;
+    wx = win.offsetLeft; wy = win.offsetTop;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - ox, dy = e.clientY - oy;
+    win.style.left = Math.max(0, Math.min(wx + dx, window.innerWidth - win.offsetWidth)) + 'px';
+    win.style.top  = Math.max(0, Math.min(wy + dy, window.innerHeight - 44 - win.offsetHeight)) + 'px';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+}
+
+function makeResizable(win, handle) {
+  let dragging = false, ox, oy, ow, oh;
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    ox = e.clientX; oy = e.clientY;
+    ow = win.offsetWidth; oh = win.offsetHeight;
+    e.preventDefault(); e.stopPropagation();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    win.style.width  = Math.max(300, ow + e.clientX - ox) + 'px';
+    win.style.height = Math.max(200, oh + e.clientY - oy) + 'px';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+}
+
+// ========================
+// CLOCK
+// ========================
+function updateClock() {
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const d = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const el = document.getElementById('clock-time');
+  const del = document.getElementById('clock-date-taskbar');
+  if (el) el.textContent = t;
+  if (del) del.textContent = d;
+  // Update clock app
+  const ca = document.getElementById('clock-digital');
+  const cd = document.getElementById('clock-date-display');
+  if (ca) ca.textContent = t;
+  if (cd) cd.textContent = d;
+  drawAnalogClock(now);
+}
+
+function drawAnalogClock(now) {
+  const canvas = document.getElementById('analog-clock');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 90, cy = 90, r = 82;
+  ctx.clearRect(0,0,180,180);
+
+  // Face
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle = '#161b22'; ctx.fill();
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Ticks
+  for (let i=0;i<60;i++) {
+    const a = (i/60)*Math.PI*2 - Math.PI/2;
+    const len = i%5===0?10:4;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*(r-len), cy+Math.sin(a)*(r-len));
+    ctx.lineTo(cx+Math.cos(a)*(r-2), cy+Math.sin(a)*(r-2));
+    ctx.strokeStyle = i%5===0?'#58a6ff':'#30363d';
+    ctx.lineWidth = i%5===0?2:1; ctx.stroke();
+  }
+
+  const h = now.getHours()%12, m = now.getMinutes(), s = now.getSeconds();
+  const hand = (angle, len, w, color) => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx+Math.cos(angle)*len, cy+Math.sin(angle)*len);
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.stroke();
+  };
+  hand((h/12+m/720)*Math.PI*2 - Math.PI/2, r*0.55, 4, '#f0f6fc');
+  hand((m/60+s/3600)*Math.PI*2 - Math.PI/2, r*0.75, 2.5, '#c9d1d9');
+  hand(s/60*Math.PI*2 - Math.PI/2, r*0.82, 1.5, '#58a6ff');
+
+  ctx.beginPath(); ctx.arc(cx,cy,4,0,Math.PI*2);
+  ctx.fillStyle = '#58a6ff'; ctx.fill();
+}
+
+// ========================
+// TERMINAL LOGIC
+// ========================
+let fsTree = {
+  '/': { home: 'dir', etc: 'dir', usr: 'dir', var: 'dir', tmp: 'dir' },
+  '/home': { user: 'dir' },
+  '/home/user': { 'readme.txt':'file', 'notes.md':'file', 'projects':'dir', '.bashrc':'file', 'Desktop':'dir' },
+  '/home/user/Desktop': { 'browser.lnk':'file', 'terminal.lnk':'file' },
+  '/home/user/projects': { 'hello.py':'file', 'index.html':'file', 'style.css':'file' },
+  '/etc': { 'hosts':'file', 'passwd':'file', 'os-release':'file', 'hostname':'file' },
+  '/usr': { bin:'dir', lib:'dir', share:'dir' },
+  '/usr/bin': { 'python3':'file', 'bash':'file', 'ls':'file' },
+  '/var': { log:'dir', tmp:'dir' },
+  '/tmp': {},
+};
+let fileContents = {
+  '/home/user/readme.txt': 'Welcome to HyperZOS!\nThis is a simulated terminal.\nType "help" for available commands.',
+  '/home/user/notes.md': '# Notes\n- Try different commands\n- Type help for more\n- Use cd, ls, cat to navigate',
+  '/home/user/.bashrc': '# HyperZOS bash config\nexport PS1="user@hyperzos:$PWD$ "\nexport PATH=/usr/bin:$PATH',
+  '/etc/hosts': '127.0.0.1 localhost\n::1       localhost\n127.0.1.1 hyperzos',
+  '/etc/os-release': 'NAME="HyperZOS"\nVERSION="1.0.0"\nID=hyperzos\nPRETTY_NAME="HyperZOS 1.0.0"',
+  '/etc/hostname': 'hyperzos',
+  '/etc/passwd': 'root:x:0:0:root:/root:/bin/bash\nuser:x:1000:1000:User:/home/user:/bin/bash',
+  '/home/user/projects/hello.py': 'print("Hello, HyperZOS!")\n\nfor i in range(5):\n    print(f"Count: {i}")',
+  '/home/user/projects/index.html': '<!DOCTYPE html>\n<html>\n<head><title>My Page</title></head>\n<body>\n  <h1>Hello from HyperZOS!</h1>\n</body>\n</html>',
+  '/home/user/projects/style.css': 'body {\n  background: #0d1117;\n  color: #c9d1d9;\n  font-family: monospace;\n}',
+};
+let cwd = '/home/user';
+
+function execCmd(cmd) {
+  const parts = cmd.trim().split(/\s+/);
+  const c = parts[0];
+  const args = parts.slice(1);
+  switch(c) {
+    case '': return '';
+    case 'help': return `<span class="term-info">HyperZOS Terminal — Available commands:
+  Navigation : ls [dir]  cd [dir]  pwd
+  Files      : cat &lt;file&gt;  touch &lt;file&gt;  mkdir &lt;dir&gt;  rm &lt;file&gt;
+  Text       : echo &lt;text&gt;  grep &lt;pattern&gt; &lt;file&gt;
+  System     : date  whoami  uname [-a]  hostname  uptime  env
+  Fun        : neofetch  cowsay [msg]  history  clear  banner &lt;text&gt;</span>`;
+    case 'ls': {
+      const dir = args[0] ? resolvePath(args[0]) : cwd;
+      const contents = fsTree[dir];
+      if (!contents) return `<span class="term-error">ls: cannot access '${args[0]||cwd}': No such file or directory</span>`;
+      const entries = Object.entries(contents);
+      if (entries.length === 0) return '';
+      return entries.map(([k,v]) =>
+        v==='dir'
+          ? `<span style="color:#58a6ff;font-weight:600">${k}/</span>`
+          : k.startsWith('.') ? `<span style="color:var(--text-dim)">${k}</span>` : k
+      ).join('  ');
+    }
+    case 'pwd': return cwd;
+    case 'cd': {
+      const target = args[0] ? resolvePath(args[0]) : '/home/user';
+      if (fsTree[target] !== undefined) {
+        cwd = target;
+        const lbl = document.getElementById('term-prompt-label');
+        if (lbl) lbl.textContent = `user@hyperzos:${cwd}$ `;
+        return '';
+      }
+      return `<span class="term-error">cd: ${args[0]}: No such file or directory</span>`;
+    }
+    case 'cat': {
+      if (!args[0]) return `<span class="term-error">cat: missing operand</span>`;
+      const path = resolvePath(args[0]);
+      return fileContents[path]
+        ? escHtml(fileContents[path]).replace(/\n/g,'<br>')
+        : `<span class="term-error">cat: ${args[0]}: No such file or directory</span>`;
+    }
+    case 'echo': return escHtml(args.join(' '));
+    case 'grep': {
+      if (args.length < 2) return `<span class="term-error">grep: usage: grep &lt;pattern&gt; &lt;file&gt;</span>`;
+      const pattern = args[0], filePath = resolvePath(args[1]);
+      const content = fileContents[filePath];
+      if (!content) return `<span class="term-error">grep: ${args[1]}: No such file</span>`;
+      const lines = content.split('\n').filter(l => l.includes(pattern));
+      return lines.length ? lines.map(l => escHtml(l).replace(escHtml(pattern), `<span style="color:var(--accent3);font-weight:600">${escHtml(pattern)}</span>`)).join('<br>') : '';
+    }
+    case 'date': return new Date().toString();
+    case 'whoami': return 'user';
+    case 'hostname': return 'hyperzos';
+    case 'uptime': return `up 0 days, 0:${String(Math.floor(Math.random()*59)).padStart(2,'0')}, 1 user, load average: 0.${Math.floor(Math.random()*99)}, 0.${Math.floor(Math.random()*99)}, 0.${Math.floor(Math.random()*99)}`;
+    case 'env': return `HOME=/home/user\nUSER=user\nSHELL=/bin/bash\nPATH=/usr/bin:/bin\nTERM=xterm-256color\nOS=HyperZOS`;
+    case 'uname': return args.includes('-a') ? 'HyperZOS 6.8.2-hyperzos #1 SMP x86_64 GNU/Linux' : 'HyperZOS';
+    case 'history': return termHistory.map((h,i)=>`<span style="color:var(--text-dim)">${String(termHistory.length-i).padStart(4,' ')}</span>  ${escHtml(h)}`).join('<br>');
+    case 'clear': {
+      const out = document.getElementById('term-output');
+      if (out) out.innerHTML = '';
+      return null;
+    }
+    case 'mkdir': {
+      if (!args[0]) return `<span class="term-error">mkdir: missing operand</span>`;
+      const newDir = resolvePath(args[0]);
+      const parentDir = newDir.split('/').slice(0,-1).join('/') || '/';
+      const dirName = newDir.split('/').pop();
+      if (!fsTree[parentDir]) return `<span class="term-error">mkdir: cannot create directory '${args[0]}': No such file or directory</span>`;
+      if (fsTree[parentDir][dirName]) return `<span class="term-error">mkdir: cannot create directory '${args[0]}': File exists</span>`;
+      fsTree[parentDir][dirName] = 'dir';
+      fsTree[newDir] = {};
+      fmRefreshIfOpen();
+      return '';
+    }
+    case 'touch': {
+      if (!args[0]) return `<span class="term-error">touch: missing operand</span>`;
+      const newFile = resolvePath(args[0]);
+      const parentDir2 = newFile.split('/').slice(0,-1).join('/') || '/';
+      const fileName = newFile.split('/').pop();
+      if (!fsTree[parentDir2]) return `<span class="term-error">touch: cannot touch '${args[0]}': No such file or directory</span>`;
+      fsTree[parentDir2][fileName] = 'file';
+      if (fileContents[newFile] === undefined) fileContents[newFile] = '';
+      fmRefreshIfOpen();
+      return '';
+    }
+    case 'rm': {
+      if (!args[0]) return `<span class="term-error">rm: missing operand</span>`;
+      const target = resolvePath(args[0]);
+      const parentDir3 = target.split('/').slice(0,-1).join('/') || '/';
+      const targetName = target.split('/').pop();
+      if (!fsTree[parentDir3] || !fsTree[parentDir3][targetName]) return `<span class="term-error">rm: cannot remove '${args[0]}': No such file or directory</span>`;
+      if (fsTree[parentDir3][targetName] === 'dir' && !args.includes('-r') && !args.includes('-rf')) return `<span class="term-error">rm: cannot remove '${args[0]}': Is a directory (use rm -r)</span>`;
+      delete fsTree[parentDir3][targetName];
+      delete fileContents[target];
+      if (args.includes('-r') || args.includes('-rf')) delete fsTree[target];
+      fmRefreshIfOpen();
+      return '';
+    }
+    case 'write':
+    case 'nano':
+    case 'vi':
+    case 'vim': {
+      if (!args[0]) return `<span class="term-error">${c}: missing filename</span>`;
+      const filePath = resolvePath(args[0]);
+      const parentD = filePath.split('/').slice(0,-1).join('/') || '/';
+      const fName = filePath.split('/').pop();
+      if (!fsTree[parentD]) return `<span class="term-error">${c}: ${args[0]}: No such file or directory</span>`;
+      openApp('editor');
+      setTimeout(() => {
+        const ta = document.getElementById('editor-ta');
+        const fn = document.getElementById('ed-filename');
+        const content = fileContents[filePath] || '';
+        if (ta) { ta.value = content; ta.dispatchEvent(new Event('input')); ta.focus(); }
+        if (fn) fn.value = fName;
+        const win = document.getElementById('win-editor');
+        if (win) win.dataset.filePath = filePath;
+        // Make sure file exists in tree
+        if (!fsTree[parentD][fName]) { fsTree[parentD][fName] = 'file'; fileContents[filePath] = content; }
+      }, 150);
+      return `<span class="term-info">Opening ${args[0]} in HyperZOS Editor...</span>`;
+    }
+    case 'neofetch': return `<span style="color:var(--accent)">  ██╗  ██╗██╗   ██╗██████╗ ███████╗██████╗ ███████╗ ██████╗ ███████╗
+  ██║  ██║╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗╚════██║██╔═══██╗██╔════╝
+  ███████║ ╚████╔╝ ██████╔╝█████╗  ██████╔╝    ██╔╝██║   ██║███████╗
+  ██╔══██║  ╚██╔╝  ██╔═══╝ ██╔══╝  ██╔══██╗   ██╔╝ ██║   ██║╚════██║
+  ██║  ██║   ██║   ██║     ███████╗██║  ██║   ██║  ╚██████╔╝███████║
+  ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚══════╝</span>
+  <span style="color:var(--text-bright)">user@hyperzos</span>  <span style="color:var(--text-dim)">OS:</span> HyperZOS 1.0.0
+                 <span style="color:var(--text-dim)">Kernel:</span> 6.8.2-hyperzos
+                 <span style="color:var(--text-dim)">Shell:</span> hypershell 1.0
+                 <span style="color:var(--text-dim)">Resolution:</span> ${window.innerWidth}x${window.innerHeight}
+                 <span style="color:var(--text-dim)">Theme:</span> Dark Futura
+                 <span style="color:var(--text-dim)">Font:</span> IBM Plex Mono
+                 <span style="color:var(--text-dim)">Memory:</span> 8192 MB (simulated)`;
+    case 'cowsay': {
+      const msg = args.join(' ') || 'Moo!';
+      const line = '-'.repeat(msg.length+2);
+      return escHtml(`+${line}+\n| ${msg} |\n+${line}+\n        \\   ^__^\n         \\  (oo)\\_______\n            (__)\\       )\\/\\\n                ||----w |\n                ||     ||`).replace(/\n/g,'<br>');
+    }
+    case 'banner': {
+      const msg = (args.join(' ') || 'HyperZOS').toUpperCase().slice(0,10);
+      return `<span style="color:var(--accent);font-size:16px;line-height:1.2">${msg}</span>`;
+    }
+    default: return `<span class="term-error">hypershell: ${escHtml(c)}: command not found — type 'help'</span>`;
+  }
+}
+
+function resolvePath(p) {
+  if (!p) return cwd;
+  if (p === '~') return '/home/user';
+  if (p === '/') return '/';
+  if (p === '..') {
+    const parts = cwd.split('/').filter(Boolean);
+    parts.pop();
+    return parts.length === 0 ? '/' : '/' + parts.join('/');
+  }
+  if (p.startsWith('~/')) return '/home/user/' + p.slice(2);
+  if (p.startsWith('/')) return p.replace(/\/$/, '') || '/';
+  return (cwd === '/' ? '' : cwd) + '/' + p;
+}
+
+function initAppLogic(id) {
+  if (id === 'terminal') initTerminal();
+  if (id === 'clock') { updateClock(); }
+  if (id === 'editor') initEditor();
+  if (id === 'music') initMusic();
+  if (id === 'notes') { setTimeout(() => { renderNotesList(); selectNote(activeNote); }, 50); }
+  if (id === 'browser') { setTimeout(() => renderBrowserTabs(), 50); }
+  if (id === 'files') { setTimeout(() => { fmCwd = '/home/user'; fmHistory = ['/home/user']; fmHistIdx = 0; fmRender(); }, 50); }
+}
+
+function initTerminal() {
+  const input = document.getElementById('term-cmd');
+  if (!input) return;
+  // Focus immediately and whenever the window is clicked
+  setTimeout(() => input.focus(), 80);
+  const winEl = document.getElementById('win-terminal');
+  if (winEl) winEl.addEventListener('mousedown', () => setTimeout(() => input.focus(), 10));
+  addTermLine(`<span class="term-info">HyperZOS Terminal — type "help" for commands</span>`);
+  addTermLine(`<span class="term-info">Logged in as user on hyperzos. Tab-completion supported.</span>`);
+  const lbl = document.getElementById('term-prompt-label');
+  if (lbl) lbl.textContent = `user@hyperzos:${cwd}$ `;
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const cmd = input.value.trim();
+      input.value = '';
+      if (!cmd) { scrollTerm(); return; }
+      termHistory.unshift(cmd);
+      termHistIdx = -1;
+      addTermLine(`<span class="term-prompt">user@hyperzos:${cwd}$</span> ${escHtml(cmd)}`);
+      const result = execCmd(cmd);
+      if (result !== null && result !== '') addTermLine(result);
+      scrollTerm();
+      const lbl2 = document.getElementById('term-prompt-label');
+      if (lbl2) lbl2.textContent = `user@hyperzos:${cwd}$ `;
+    } else if (e.key === 'ArrowUp') {
+      termHistIdx = Math.min(termHistIdx + 1, termHistory.length - 1);
+      input.value = termHistory[termHistIdx] || '';
+      e.preventDefault();
+    } else if (e.key === 'ArrowDown') {
+      termHistIdx = Math.max(termHistIdx - 1, -1);
+      input.value = termHistIdx >= 0 ? termHistory[termHistIdx] : '';
+      e.preventDefault();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const partial = input.value.split(' ').pop();
+      const contents = fsTree[cwd];
+      if (contents) {
+        const matches = Object.keys(contents).filter(k => k.startsWith(partial));
+        if (matches.length === 1) {
+          const parts2 = input.value.split(' ');
+          parts2[parts2.length-1] = matches[0];
+          input.value = parts2.join(' ');
+        } else if (matches.length > 1) {
+          addTermLine(matches.join('  '));
+          scrollTerm();
+        }
+      }
+    } else if (e.key === 'c' && e.ctrlKey) {
+      input.value = '';
+      addTermLine(`<span class="term-prompt">user@hyperzos:${cwd}$</span> ^C`);
+      scrollTerm();
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault();
+      const out = document.getElementById('term-output');
+      if (out) out.innerHTML = '';
+    }
+  });
+}
+
+function addTermLine(html) {
+  const out = document.getElementById('term-output');
+  if (!out) return;
+  const div = document.createElement('div');
+  div.className = 'term-line';
+  div.innerHTML = html;
+  out.appendChild(div);
+}
+function scrollTerm() {
+  const out = document.getElementById('term-output');
+  if (out) out.parentElement.scrollTop = out.parentElement.scrollHeight;
+}
+
+// ========================
+// EDITOR LOGIC
+// ========================
+function initEditor() {
+  const ta = document.getElementById('editor-ta');
+  const lines = document.getElementById('editor-lines');
+  if (!ta) return;
+  function updateLines() {
+    const n = ta.value.split('\n').length;
+    lines.innerHTML = Array.from({length:n},(_,i)=>i+1).join('<br>');
+    const el = document.getElementById('ed-stat-ln');
+    if (el) {
+      const pos = ta.selectionStart;
+      const ln = ta.value.substr(0, pos).split('\n').length;
+      const col = pos - ta.value.lastIndexOf('\n', pos - 1);
+      el.textContent = `Ln ${ln}, Col ${col}`;
+    }
+    updateEditorFileType();
+  }
+  ta.addEventListener('input', updateLines);
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = ta.selectionStart, end = ta.selectionEnd;
+      ta.value = ta.value.substring(0,s) + '  ' + ta.value.substring(end);
+      ta.selectionStart = ta.selectionEnd = s + 2;
+      updateLines();
+    }
+    // Ctrl+S to save
+    if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      saveEditorFile();
+    }
+  });
+  ta.addEventListener('scroll', () => { lines.scrollTop = ta.scrollTop; });
+  ta.addEventListener('click', updateLines);
+  ta.addEventListener('keyup', updateLines);
+  updateLines();
+}
+
+function updateEditorFileType() {
+  const fn = document.getElementById('ed-filename');
+  const typeEl = document.getElementById('ed-stat-type');
+  if (!fn || !typeEl) return;
+  const ext = fn.value.split('.').pop().toLowerCase();
+  const types = { txt:'Plain Text', md:'Markdown', html:'HTML', css:'CSS', js:'JavaScript', py:'Python', json:'JSON', sh:'Shell', ts:'TypeScript', jsx:'JSX', c:'C', cpp:'C++', java:'Java' };
+  typeEl.textContent = types[ext] || ext.toUpperCase();
+}
+
+function saveEditorFile() {
+  const ta = document.getElementById('editor-ta');
+  const fn = document.getElementById('ed-filename');
+  const win = document.getElementById('win-editor');
+  if (!ta || !fn) return;
+
+  const filename = fn.value.trim() || 'untitled.txt';
+  const content = ta.value;
+
+  // Determine save path
+  let savePath = win && win.dataset.filePath ? win.dataset.filePath : null;
+
+  if (!savePath) {
+    // Default save location: /home/user/<filename>
+    savePath = '/home/user/' + filename;
+  } else {
+    // Update filename in path if filename changed
+    const dir = savePath.split('/').slice(0,-1).join('/') || '/';
+    const oldName = savePath.split('/').pop();
+    if (oldName !== filename) {
+      // Remove old entry from fsTree
+      if (fsTree[dir]) delete fsTree[dir][oldName];
+      savePath = dir + '/' + filename;
+    }
+  }
+
+  // Save content
+  fileContents[savePath] = content;
+
+  // Ensure file is in fsTree
+  const dir = savePath.split('/').slice(0,-1).join('/') || '/';
+  const name = savePath.split('/').pop();
+  if (!fsTree[dir]) fsTree[dir] = {};
+  fsTree[dir][name] = 'file';
+
+  // Update editor's tracked path
+  if (win) win.dataset.filePath = savePath;
+  if (fn) fn.value = name;
+
+  // Show saved indicator
+  const savedEl = document.getElementById('ed-stat-saved');
+  if (savedEl) {
+    savedEl.textContent = '✓ Saved';
+    setTimeout(() => { if(savedEl) savedEl.textContent = ''; }, 2000);
+  }
+
+  notify('Editor', `Saved: ${savePath}`);
+  fmRefreshIfOpen();
+}
+
+function saveEditorFileAs() {
+  const fn = document.getElementById('ed-filename');
+  const current = fn ? fn.value : 'untitled.txt';
+  const newName = prompt('Save as (filename):', current);
+  if (!newName) return;
+  const win = document.getElementById('win-editor');
+  // Reset filepath so it saves fresh
+  if (win) win.dataset.filePath = '/home/user/' + newName.trim();
+  if (fn) fn.value = newName.trim();
+  saveEditorFile();
+}
+
+// ========================
+// CALCULATOR LOGIC
+// ========================
+let calcExpr = '', calcVal = '0', calcJustEq = false;
+
+function calcInput(val) {
+  if (val === 'C') { calcExpr = ''; calcVal = '0'; calcJustEq = false; }
+  else if (val === '⌫') {
+    calcVal = calcVal.length > 1 ? calcVal.slice(0,-1) : '0';
+  }
+  else if (val === '=') {
+    try {
+      calcExpr = calcVal + ' =';
+      calcVal = String(eval(calcVal.replace(/×/g,'*').replace(/÷/g,'/')));
+      calcJustEq = true;
+    } catch { calcVal = 'Error'; }
+  }
+  else if (['+','-','×','÷','%'].includes(val)) {
+    calcJustEq = false;
+    calcVal += val;
+  }
+  else {
+    if (calcJustEq) { calcVal = val; calcJustEq = false; }
+    else calcVal = calcVal === '0' ? val : calcVal + val;
+  }
+  const dv = document.getElementById('calc-display-val');
+  const de = document.getElementById('calc-display-expr');
+  if (dv) dv.textContent = calcVal.length > 12 ? parseFloat(calcVal).toExponential(4) : calcVal;
+  if (de) de.textContent = calcExpr;
+}
+
+// ========================
+// NOTES LOGIC
+// ========================
+function renderNotesList() {
+  const list = document.getElementById('notes-list-el');
+  if (!list) return;
+  list.innerHTML = notesList.map(n => `
+    <div class="note-item ${n.id === activeNote ? 'active' : ''}" onclick="selectNote(${n.id})">
+      <div class="note-item-title">${escHtml(n.title)}</div>
+      <div class="note-item-preview">${escHtml(n.content.split('\n')[0])}</div>
+    </div>
+  `).join('');
+}
+
+function selectNote(id) {
+  activeNote = id;
+  const note = notesList.find(n => n.id === id);
+  if (!note) return;
+  const ti = document.getElementById('note-title-input');
+  const ci = document.getElementById('note-content-input');
+  if (ti) ti.value = note.title;
+  if (ci) ci.value = note.content;
+  renderNotesList();
+}
+
+function newNote() {
+  const id = Date.now();
+  notesList.unshift({ id, title: 'New Note', content: '' });
+  activeNote = id;
+  renderNotesList();
+  selectNote(id);
+}
+
+function saveCurrentNote() {
+  const ti = document.getElementById('note-title-input');
+  const ci = document.getElementById('note-content-input');
+  const note = notesList.find(n => n.id === activeNote);
+  if (note && ti && ci) { note.title = ti.value; note.content = ci.value; renderNotesList(); }
+}
+
+// ========================
+// MUSIC LOGIC
+// ========================
+function initMusic() {
+  renderMusicTrack();
+}
+
+function renderMusicTrack() {
+  const track = musicTracks[currentTrack];
+  const title = document.getElementById('music-title');
+  const artist = document.getElementById('music-artist');
+  const cover = document.getElementById('music-cover');
+  if (title) title.textContent = track.title;
+  if (artist) artist.textContent = track.artist;
+  if (cover) cover.textContent = track.emoji;
+  updateMusicProgress();
+}
+
+function toggleMusic() {
+  musicPlaying = !musicPlaying;
+  const btn = document.getElementById('music-play-btn');
+  const cover = document.getElementById('music-cover');
+  if (btn) btn.textContent = musicPlaying ? '⏸' : '▶';
+  if (cover) cover.classList.toggle('playing', musicPlaying);
+  if (musicPlaying) {
+    musicInterval = setInterval(() => {
+      musicProgress = (musicProgress + 0.5) % 100;
+      updateMusicProgress();
+    }, 300);
+  } else {
+    clearInterval(musicInterval);
+  }
+}
+
+function nextTrack() {
+  currentTrack = (currentTrack + 1) % musicTracks.length;
+  musicProgress = 0;
+  renderMusicTrack();
+}
+function prevTrack() {
+  currentTrack = (currentTrack - 1 + musicTracks.length) % musicTracks.length;
+  musicProgress = 0;
+  renderMusicTrack();
+}
+
+function updateMusicProgress() {
+  const fill = document.getElementById('music-progress-fill');
+  const cur = document.getElementById('music-time-cur');
+  const tot = document.getElementById('music-time-tot');
+  if (fill) fill.style.width = musicProgress + '%';
+  const totalSecs = 222;
+  const curSecs = Math.floor(totalSecs * musicProgress / 100);
+  if (cur) cur.textContent = `${Math.floor(curSecs/60)}:${String(curSecs%60).padStart(2,'0')}`;
+  if (tot) tot.textContent = `${Math.floor(totalSecs/60)}:${String(totalSecs%60).padStart(2,'0')}`;
+}
+
+// ========================
+// FILE MANAGER LOGIC
+// ========================
+let fmCwd = '/home/user';
+let fmHistory = ['/home/user'];
+let fmHistIdx = 0;
+let fmViewGrid = true;
+let fmSelected = null;
+
+const fmFileIcons = {
+  '.txt': '📄', '.md': '📝', '.py': '🐍', '.html': '🌐',
+  '.css': '🎨', '.js': '⚡', '.json': '📋', '.lnk': '🔗',
+  '.jpg': '🖼️', '.png': '🖼️', '.gif': '🖼️', '.mp3': '🎵',
+  '.mp4': '🎬', '.zip': '📦', '.pdf': '📕', '.sh': '⚙️',
+};
+function fmGetIcon(name, type) {
+  if (type === 'dir') return '📁';
+  const ext = '.' + name.split('.').pop();
+  return fmFileIcons[ext] || '📄';
+}
+
+function fmNavigate(path, addToHistory = true) {
+  if (fsTree[path] !== undefined) {
+    fmCwd = path;
+    fmSelected = null;
+    if (addToHistory) {
+      fmHistory = fmHistory.slice(0, fmHistIdx + 1);
+      fmHistory.push(path);
+      fmHistIdx = fmHistory.length - 1;
+    }
+    fmRender();
+  } else {
+    fmShowFilePreview(path);
+  }
+}
+
+function getFileType(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const types = { txt:'Text', md:'Markdown', html:'HTML', css:'CSS', js:'JavaScript', py:'Python', json:'JSON', sh:'Shell Script', lnk:'Shortcut', jpg:'Image', png:'Image', gif:'Image', mp3:'Audio', mp4:'Video', bashrc:'Config' };
+  return types[ext] || (ext.toUpperCase() + ' File');
+}
+
+function fmRender() {
+  const main = document.getElementById('fm-main-area');
+  const pathEl = document.getElementById('fm-path');
+  const status = document.getElementById('fm-statusbar');
+  const backBtn = document.getElementById('fm-back-btn');
+  const fwdBtn = document.getElementById('fm-fwd-btn');
+  if (!main) return;
+  if (pathEl) pathEl.value = fmCwd;
+  if (backBtn) backBtn.style.opacity = fmHistIdx > 0 ? '1' : '0.4';
+  if (fwdBtn) fwdBtn.style.opacity = fmHistIdx < fmHistory.length - 1 ? '1' : '0.4';
+
+  const contents = fsTree[fmCwd] || {};
+  const entries = Object.entries(contents);
+
+  // Update sidebar active states
+  document.querySelectorAll('.fm-sidebar-item').forEach(el => {
+    const oc = el.getAttribute('onclick') || '';
+    el.classList.toggle('active', oc.includes(`'${fmCwd}'`));
+  });
+
+  if (fmViewGrid) {
+    main.innerHTML = `<div class="fm-grid">${entries.length === 0
+      ? '<div style="color:var(--text-dim);font-size:11px;padding:20px;grid-column:1/-1">This folder is empty</div>'
+      : entries.map(([name, type]) => `
+        <div class="fm-item ${fmSelected===name?'selected':''}" onclick="fmSelect('${name}')" ondblclick="fmOpen('${name}','${type}')">
+          <span class="fm-icon">${fmGetIcon(name, type)}</span>
+          <span>${escHtml(name)}</span>
+        </div>`).join('')
+    }</div>`;
+  } else {
+    main.innerHTML = `
+      <div style="display:flex;padding:4px 8px 2px;font-size:10px;color:var(--text-dim);border-bottom:1px solid var(--border);gap:0;user-select:none">
+        <span style="flex:1">Name</span><span style="width:90px">Type</span><span style="width:60px;text-align:right">Size</span>
+      </div>
+      <div style="padding:2px">${entries.length === 0
+        ? '<div style="color:var(--text-dim);font-size:11px;padding:12px">This folder is empty</div>'
+        : entries.map(([name, type]) => {
+            const fp = fmJoinPath(fmCwd, name);
+            const size = type==='file' && fileContents[fp] ? fileContents[fp].length + ' B' : '—';
+            return `<div class="fm-list-row ${fmSelected===name?'fm-list-selected':''}" onclick="fmSelect('${name}')" ondblclick="fmOpen('${name}','${type}')">
+              <span style="font-size:15px;flex-shrink:0;margin-right:8px">${fmGetIcon(name, type)}</span>
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(name)}</span>
+              <span style="width:90px;color:var(--text-dim);font-size:10px">${type === 'dir' ? 'Folder' : getFileType(name)}</span>
+              <span style="width:60px;color:var(--text-dim);font-size:10px;text-align:right">${size}</span>
+            </div>`;
+          }).join('')
+      }</div>`;
+  }
+
+  if (status) {
+    const dirs = entries.filter(([,t])=>t==='dir').length;
+    const files = entries.filter(([,t])=>t==='file').length;
+    status.textContent = `${dirs} folder${dirs!==1?'s':''}, ${files} file${files!==1?'s':''} · ${fmCwd}`;
+  }
+}
+
+function fmSelect(name) { fmSelected = name; fmRender(); }
+
+function fmJoinPath(dir, name) {
+  if (dir === '/') return '/' + name;
+  return dir + '/' + name;
+}
+
+function fmOpen(name, type) {
+  const fullPath = fmJoinPath(fmCwd, name);
+  if (type === 'dir') {
+    fmNavigate(fullPath);
+  } else {
+    fmShowFilePreview(fullPath);
+  }
+}
+
+function fmShowFilePreview(path) {
+  const name = path.split('/').pop();
+  const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+  const content = fileContents[path];
+
+  // .html files: render live in browser
+  if (ext === 'html') {
+    openApp('browser');
+    setTimeout(() => {
+      const newtab = document.getElementById('browser-newtab-page');
+      const frame = document.getElementById('browser-frame');
+      const urlbar = document.getElementById('browser-url-bar');
+      if (newtab) newtab.style.display = 'none';
+      if (urlbar) urlbar.value = 'file://' + path;
+      if (frame) {
+        frame.style.display = 'block';
+        frame.style.flex = '1';
+        frame.removeAttribute('src');
+        const htmlSrc = content !== undefined ? content : `<html><body style="font-family:sans-serif;padding:20px;background:#0d1117;color:#c9d1d9"><h2>${name}</h2><p>Empty HTML file.</p></body></html>`;
+        frame.srcdoc = htmlSrc;
+      }
+      const tab = browserTabs.find(t => t.id === activeTabId);
+      if (tab) { tab.url = 'file://' + path; tab.title = name; }
+      renderBrowserTabs();
+    }, 150);
+    return;
+  }
+
+  // .lnk shortcut files: launch the app
+  if (ext === 'lnk') {
+    const appId = name.replace('.lnk', '');
+    const app = apps.find(a => a.id === appId || a.name.toLowerCase() === appId.toLowerCase());
+    if (app) { openApp(app.id); return; }
+    notify('Files', `Unknown shortcut: ${name}`);
+    return;
+  }
+
+  // Image/binary files — just notify
+  const binaryExts = ['jpg','jpeg','png','gif','webp','mp3','mp4','wav','ogg','zip','tar','gz'];
+  if (binaryExts.includes(ext)) {
+    notify('Files', `Cannot preview binary file: ${name}`);
+    return;
+  }
+
+  // Open any text content (even empty string) in editor
+  const textContent = content !== undefined ? content : '';
+  openApp('editor');
+  setTimeout(() => {
+    const ta = document.getElementById('editor-ta');
+    const fn = document.getElementById('ed-filename');
+    if (ta) { ta.value = textContent; ta.dispatchEvent(new Event('input')); }
+    if (fn) fn.value = name;
+    const win = document.getElementById('win-editor');
+    if (win) win.dataset.filePath = path;
+    // Ensure file exists in tree for future saves
+    const dir = path.split('/').slice(0,-1).join('/') || '/';
+    if (fsTree[dir] && !fsTree[dir][name]) {
+      fsTree[dir][name] = 'file';
+      if (fileContents[path] === undefined) fileContents[path] = '';
+    }
+    notify('Editor', `Opened: ${name}`);
+  }, 150);
+}
+
+function fmGoBack() {
+  if (fmHistIdx > 0) { fmHistIdx--; fmNavigate(fmHistory[fmHistIdx], false); }
+}
+function fmGoForward() {
+  if (fmHistIdx < fmHistory.length - 1) { fmHistIdx++; fmNavigate(fmHistory[fmHistIdx], false); }
+}
+function fmGoUp() {
+  if (fmCwd === '/') return;
+  const parts = fmCwd.split('/').filter(Boolean);
+  parts.pop();
+  fmNavigate(parts.length === 0 ? '/' : '/' + parts.join('/'));
+}
+function fmToggleView() {
+  fmViewGrid = !fmViewGrid;
+  const btn = document.getElementById('fm-view-btn');
+  if (btn) btn.textContent = fmViewGrid ? '⊞' : '≡';
+  fmRender();
+}
+
+// Refresh file manager if open
+function fmRefreshIfOpen() {
+  if (windows['files'] && document.getElementById('fm-main-area')) fmRender();
+}
+
+// ========================
+// BROWSER LOGIC
+// ========================
+let browserTabs = [
+  { id: 1, title: 'New Tab', url: '', active: true }
+];
+let activeTabId = 1;
+
+function browserNav() {
+  const raw = document.getElementById('browser-url-bar').value.trim();
+  if (!raw) return;
+  // If it looks like a search (no dots or spaces) use yep search
+  const isUrl = raw.startsWith('http') || /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/|$)/.test(raw);
+  if (!isUrl) {
+    loadBrowserUrl('https://yep.com/web?q=' + encodeURIComponent(raw));
+  } else {
+    loadBrowserUrl(raw);
+  }
+}
+
+function loadBrowserUrl(url) {
+  let full = url;
+  if (url && !url.startsWith('http')) full = 'https://' + url;
+  const urlbar = document.getElementById('browser-url-bar');
+  if (urlbar) urlbar.value = full;
+  const frame = document.getElementById('browser-frame');
+  const newtab = document.getElementById('browser-newtab-page');
+  if (!url) {
+    if (frame) frame.style.display = 'none';
+    if (newtab) newtab.style.display = 'flex';
+  } else {
+    if (newtab) newtab.style.display = 'none';
+    if (frame) {
+      frame.style.display = 'block';
+      frame.style.flex = '1';
+      frame.src = full;
+    }
+    const tab = browserTabs.find(t => t.id === activeTabId);
+    if (tab) { tab.url = full; tab.title = full.replace(/^https?:\/\//, '').split('/')[0]; }
+    renderBrowserTabs();
+  }
+}
+
+function bfrBack() {
+  const frame = document.getElementById('browser-frame');
+  if (frame && frame.src) try { frame.contentWindow.history.back(); } catch(e) {}
+}
+function bfrForward() {
+  const frame = document.getElementById('browser-frame');
+  if (frame && frame.src) try { frame.contentWindow.history.forward(); } catch(e) {}
+}
+function bfrReload() {
+  const frame = document.getElementById('browser-frame');
+  if (frame && frame.style.display !== 'none') { const s = frame.src; frame.src = ''; frame.src = s; }
+}
+
+function renderBrowserTabs() {
+  const container = document.getElementById('browser-tabs-bar');
+  if (!container) return;
+  container.innerHTML = browserTabs.map(t => `
+    <div class="browser-tab ${t.id === activeTabId ? 'active' : ''}" onclick="switchBrowserTab(${t.id})">
+      🌐 ${escHtml(t.title || 'New Tab')}
+      <span class="tab-close" onclick="closeBrowserTab(event,${t.id})">✕</span>
+    </div>
+  `).join('') + `<div class="browser-tab" onclick="newBrowserTab()" style="width:28px;justify-content:center">+</div>`;
+}
+
+function switchBrowserTab(id) {
+  activeTabId = id;
+  const tab = browserTabs.find(t => t.id === id);
+  const urlbar = document.getElementById('browser-url-bar');
+  if (urlbar && tab) urlbar.value = tab.url || '';
+  renderBrowserTabs();
+  const frame = document.getElementById('browser-frame');
+  const newtab = document.getElementById('browser-newtab-page');
+  if (!tab || !tab.url) {
+    if (frame) frame.style.display = 'none';
+    if (newtab) newtab.style.display = 'flex';
+  } else {
+    if (newtab) newtab.style.display = 'none';
+    if (frame) { frame.style.display = 'block'; frame.src = tab.url; }
+  }
+}
+
+function newBrowserTab() {
+  const id = Date.now();
+  browserTabs.push({ id, title: 'New Tab', url: '', active: false });
+  activeTabId = id;
+  switchBrowserTab(id);
+}
+
+function closeBrowserTab(e, id) {
+  e.stopPropagation();
+  if (browserTabs.length === 1) { browserTabs[0].url = ''; browserTabs[0].title = 'New Tab'; switchBrowserTab(browserTabs[0].id); return; }
+  browserTabs = browserTabs.filter(t => t.id !== id);
+  if (activeTabId === id) activeTabId = browserTabs[browserTabs.length-1].id;
+  switchBrowserTab(activeTabId);
+}
+
+// ========================
+// BUILDERS
+// ========================
+function buildBrowser() {
+  return `
+    <div class="browser-tabs" id="browser-tabs-bar"></div>
+    <div class="browser-toolbar">
+      <div class="browser-nav-btn" id="bfr-back" onclick="bfrBack()">←</div>
+      <div class="browser-nav-btn" id="bfr-fwd" onclick="bfrForward()">→</div>
+      <div class="browser-nav-btn" onclick="bfrReload()">↻</div>
+      <input class="browser-url" id="browser-url-bar" placeholder="Search with Yep or enter URL..." onkeydown="if(event.key==='Enter')browserNav()">
+      <button class="browser-go" onclick="browserNav()">Go</button>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative">
+      <div class="browser-newtab" id="browser-newtab-page">
+        <h2>🌐 HyperZOS Browser</h2>
+        <p>Powered by <strong style="color:var(--accent)">Yep</strong> search engine · Enter a URL or search above</p>
+        <div class="browser-quicklinks">
+          <div class="browser-quicklink" onclick="loadBrowserUrl('https://penguinmod.com')">
+            <span class="ql-icon">🐧</span>PenguinMod
+          </div>
+          <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.pcjs.org')">
+            <span class="ql-icon">💾</span>PCjs
+          </div>
+          <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.wikipedia.org')">
+            <span class="ql-icon">📖</span>Wikipedia
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:16px">Note: Some sites block embedding. Use the URL bar to navigate.</div>
+      </div>
+      <iframe id="browser-frame" style="display:none;flex:1;border:none;width:100%;height:100%"></iframe>
+    </div>
+  `;
+}
+
+function buildEditor() {
+  return `
+    <div class="editor-toolbar">
+      <div class="ed-btn" onclick="newEditorFile()">New</div>
+      <div class="ed-btn" onclick="saveEditorFile()" style="color:var(--accent2)">💾 Save</div>
+      <div class="ed-btn" onclick="saveEditorFileAs()">Save As…</div>
+      <div class="ed-sep"></div>
+      <div class="ed-btn" title="Bold" onclick="insertText('**','**')"><b>B</b></div>
+      <div class="ed-btn" title="Italic" onclick="insertText('_','_')"><i>I</i></div>
+      <div class="ed-btn" title="Code" onclick="insertText('\`','\`')"><code>{ }</code></div>
+      <div class="ed-sep"></div>
+      <div class="ed-btn" onclick="copyEditorContent()">📋 Copy</div>
+      <input class="editor-filename" id="ed-filename" value="untitled.txt" title="Filename">
+    </div>
+    <div class="editor-content">
+      <div class="editor-lines" id="editor-lines">1</div>
+      <textarea class="editor-textarea" id="editor-ta" spellcheck="false"># Welcome to HyperZOS Text Editor
+
+Start typing your code or text here.
+Use Tab for indentation.
+
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+
+console.log(greet("World"));</textarea>
+    </div>
+    <div class="editor-statusbar">
+      <span class="ed-status-accent" id="ed-stat-ln">Ln 1</span>
+      <span>UTF-8</span>
+      <span id="ed-stat-type">Plain Text</span>
+      <span id="ed-stat-saved" style="color:var(--accent2)"></span>
+      <span style="margin-left:auto">HyperZOS Editor v1.0</span>
+    </div>
+  `;
+}
+
+function buildTerminal() {
+  return `
+    <div class="terminal-body" id="term-output-wrap" style="flex:1;overflow-y:auto" onclick="document.getElementById('term-cmd').focus()">
+      <div id="term-output"></div>
+    </div>
+    <div class="term-input-row" onclick="document.getElementById('term-cmd').focus()">
+      <span class="term-prompt-label" id="term-prompt-label">user@hyperzos:/home/user$ </span>
+      <input class="term-input" id="term-cmd" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+  `;
+}
+
+function buildFiles() {
+  return `
+    <div class="fm-toolbar">
+      <div class="browser-nav-btn" onclick="fmGoBack()" id="fm-back-btn" style="opacity:0.4">←</div>
+      <div class="browser-nav-btn" onclick="fmGoForward()" id="fm-fwd-btn" style="opacity:0.4">→</div>
+      <div class="browser-nav-btn" onclick="fmGoUp()">↑</div>
+      <input class="fm-path" id="fm-path" value="/home/user" readonly>
+      <div class="browser-nav-btn" onclick="fmToggleView()" id="fm-view-btn" title="Toggle view">⊞</div>
+    </div>
+    <div class="fm-body">
+      <div class="fm-sidebar">
+        <div class="fm-sidebar-section">Quick Access</div>
+        <div class="fm-sidebar-item active" onclick="fmNavigate('/home/user')">🏠 Home</div>
+        <div class="fm-sidebar-item" onclick="fmNavigate('/home/user/Desktop')">🖥️ Desktop</div>
+        <div class="fm-sidebar-item" onclick="fmNavigate('/home/user/projects')">📦 Projects</div>
+        <div class="fm-sidebar-section">System</div>
+        <div class="fm-sidebar-item" onclick="fmNavigate('/')">💾 Root (/)</div>
+        <div class="fm-sidebar-item" onclick="fmNavigate('/etc')">/etc</div>
+        <div class="fm-sidebar-item" onclick="fmNavigate('/usr')">/usr</div>
+        <div class="fm-sidebar-item" onclick="fmNavigate('/tmp')">/tmp</div>
+      </div>
+      <div class="fm-main" id="fm-main-area"></div>
+    </div>
+    <div class="fm-statusbar" id="fm-statusbar">Loading...</div>
+  `;
+}
+
+function buildCalc() {
+  const btns = [
+    ['C','⌫','%','÷'],
+    ['7','8','9','×'],
+    ['4','5','6','-'],
+    ['1','2','3','+'],
+    ['0','.','='],
+  ];
+  return `
+    <div class="calc-body">
+      <div class="calc-display">
+        <div class="calc-expr" id="calc-display-expr"></div>
+        <div class="calc-val" id="calc-display-val">0</div>
+      </div>
+      <div class="calc-grid">
+        ${btns.map(row => row.map((b,i) => {
+          const cls = b==='='?'eq':b==='C'?'clear':['+','-','×','÷','%'].includes(b)?'op':'';
+          const span = b==='0'&&row.length<4?' span2':'';
+          return `<div class="calc-btn ${cls}${span}" onclick="calcInput('${b}')">${b}</div>`;
+        }).join('')).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function buildNotes() {
+  return `
+    <div style="display:flex;flex:1;overflow:hidden">
+      <div class="notes-sidebar">
+        <div class="notes-toolbar">
+          <span>Notes</span>
+          <button class="notes-new-btn" onclick="newNote()">+</button>
+        </div>
+        <div class="notes-list" id="notes-list-el"></div>
+      </div>
+      <div class="notes-edit">
+        <input class="notes-title-input" id="note-title-input" placeholder="Title..." oninput="saveCurrentNote()">
+        <textarea class="notes-content-input" id="note-content-input" placeholder="Start writing..." oninput="saveCurrentNote()"></textarea>
+      </div>
+    </div>
+  `;
+}
+
+function buildMusic() {
+  return `
+    <div class="music-body">
+      <div class="music-cover" id="music-cover">🎵</div>
+      <div style="text-align:center">
+        <div class="music-title" id="music-title">Neon Dreams</div>
+        <div class="music-artist" id="music-artist">Synth Wave • 3:42</div>
+      </div>
+      <div class="music-progress-wrap">
+        <div class="music-progress" onclick="seekMusic(event)">
+          <div class="music-progress-fill" id="music-progress-fill" style="width:0%"></div>
+        </div>
+        <div class="music-time-row">
+          <span id="music-time-cur">0:00</span>
+          <span id="music-time-tot">3:42</span>
+        </div>
+      </div>
+      <div class="music-controls">
+        <button class="music-btn" onclick="prevTrack()">⏮</button>
+        <button class="music-btn main" id="music-play-btn" onclick="toggleMusic()">▶</button>
+        <button class="music-btn" onclick="nextTrack()">⏭</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildSettings() {
+  return `
+    <div class="settings-body">
+      <div class="settings-nav">
+        <div class="settings-nav-item active" onclick="showSettingsPanel('appearance')">🎨 Appearance</div>
+        <div class="settings-nav-item" onclick="showSettingsPanel('system')">🖥️ System</div>
+        <div class="settings-nav-item" onclick="showSettingsPanel('network')">🌐 Network</div>
+        <div class="settings-nav-item" onclick="showSettingsPanel('about')">ℹ️ About</div>
+      </div>
+      <div class="settings-panel" id="settings-panel-content">
+        ${buildAppearanceSettings()}
+      </div>
+    </div>
+  `;
+}
+
+function showSettingsPanel(panel) {
+  const el = document.getElementById('settings-panel-content');
+  document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+  event.target.classList.add('active');
+  if (!el) return;
+  if (panel === 'appearance') el.innerHTML = buildAppearanceSettings();
+  if (panel === 'system') el.innerHTML = `<div class="settings-section-title">System</div>
+    <div class="settings-item"><div><div class="settings-item-label">Animations</div><div class="settings-item-desc">Enable UI animations</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="settings-item"><div><div class="settings-item-label">Notifications</div><div class="settings-item-desc">Show system notifications</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="settings-item"><div><div class="settings-item-label">Auto-updates</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>`;
+  if (panel === 'network') el.innerHTML = `<div class="settings-section-title">Network</div>
+    <div class="settings-item"><div><div class="settings-item-label">Wi-Fi</div><div class="settings-item-desc">ClaudeNet_5G</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="settings-item"><div><div class="settings-item-label">Bluetooth</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>`;
+  if (panel === 'about') el.innerHTML = `<div class="settings-section-title">About HyperZOS</div>
+    <div class="settings-item"><div class="settings-item-label">Version</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">1.0.0 (Build 2025.1)</div></div>
+    <div class="settings-item"><div class="settings-item-label">Kernel</div><div style="font-size:11px;color:var(--text-dim)">6.8.2-hyperzos</div></div>
+    <div class="settings-item"><div class="settings-item-label">Memory</div><div style="font-size:11px;color:var(--text-dim)">8 GB simulated</div></div>
+    <div class="settings-item"><div class="settings-item-label">Built with</div><div style="font-size:11px;color:var(--text-dim)">HTML5 + Vanilla JS</div></div>`;
+}
+
+function buildAppearanceSettings() {
+  return `<div class="settings-section-title">Appearance</div>
+    <div class="settings-item"><div><div class="settings-item-label">Dark Mode</div><div class="settings-item-desc">Use dark theme</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="settings-item"><div><div class="settings-item-label">Blur Effects</div><div class="settings-item-desc">Background blur on windows</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:8px"><div class="settings-item-label">Accent Color</div><div class="settings-color-row">
+      <div class="color-dot selected" style="background:#58a6ff" onclick="setAccent('#58a6ff',this)"></div>
+      <div class="color-dot" style="background:#3fb950" onclick="setAccent('#3fb950',this)"></div>
+      <div class="color-dot" style="background:#f78166" onclick="setAccent('#f78166',this)"></div>
+      <div class="color-dot" style="background:#e3b341" onclick="setAccent('#e3b341',this)"></div>
+      <div class="color-dot" style="background:#a371f7" onclick="setAccent('#a371f7',this)"></div>
+    </div></div>`;
+}
+
+function setAccent(color, el) {
+  document.documentElement.style.setProperty('--accent', color);
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  notify('Appearance', 'Accent color updated!');
+}
+
+function buildClock() {
+  return `
+    <div class="clock-body">
+      <div class="clock-digital" id="clock-digital">00:00:00</div>
+      <div class="clock-date" id="clock-date-display"></div>
+      <canvas class="clock-canvas" id="analog-clock" width="180" height="180"></canvas>
+    </div>
+  `;
+}
+
+// ========================
+// EDITOR HELPERS
+// ========================
+function insertText(before, after) {
+  const ta = document.getElementById('editor-ta');
+  if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e);
+  ta.value = ta.value.substring(0,s) + before + sel + after + ta.value.substring(e);
+  ta.selectionStart = s + before.length;
+  ta.selectionEnd = e + before.length;
+  ta.focus();
+}
+
+function newEditorFile() {
+  const ta = document.getElementById('editor-ta');
+  const fn = document.getElementById('ed-filename');
+  if (ta) ta.value = '';
+  if (fn) fn.value = 'untitled.txt';
+}
+
+function copyEditorContent() {
+  const ta = document.getElementById('editor-ta');
+  if (ta) { navigator.clipboard.writeText(ta.value).then(() => notify('Editor', 'Content copied to clipboard!')); }
+}
+
+function seekMusic(e) {
+  const bar = e.currentTarget;
+  const pct = e.offsetX / bar.offsetWidth * 100;
+  musicProgress = pct;
+  updateMusicProgress();
+}
+
+// ========================
+// NOTIFICATIONS
+// ========================
+function notify(title, body) {
+  const container = document.getElementById('notif-container');
+  const el = document.createElement('div');
+  el.className = 'notif';
+  el.innerHTML = `<div class="notif-title">${escHtml(title)}</div><div class="notif-body">${escHtml(body)}</div>`;
+  container.appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity 0.4s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 400); }, 3000);
+}
+
+// ========================
+// START MENU
+// ========================
+function toggleStartMenu() {
+  const menu = document.getElementById('start-menu');
+  menu.classList.toggle('open');
+}
+function closeStartMenu() {
+  document.getElementById('start-menu').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#start-menu') && !e.target.closest('#start-btn')) closeStartMenu();
+  if (!e.target.closest('#ctx-menu')) hideCtxMenu();
+});
+
+// ========================
+// CONTEXT MENU
+// ========================
+function showCtxMenu(x, y, items) {
+  const menu = document.getElementById('ctx-menu');
+  menu.innerHTML = items.map(item =>
+    item.sep ? '<div class="ctx-sep"></div>'
+             : `<div class="ctx-item" onclick="(${item.action.toString()})()">${item.label}</div>`
+  ).join('');
+  menu.style.left = Math.min(x, window.innerWidth - 180) + 'px';
+  menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
+  menu.style.display = 'block';
+}
+function hideCtxMenu() { document.getElementById('ctx-menu').style.display = 'none'; }
+
+// ========================
+// SHUTDOWN
+// ========================
+function shutdown() {
+  closeStartMenu();
+  const boot = document.getElementById('boot');
+  boot.classList.remove('hidden');
+  boot.style.opacity = '1';
+  boot.style.transition = 'opacity 0.4s';
+  boot.innerHTML = `
+    <div class="boot-logo" style="color:var(--accent3);font-size:28px">Shutting down...</div>
+    <div class="boot-sub" style="margin-top:8px">HyperZOS — Goodbye</div>
+  `;
+  // After 1s, show power-on button
+  setTimeout(() => {
+    boot.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:24px">
+        <div class="boot-logo" style="color:var(--text-dim);font-size:22px;letter-spacing:0.15em">SYSTEM OFF</div>
+        <button id="power-on-btn" onclick="powerOn()" style="
+          width:64px;height:64px;border-radius:50%;
+          background:radial-gradient(circle at 35% 35%, #1f3a52, #0d1117);
+          border:2px solid rgba(88,166,255,0.4);
+          color:var(--accent);font-size:26px;cursor:pointer;
+          box-shadow:0 0 20px rgba(88,166,255,0.2), 0 4px 16px rgba(0,0,0,0.6);
+          transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+        " onmouseover="this.style.boxShadow='0 0 32px rgba(88,166,255,0.5), 0 4px 16px rgba(0,0,0,0.6)';this.style.borderColor='rgba(88,166,255,0.8)'"
+           onmouseout="this.style.boxShadow='0 0 20px rgba(88,166,255,0.2), 0 4px 16px rgba(0,0,0,0.6)';this.style.borderColor='rgba(88,166,255,0.4)'">
+          ⏻
+        </button>
+        <div style="font-size:11px;color:var(--text-dim);letter-spacing:0.1em">Press to turn on</div>
+      </div>
+    `;
+  }, 1200);
+}
+
+function powerOn() {
+  const boot = document.getElementById('boot');
+  boot.innerHTML = `
+    <div class="boot-logo">HyperZOS</div>
+    <div class="boot-sub">Version 1.0.0 · Kernel 6.8.2</div>
+    <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
+    <div class="boot-ver">© 2025 HyperZOS Systems. All rights reserved.</div>
+  `;
+  setTimeout(() => document.getElementById('boot-bar').style.width = '100%', 50);
+  setTimeout(() => {
+    boot.classList.add('hidden');
+    // Show login screen
+    const login = document.getElementById('login-screen');
+    login.classList.remove('login-screen-hidden');
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').style.display = 'none';
+    setTimeout(() => document.getElementById('login-password').focus(), 100);
+  }, 2400);
+}
+
+// ========================
+// UTILS
+// ========================
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function initNotes() {
+  renderNotesList();
+  selectNote(activeNote);
+}
+</script>
+</body>
+</html>
