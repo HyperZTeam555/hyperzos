@@ -4105,11 +4105,13 @@ function showSettingsPanel(panel) {
       <div class="settings-item"><div class="settings-item-label">Storage Used</div><div style="font-size:11px;color:var(--text-dim)" id="about-storage"></div></div>
     `;
     document.getElementById('about-res').textContent = `${window.innerWidth} × ${window.innerHeight}`;
-    let memText = 'Not available';
-    /* performance.memory gives real heap limit — more accurate than deviceMemory which caps at 8GB by spec */
-    if (performance && performance.memory && performance.memory.jsHeapSizeLimit) {
+    let memText;
+    if (navigator.deviceMemory) {
+      memText = navigator.deviceMemory + ' GB (capped at 8 GB by browser)';
+    } else if (performance && performance.memory && performance.memory.jsHeapSizeLimit) {
       const mb = Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024);
-      memText = mb >= 1024 ? (mb / 1024).toFixed(1) + ' GB' : mb + ' MB';
+      const readable = mb >= 1024 ? (mb / 1024).toFixed(1) + ' GB' : mb + ' MB';
+      memText = readable + ' (capped at 4 GB by browser)';
     } else {
       memText = '8 GB (Not real, your browser or OS doesn\'t support this feature.)';
     }
