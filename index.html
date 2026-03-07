@@ -143,74 +143,111 @@
     position: fixed;
     bottom: 0; left: 0; right: 0;
     height: 44px;
-    background: rgba(8, 11, 16, 0.65);
+    background: rgba(8,11,16,0.75);
     backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
     -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
     border-top: 1px solid rgba(255,255,255,0.06);
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 0 8px;
+    gap: 0;
+    padding: 0;
     z-index: 9999;
     box-shadow: 0 -1px 20px rgba(0,0,0,0.4);
   }
+
+  /* Wrapper div is no longer needed but keep for compat */
+  #taskbar-top { display: contents; }
 
   #start-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 14px;
+    padding: 6px 16px;
     background: linear-gradient(135deg, #1f6feb, #388bfd);
     border: none;
-    border-radius: 6px;
+    border-radius: 0;
     color: white;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.05em;
-    transition: all 0.15s;
+    transition: filter 0.15s;
     flex-shrink: 0;
+    height: 44px;
+    box-shadow: 2px 0 12px rgba(31,111,235,0.25);
   }
-  #start-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  #start-btn:hover { filter: brightness(1.12); }
 
+  /* Morphing pill — grows horizontally as apps open */
   #taskbar-apps {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 3px;
-    flex: 1;
+    padding: 5px 6px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s, padding 0.2s;
     overflow: hidden;
+    min-width: 0;
+    margin-left: 8px;
+  }
+  /* Pill appears only when apps are open */
+  #taskbar-apps.has-apps {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.07);
   }
 
   .taskbar-item {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 7px;
     cursor: pointer;
     font-size: 11px;
     color: var(--text-dim);
     transition: all 0.15s;
     white-space: nowrap;
-    max-width: 160px;
+    max-width: 150px;
     overflow: hidden;
+    flex-shrink: 0;
+    animation: tb-item-in 0.16s cubic-bezier(0.4,0,0.2,1);
   }
-  .taskbar-item:hover { background: var(--surface); color: var(--text); }
-  .taskbar-item.active { border-color: var(--accent); color: var(--accent); background: rgba(31,111,235,0.12); }
+  @keyframes tb-item-in {
+    from { opacity: 0; transform: scaleX(0.7); }
+    to   { opacity: 1; transform: scaleX(1); }
+  }
+  .taskbar-item:hover { background: rgba(255,255,255,0.09); color: var(--text); }
+  .taskbar-item.active {
+    background: rgba(31,111,235,0.18);
+    border-color: rgba(88,166,255,0.4);
+    color: var(--accent);
+  }
+  .taskbar-item .ti-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--text-dim); flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .taskbar-item.active .ti-dot { background: var(--accent); }
 
+  /* Clock — pinned to right edge */
   #taskbar-clock {
     margin-left: auto;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-dim);
     text-align: right;
     flex-shrink: 0;
-    padding: 0 8px;
+    padding: 0 14px;
+    line-height: 1.4;
   }
-  #taskbar-clock .time { color: var(--text); font-size: 13px; }
+  #taskbar-clock .time { color: var(--text); font-size: 13px; font-weight: 500; }
+  #clock-date-taskbar { font-size: 10px; }
 
   /* WINDOWS */
   .window {
@@ -301,6 +338,23 @@
   }
 
   @keyframes br-spin { to { transform: rotate(360deg); } }
+
+  .browser-broken-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    align-self: center;
+    padding: 3px 10px;
+    background: rgba(247,129,102,0.1);
+    border: 1px solid rgba(247,129,102,0.35);
+    border-radius: 5px;
+    color: #f78166;
+    font-size: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .browser-broken-btn:hover { background: rgba(247,129,102,0.22); border-color: rgba(247,129,102,0.6); }
 
   /* ===== BROWSER APP ===== */
   .browser-toolbar {
@@ -558,8 +612,8 @@
   }
   .fm-item:hover { background: rgba(88,166,255,0.1); }
   .fm-item.selected { background: rgba(88,166,255,0.2); border: 1px solid rgba(88,166,255,0.4); }
-  .fm-item .fm-icon { font-size: 28px; line-height: 1; }
-  .fm-item span { font-size: 10px; color: var(--text-dim); word-break: break-word; }
+  .fm-item .fm-icon { font-size: 28px; line-height: 1; pointer-events: none; }
+  .fm-item span { font-size: 10px; color: var(--text-dim); word-break: break-word; pointer-events: none; }
   .fm-drag-over { background: rgba(88,166,255,0.15) !important; border: 1px dashed rgba(88,166,255,0.5) !important; }
   .fm-statusbar {
     padding: 3px 12px;
@@ -574,6 +628,7 @@
     font-size: 12px; color: var(--text); transition: background 0.1s;
     user-select: none;
   }
+  .fm-list-row span { pointer-events: none; }
   .fm-list-row:hover { background: rgba(88,166,255,0.08); }
   .fm-list-selected { background: rgba(88,166,255,0.2) !important; }
 
@@ -747,7 +802,7 @@
 
   /* START MENU */
   #start-menu {
-    position: fixed; bottom: 52px; left: 8px;
+    position: fixed; bottom: 48px; left: 0;
     width: 300px;
     background: rgba(14, 19, 26, 0.7);
     border: 1px solid rgba(255,255,255,0.08);
@@ -808,6 +863,8 @@
     box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
     padding: 4px;
     min-width: 160px; display: none;
+  }
+  #ctx-menu.ctx-visible {
     animation: ctx-appear 0.1s ease;
   }
   @keyframes ctx-appear { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -818,6 +875,43 @@
   }
   .ctx-item:hover { background: rgba(88,166,255,0.12); }
   .ctx-sep { height: 1px; background: rgba(255,255,255,0.06); margin: 3px 0; }
+
+  /* OS Dialog (replaces browser prompt/confirm — works in Firefox sandboxed contexts) */
+  #os-dialog-overlay {
+    position: fixed; inset: 0; z-index: 99998;
+    background: rgba(0,0,0,0.55);
+    display: none; align-items: center; justify-content: center;
+  }
+  #os-dialog-overlay.open { display: flex; }
+  #os-dialog {
+    background: #161b22; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 20px 22px; min-width: 280px; max-width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  #os-dialog-title { font-size: 13px; font-weight: 600; color: var(--text-bright); }
+  #os-dialog-msg   { font-size: 12px; color: var(--text-dim); }
+  #os-dialog-input {
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px; padding: 7px 10px; font-size: 12px;
+    color: var(--text); outline: none; width: 100%; box-sizing: border-box;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  #os-dialog-input:focus { border-color: var(--accent); }
+  #os-dialog-btns { display: flex; gap: 8px; justify-content: flex-end; }
+  .os-dialog-btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.06); color: var(--text);
+    transition: background 0.1s;
+  }
+  .os-dialog-btn:hover { background: rgba(255,255,255,0.12); }
+  .os-dialog-btn.primary {
+    background: var(--accent); color: #000; border-color: var(--accent);
+  }
+  .os-dialog-btn.primary:hover { background: #79c0ff; }
+  .os-dialog-btn.danger { background: rgba(248,81,73,0.2); color: #f85149; border-color: rgba(248,81,73,0.3); }
+  .os-dialog-btn.danger:hover { background: rgba(248,81,73,0.35); }
 
   /* Notification toast */
   #notif-container { position: fixed; top: 14px; right: 14px; z-index: 99998; display: flex; flex-direction: column; gap: 6px; }
@@ -957,11 +1051,13 @@
 
 <!-- TASKBAR -->
 <div id="taskbar">
-  <button id="start-btn" onclick="toggleStartMenu()">⊞ HyperZ</button>
+  <div id="taskbar-top">
+    <button id="start-btn" onclick="toggleStartMenu()">⊞ HyperZ</button>
+  </div>
   <div id="taskbar-apps"></div>
   <div id="taskbar-clock">
     <div class="time" id="clock-time"></div>
-    <div id="clock-date-taskbar" style="font-size:10px"></div>
+    <div id="clock-date-taskbar"></div>
   </div>
 </div>
 
@@ -979,6 +1075,14 @@
 
 <!-- CONTEXT MENU -->
 <div id="ctx-menu"></div>
+<div id="os-dialog-overlay">
+  <div id="os-dialog">
+    <div id="os-dialog-title"></div>
+    <div id="os-dialog-msg" style="display:none"></div>
+    <input id="os-dialog-input" style="display:none" autocomplete="off" spellcheck="false">
+    <div id="os-dialog-btns"></div>
+  </div>
+</div>
 
 <!-- NOTIFICATION CONTAINER -->
 <div id="notif-container"></div>
@@ -1100,19 +1204,16 @@ function buildDesktop() {
   const ICON_H = 90;   // icon cell height
   const PAD_X  = 12;   // padding from left edge
   const PAD_Y  = 12;   // padding from top edge
-
-  // Calculate how many rows fit before wrapping to next column
-  const desktopH = window.innerHeight - 44;
-  const rowsPerCol = Math.max(1, Math.floor((desktopH - PAD_Y) / ICON_H));
+  const ROWS   = 3;    // 9 apps → 3×3 grid in top-left corner
 
   apps.forEach((app, i) => {
-    const col = Math.floor(i / rowsPerCol);
-    const row = i % rowsPerCol;
+    const col = Math.floor(i / ROWS);
+    const row = i % ROWS;
     const el = document.createElement('div');
     el.className = 'desktop-icon';
     el.style.left = (PAD_X + col * ICON_W) + 'px';
     el.style.top  = (PAD_Y + row * ICON_H) + 'px';
-    el.innerHTML = `<div class="icon-img">${app.icon}</div><span>${app.name}</span>`;
+    el.innerHTML = '<div class="icon-img">' + app.icon + '</div><span>' + app.name + '</span>';
     el.ondblclick = () => openApp(app.id);
     desktop.appendChild(el);
   });
@@ -1274,10 +1375,17 @@ function bringToFront(id) {
 function updateTaskbar() {
   const bar = document.getElementById('taskbar-apps');
   bar.innerHTML = '';
-  Object.values(windows).forEach(w => {
+  const wins = Object.values(windows);
+  bar.classList.toggle('has-apps', wins.length > 0);
+  wins.forEach(w => {
+    const isActive = focusedWindow === w.id && !w.minimized;
     const el = document.createElement('div');
-    el.className = 'taskbar-item' + (focusedWindow === w.id && !w.minimized ? ' active' : '');
-    el.innerHTML = `<span>${w.icon}</span><span style="max-width:100px;overflow:hidden;text-overflow:ellipsis">${w.title}</span>`;
+    el.className = 'taskbar-item' + (isActive ? ' active' : '');
+    el.innerHTML =
+      '<span class="ti-dot"></span>' +
+      '<span style="font-size:13px;flex-shrink:0">' + w.icon + '</span>' +
+      '<span style="overflow:hidden;text-overflow:ellipsis;max-width:100px">' + w.title + '</span>';
+    el.title = w.title;
     el.onclick = () => {
       const win = document.getElementById('win-' + w.id);
       if (!win) return;
@@ -1657,9 +1765,171 @@ function initAppLogic(id) {
   if (id === 'editor') initEditor();
   if (id === 'music') initMusic();
   if (id === 'settings') { setTimeout(() => initSettings(), 50); }
-  if (id === 'notes') { setTimeout(() => { renderNotesList(); selectNote(activeNote); }, 50); }
+  if (id === 'notes') {
+    setTimeout(() => {
+      renderNotesList();
+      selectNote(activeNote);
+      // Single delegated contextmenu on the entire notes window body
+      const body = document.getElementById('body-notes');
+      if (body) {
+        body.oncontextmenu = e => {
+          e.preventDefault();
+          e.stopPropagation();
+          const noteItem = e.target.closest('.note-item');
+          if (noteItem) {
+            // Find which note this item belongs to
+            const list = document.getElementById('notes-list-el');
+            const items = Array.from(list ? list.children : []);
+            const itemIdx = items.indexOf(noteItem);
+            const note = itemIdx >= 0 ? notesList[itemIdx] : null;
+            if (!note) return;
+            const noteId = note.id;
+            showCtxMenu(e.clientX, e.clientY, [
+              { label: '📝 Open', action: () => selectNote(noteId) },
+              { label: '✏️ Rename', action: async () => {
+                  const n = notesList.find(x => x.id === noteId);
+                  if (!n) return;
+                  saveCurrentNote();
+                  const t = await osPrompt('Rename Note', n.title);
+                  if (t && t.trim()) {
+                    n.title = t.trim();
+                    if (activeNote === noteId) {
+                      const ti = document.getElementById('note-title-input');
+                      if (ti) ti.value = n.title;
+                    }
+                    renderNotesList();
+                  }
+                }
+              },
+              { sep: true },
+              { label: '🗑️ Delete', action: async () => {
+                  const n = notesList.find(x => x.id === noteId);
+                  if (!n) return;
+                  const ok = await osConfirm('Delete note?', '"' + n.title + '" will be removed.');
+                  if (!ok) return;
+                  const idx = notesList.findIndex(x => x.id === noteId);
+                  notesList.splice(idx, 1);
+                  if (notesList.length === 0) notesList.push({ id: Date.now(), title: 'New Note', content: '' });
+                  if (activeNote === noteId) {
+                    activeNote = notesList[Math.min(idx, notesList.length - 1)].id;
+                    selectNote(activeNote);
+                  } else { renderNotesList(); }
+                }
+              },
+              { sep: true },
+              { label: '➕ New Note', action: () => newNote() },
+            ]);
+          } else {
+            // Clicked anywhere else in the notes window
+            const note = notesList.find(n => n.id === activeNote);
+            const items = [];
+            if (note) {
+              items.push({ label: '💾 Save', action: () => saveCurrentNote() });
+              items.push({ label: '✏️ Rename', action: async () => {
+                saveCurrentNote();
+                const t = await osPrompt('Rename Note', note.title);
+                if (t && t.trim()) {
+                  note.title = t.trim();
+                  const ti = document.getElementById('note-title-input');
+                  if (ti) ti.value = note.title;
+                  renderNotesList();
+                }
+              }});
+              items.push({ label: '🗑️ Delete', action: async () => {
+                const ok2 = await osConfirm('Delete note?', '"' + note.title + '" will be removed.');
+                if (!ok2) return;
+                const idx = notesList.findIndex(x => x.id === activeNote);
+                notesList.splice(idx, 1);
+                if (notesList.length === 0) notesList.push({ id: Date.now(), title: 'New Note', content: '' });
+                activeNote = notesList[Math.min(idx, notesList.length - 1)].id;
+                selectNote(activeNote);
+              }});
+              items.push({ sep: true });
+            }
+            items.push({ label: '➕ New Note', action: () => newNote() });
+            showCtxMenu(e.clientX, e.clientY, items);
+          }
+        };
+      }
+    }, 50);
+  }
   if (id === 'browser') { setTimeout(() => { renderBrowserTabs(); brStartGGCheck(); }, 50); }
-  if (id === 'files') { setTimeout(() => { fmCwd = '/home/user'; fmHistory = ['/home/user']; fmHistIdx = 0; fmRender(); }, 50); }
+  if (id === 'files') {
+    setTimeout(() => {
+      fmCwd = '/home/user'; fmHistory = ['/home/user']; fmHistIdx = 0; fmRender();
+      // Keyboard shortcuts on files window
+      const winEl = document.getElementById('win-files');
+      if (winEl) {
+        winEl.addEventListener('keydown', e => {
+          if (e.key === 'Delete' || e.key === 'Backspace') {
+            if (fmSelected && document.activeElement && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+              e.preventDefault();
+              const t = fsTree[fmCwd] && fsTree[fmCwd][fmSelected];
+              if (t) fmDeleteItem(fmSelected, t);
+            }
+          }
+          if (e.key === 'Enter' && fmSelected) {
+            const t = fsTree[fmCwd] && fsTree[fmCwd][fmSelected];
+            if (t) fmOpen(fmSelected, t);
+          }
+          if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+            e.preventDefault();
+            // Select all — visual only, select last item
+            if (Object.keys(fsTree[fmCwd] || {}).length) {
+              const allNames = Object.keys(fsTree[fmCwd]);
+              fmSelected = allNames[allNames.length - 1];
+              fmRender();
+            }
+          }
+        });
+        winEl.setAttribute('tabindex', '-1');
+      }
+      // Single delegated contextmenu on the entire files window body
+      const body = document.getElementById('body-files');
+      if (body) {
+        body.oncontextmenu = e => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Sidebar item?
+          const sidebarItem = e.target.closest('.fm-sidebar-item');
+          if (sidebarItem) {
+            const oc = sidebarItem.getAttribute('onclick') || '';
+            const m = oc.match(/fmNavigate\('([^']+)'\)/);
+            const path = m ? m[1] : null;
+            if (path) {
+              showCtxMenu(e.clientX, e.clientY, [
+                { label: '📂 Open', action: () => fmNavigate(path) },
+                { label: '📋 Copy Path', action: () => { try { navigator.clipboard.writeText(path); } catch(ex){} notify('Files', 'Path copied'); } },
+              ]);
+            }
+            return;
+          }
+          // File/folder item in main area?
+          const fmItem = e.target.closest('[data-fm-idx]');
+          if (fmItem) {
+            const idx = parseInt(fmItem.getAttribute('data-fm-idx'));
+            const entries = Object.entries(fsTree[fmCwd] || {});
+            if (idx >= 0 && idx < entries.length) {
+              const [name, type] = entries[idx];
+              fmSelect(name);
+              showFmCtxMenu(e.clientX, e.clientY, name, type);
+            }
+            return;
+          }
+          // Empty area in sidebar?
+          if (e.target.closest('.fm-sidebar')) {
+            showCtxMenu(e.clientX, e.clientY, [
+              { label: '📁 New Folder', action: () => fmCreateFolder() },
+              { label: '📄 New Text File', action: () => fmCreateFile('txt') },
+            ]);
+            return;
+          }
+          // Empty area in main file area
+          showFmCtxMenu(e.clientX, e.clientY, null, null);
+        };
+      }
+    }, 50);
+  }
 }
 
 function initTerminal() {
@@ -1882,12 +2152,14 @@ function calcInput(val) {
 function renderNotesList() {
   const list = document.getElementById('notes-list-el');
   if (!list) return;
-  list.innerHTML = notesList.map(n => `
-    <div class="note-item ${n.id === activeNote ? 'active' : ''}" onclick="selectNote(${n.id})">
-      <div class="note-item-title">${escHtml(n.title)}</div>
-      <div class="note-item-preview">${escHtml(n.content.split('\n')[0])}</div>
-    </div>
-  `).join('');
+  list.innerHTML = '';
+  notesList.forEach(n => {
+    const el = document.createElement('div');
+    el.className = 'note-item' + (n.id === activeNote ? ' active' : '');
+    el.innerHTML = '<div class="note-item-title">' + escHtml(n.title) + '</div><div class="note-item-preview">' + escHtml((n.content.split('\n')[0]) || '') + '</div>';
+    el.addEventListener('click', () => selectNote(n.id));
+    list.appendChild(el);
+  });
 }
 
 function selectNote(id) {
@@ -1993,6 +2265,23 @@ function fmGetIcon(name, type) {
   return fmFileIcons[ext] || '📄';
 }
 
+function fmNavigateTo(path) {
+  if (!path) return;
+  const target = path.startsWith('/') ? path : ('/' + path);
+  if (fsTree[target] === undefined) {
+    notify('Files', 'Path not found: ' + target);
+    const bar = document.getElementById('fm-path');
+    if (bar) bar.value = fmCwd;
+    return;
+  }
+  fmHistory = fmHistory.slice(0, fmHistIdx + 1);
+  fmHistory.push(target);
+  fmHistIdx = fmHistory.length - 1;
+  fmCwd = target;
+  fmSelected = null;
+  fmRender();
+}
+
 function fmNavigate(path, addToHistory = true) {
   if (fsTree[path] !== undefined) {
     fmCwd = path;
@@ -2012,6 +2301,158 @@ function getFileType(name) {
   const ext = name.split('.').pop().toLowerCase();
   const types = { txt:'Text', md:'Markdown', html:'HTML', css:'CSS', js:'JavaScript', py:'Python', json:'JSON', sh:'Shell Script', lnk:'Shortcut', jpg:'Image', png:'Image', gif:'Image', mp3:'Audio', mp4:'Video', bashrc:'Config' };
   return types[ext] || (ext.toUpperCase() + ' File');
+}
+
+// ── Pointer-based drag for file manager (Firefox + Chrome + Safari) ─────────────
+// Uses mousedown/mousemove/mouseup instead of the HTML5 drag API which is
+// unreliable in Firefox when items have child <span> elements.
+let _fmDrag = null; // active drag state
+
+function fmWireDrag(main, entries) {
+  // Build a fast lookup: element → {name, type}
+  const itemMap = new Map();
+  entries.forEach(([name, type], idx) => {
+    const el = main.querySelector('[data-fm-idx="' + idx + '"]');
+    if (el) itemMap.set(el, { name, type });
+  });
+
+  main.addEventListener('mousedown', e => {
+    // Only left-button, not on inputs/buttons
+    if (e.button !== 0) return;
+    const el = e.target.closest('[data-fm-idx]');
+    if (!el) return;
+    const info = itemMap.get(el);
+    if (!info) return;
+
+    // We don't start drag immediately — wait for DRAG_THRESHOLD pixels of movement
+    const startX = e.clientX, startY = e.clientY;
+    const DRAG_THRESHOLD = 6;
+    let dragStarted = false;
+    let ghost = null;
+    let lastTarget = null;
+
+    const onMove = ev => {
+      const dx = ev.clientX - startX, dy = ev.clientY - startY;
+      if (!dragStarted) {
+        if (Math.sqrt(dx*dx + dy*dy) < DRAG_THRESHOLD) return;
+        // Start drag
+        dragStarted = true;
+        _fmDrag = { name: info.name, type: info.type, fromDir: fmCwd, sourceEl: el };
+
+        // Ghost element — clone the item visually
+        ghost = el.cloneNode(true);
+        ghost.id = 'fm-drag-ghost';
+        ghost.style.cssText = [
+          'position:fixed',
+          'z-index:99999',
+          'pointer-events:none',
+          'opacity:0.75',
+          'border-radius:6px',
+          'background:rgba(88,166,255,0.18)',
+          'border:1px solid rgba(88,166,255,0.5)',
+          'padding:6px 10px',
+          'font-size:12px',
+          'color:var(--text)',
+          'white-space:nowrap',
+          'max-width:200px',
+          'overflow:hidden',
+          'text-overflow:ellipsis',
+          'box-shadow:0 4px 16px rgba(0,0,0,0.5)',
+          'user-select:none',
+          '-webkit-user-select:none'
+        ].join(';');
+        document.body.appendChild(ghost);
+        el.style.opacity = '0.35';
+      }
+
+      if (!dragStarted) return;
+
+      // Move ghost
+      ghost.style.left = (ev.clientX + 12) + 'px';
+      ghost.style.top  = (ev.clientY + 4)  + 'px';
+
+      // Hit-test drop targets
+      ghost.style.visibility = 'hidden';
+      const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+      ghost.style.visibility = '';
+
+      // Clear previous highlight
+      if (lastTarget && lastTarget !== hit) {
+        lastTarget.classList.remove('fm-drag-over');
+        lastTarget = null;
+      }
+
+      // Highlight new target
+      if (hit) {
+        const dirEl   = hit.closest('[data-fm-idx]');
+        const sidebar = hit.closest('.fm-sidebar-item');
+        const targetEl = dirEl || sidebar;
+        if (targetEl && targetEl !== el) {
+          targetEl.classList.add('fm-drag-over');
+          lastTarget = targetEl;
+        }
+      }
+    };
+
+    const onUp = ev => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+
+      if (ghost) { ghost.remove(); ghost = null; }
+      el.style.opacity = '';
+
+      // Clear highlights
+      document.querySelectorAll('.fm-drag-over').forEach(x => x.classList.remove('fm-drag-over'));
+
+      if (!dragStarted || !_fmDrag) { _fmDrag = null; return; }
+
+      // Find drop target under cursor
+      const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+      if (hit) {
+        // Dropped onto a folder in main area?
+        const dirEl = hit.closest('[data-fm-idx]');
+        if (dirEl && dirEl !== el) {
+          const tidx = parseInt(dirEl.getAttribute('data-fm-idx'));
+          const entries2 = Object.entries(fsTree[fmCwd] || {});
+          if (tidx >= 0 && tidx < entries2.length) {
+            const [tName, tType] = entries2[tidx];
+            if (tType === 'dir' && tName !== _fmDrag.name) {
+              fmMoveItem(_fmDrag.fromDir, _fmDrag.name, _fmDrag.type, fmJoinPath(fmCwd, tName));
+              _fmDrag = null; return;
+            }
+          }
+        }
+
+        // Dropped onto a sidebar item?
+        const sItem = hit.closest('.fm-sidebar-item');
+        if (sItem) {
+          const oc = sItem.getAttribute('onclick') || '';
+          const m  = oc.match(/fmNavigate\('([^']+)'\)/);
+          if (m) {
+            const destPath = m[1];
+            if (destPath !== _fmDrag.fromDir) {
+              fmMoveItem(_fmDrag.fromDir, _fmDrag.name, _fmDrag.type, destPath);
+              _fmDrag = null; return;
+            }
+          }
+        }
+
+        // Dropped on empty main area (different folder context impossible here,
+        // but if user dragged from a sidebar link in future: fmCwd may differ)
+        const mainArea = hit.closest('#fm-main-area');
+        if (mainArea && !dirEl) {
+          if (_fmDrag.fromDir !== fmCwd) {
+            fmMoveItem(_fmDrag.fromDir, _fmDrag.name, _fmDrag.type, fmCwd);
+          }
+        }
+      }
+
+      _fmDrag = null;
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+  });
 }
 
 function fmRender() {
@@ -2038,7 +2479,7 @@ function fmRender() {
     main.innerHTML = `<div class="fm-grid" id="fm-grid-inner">${entries.length === 0
       ? '<div style="color:var(--text-dim);font-size:11px;padding:20px;grid-column:1/-1">This folder is empty</div>'
       : entries.map(([name, type], idx) => `
-        <div class="fm-item ${fmSelected===name?'selected':''}" data-fm-idx="${idx}" draggable="true">
+        <div class="fm-item ${fmSelected===name?'selected':''}" data-fm-idx="${idx}">
           <span class="fm-icon">${fmGetIcon(name, type)}</span>
           <span>${escHtml(name)}</span>
         </div>`).join('')
@@ -2053,7 +2494,7 @@ function fmRender() {
         : entries.map(([name, type], idx) => {
             const fp = fmJoinPath(fmCwd, name);
             const size = type==='file' && fileContents[fp] ? fileContents[fp].length + ' B' : '—';
-            return `<div class="fm-list-row ${fmSelected===name?'fm-list-selected':''}" data-fm-idx="${idx}" draggable="true">
+            return `<div class="fm-list-row ${fmSelected===name?'fm-list-selected':''}" data-fm-idx="${idx}">
               <span style="font-size:15px;flex-shrink:0;margin-right:8px">${fmGetIcon(name, type)}</span>
               <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(name)}</span>
               <span style="width:90px;color:var(--text-dim);font-size:10px">${type === 'dir' ? 'Folder' : getFileType(name)}</span>
@@ -2063,51 +2504,18 @@ function fmRender() {
       }</div>`;
   }
 
-  // Wire up all events
+  // Wire click/dblclick on every item
   entries.forEach(([name, type], idx) => {
-    const el = main.querySelector(`[data-fm-idx="${idx}"]`);
+    const el = main.querySelector('[data-fm-idx="' + idx + '"]');
     if (!el) return;
-    el.addEventListener('click', () => fmSelect(name));
-    el.addEventListener('dblclick', () => fmOpen(name, type));
-    el.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); fmSelect(name); showFmCtxMenu(e.clientX, e.clientY, name, type); });
-    // Drag source
-    el.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', JSON.stringify({ name, type, from: fmCwd }));
-      e.dataTransfer.effectAllowed = 'move';
-      el.style.opacity = '0.5';
-    });
-    el.addEventListener('dragend', () => { el.style.opacity = ''; });
-    // Drop target (folders only)
-    if (type === 'dir') {
-      el.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; el.classList.add('fm-drag-over'); });
-      el.addEventListener('dragleave', () => el.classList.remove('fm-drag-over'));
-      el.addEventListener('drop', e => {
-        e.preventDefault(); el.classList.remove('fm-drag-over');
-        const data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
-        if (data.name && data.name !== name) {
-          fmMoveItem(data.from, data.name, data.type, fmJoinPath(fmCwd, name));
-        }
-      });
-    }
+    el.addEventListener('click',    e => { e.stopPropagation(); fmSelect(name); });
+    el.addEventListener('dblclick', e => { e.stopPropagation(); fmOpen(name, type); });
   });
 
-  // Drop on empty area (move to current folder)
-  main.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
-  main.addEventListener('drop', e => {
-    e.preventDefault();
-    const data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
-    if (data.name && data.from !== fmCwd) {
-      fmMoveItem(data.from, data.name, data.type, fmCwd);
-    }
-  });
+  // ── Pure-JS pointer drag (works identically in Firefox, Chrome, Safari) ──────
+  // State lives outside so mousemove/mouseup on document can access it
+  fmWireDrag(main, entries);
 
-  // Right-click on empty space
-  main.addEventListener('contextmenu', e => {
-    if (e.target === main || e.target.id === 'fm-grid-inner' || e.target.id === 'fm-list-inner') {
-      e.preventDefault();
-      showFmCtxMenu(e.clientX, e.clientY, null, null);
-    }
-  });
 
   if (status) {
     const dirs = entries.filter(([,t])=>t==='dir').length;
@@ -2152,26 +2560,10 @@ function fmShowFilePreview(path) {
   const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : '';
   const content = fileContents[path];
 
-  // .html files: render live in browser
+  // .html files: render live in browser using the per-tab system
   if (ext === 'html') {
     openApp('browser');
-    setTimeout(() => {
-      const newtab = document.getElementById('browser-newtab-page');
-      const frame = document.getElementById('browser-frame');
-      const urlbar = document.getElementById('browser-url-bar');
-      if (newtab) newtab.style.display = 'none';
-      if (urlbar) urlbar.value = 'file://' + path;
-      if (frame) {
-        frame.style.display = 'block';
-        frame.style.flex = '1';
-        frame.removeAttribute('src');
-        const htmlSrc = content !== undefined ? content : `<html><body style="font-family:sans-serif;padding:20px;background:#0d1117;color:#c9d1d9"><h2>${name}</h2><p>Empty HTML file.</p></body></html>`;
-        frame.srcdoc = htmlSrc;
-      }
-      const tab = browserTabs.find(t => t.id === activeTabId);
-      if (tab) { tab.url = 'file://' + path; tab.title = name; }
-      renderBrowserTabs();
-    }, 150);
+    setTimeout(() => loadBrowserUrl('file://' + path), 150);
     return;
   }
 
@@ -2287,23 +2679,34 @@ function showFmCtxMenu(x, y, name, type) {
   const ext = name ? name.split('.').pop().toLowerCase() : '';
   const isEditable = name && type === 'file' && editableExts.includes(ext);
   const isHtml = name && type === 'file' && ext === 'html';
-
   const items = [];
 
   if (name) {
     if (type === 'file') {
-      if (isEditable) items.push({ label: '✏️ Edit in Editor', action: () => fmShowFilePreview(path) });
-      if (isHtml) items.push({ label: '🌐 Open in Browser', action: () => fmShowFilePreview(path) });
-      items.push({ label: '📋 Copy Path', action: () => { navigator.clipboard.writeText(path).catch(()=>{}); notify('Files', 'Path copied'); } });
-      items.push({ sep: true });
-      items.push({ label: '✏️ Rename', action: () => fmRenameItem(name, type) });
-      items.push({ label: '🗑️ Delete', action: () => fmDeleteItem(name, type) });
+      if (isEditable && !isHtml) items.push({ label: '✏️ Open in Editor', action: () => fmShowFilePreview(path) });
+      if (isHtml) {
+        items.push({ label: '🌐 Open in Browser', action: () => fmShowFilePreview(path) });
+        items.push({ label: '✏️ Edit in Editor', action: () => {
+          openApp('editor');
+          setTimeout(() => {
+            const ta = document.getElementById('editor-ta');
+            const fn = document.getElementById('ed-filename');
+            const win = document.getElementById('win-editor');
+            if (ta) { ta.value = fileContents[path] || ''; ta.dispatchEvent(new Event('input')); }
+            if (fn) fn.value = name;
+            if (win) win.dataset.filePath = path;
+          }, 150);
+        }});
+      }
+      items.push({ label: '📄 Duplicate', action: () => fmDuplicateItem(name, type) });
+      items.push({ label: '📋 Copy Path', action: () => { try { navigator.clipboard.writeText(path); } catch(ex){} notify('Files', 'Path copied'); } });
     } else {
       items.push({ label: '📂 Open', action: () => fmOpen(name, type) });
-      items.push({ sep: true });
-      items.push({ label: '✏️ Rename', action: () => fmRenameItem(name, type) });
-      items.push({ label: '🗑️ Delete Folder', action: () => fmDeleteItem(name, type) });
+      items.push({ label: '📄 Duplicate', action: () => fmDuplicateItem(name, type) });
     }
+    items.push({ sep: true });
+    items.push({ label: '✏️ Rename', action: () => fmRenameItem(name, type) });
+    items.push({ label: '🗑️ Delete', action: () => fmDeleteItem(name, type) });
     items.push({ sep: true });
   }
 
@@ -2312,12 +2715,68 @@ function showFmCtxMenu(x, y, name, type) {
   items.push({ label: '🌐 New HTML File', action: () => fmCreateFile('html') });
   items.push({ label: '⚡ New JS File', action: () => fmCreateFile('js') });
   items.push({ label: '🐍 New Python File', action: () => fmCreateFile('py') });
+  items.push({ label: '📝 New Markdown', action: () => fmCreateFile('md') });
 
   showCtxMenu(x, y, items);
 }
 
-function fmRenameItem(name, type) {
-  const newName = prompt('Rename to:', name);
+function fmDuplicateItem(name, type) {
+  if (!fsTree[fmCwd]) return;
+  const srcPath = fmJoinPath(fmCwd, name);
+  // Find a unique name
+  const dotIdx = name.lastIndexOf('.');
+  const base = dotIdx > 0 ? name.slice(0, dotIdx) : name;
+  const ext2  = dotIdx > 0 ? name.slice(dotIdx) : '';
+  let copyName = base + ' copy' + ext2;
+  let n = 2;
+  while (fsTree[fmCwd][copyName]) { copyName = base + ' copy ' + n + ext2; n++; }
+  if (type === 'file') {
+    fsTree[fmCwd][copyName] = 'file';
+    fileContents[fmJoinPath(fmCwd, copyName)] = fileContents[srcPath] || '';
+  } else {
+    fsTree[fmCwd][copyName] = 'dir';
+    const dstPath = fmJoinPath(fmCwd, copyName);
+    fsTree[dstPath] = {};
+    fmCopySubtree(srcPath, dstPath);
+  }
+  fmSelected = copyName;
+  fmRender();
+  notify('Files', 'Duplicated as "' + copyName + '"');
+}
+
+function fmCopySubtree(srcBase, dstBase) {
+  const children = fsTree[srcBase];
+  if (!children) return;
+  Object.entries(children).forEach(([childName, childType]) => {
+    const sc = fmJoinPath(srcBase, childName);
+    const dc = fmJoinPath(dstBase, childName);
+    if (childType === 'file') {
+      if (!fsTree[dstBase]) fsTree[dstBase] = {};
+      fsTree[dstBase][childName] = 'file';
+      fileContents[dc] = fileContents[sc] || '';
+    } else {
+      if (!fsTree[dstBase]) fsTree[dstBase] = {};
+      fsTree[dstBase][childName] = 'dir';
+      fsTree[dc] = {};
+      fmCopySubtree(sc, dc);
+    }
+  });
+}
+
+function fmMoveToPrompt(name, type) {
+  const dest = prompt('Move "' + name + '" to path:', fmCwd);
+  if (!dest || !dest.trim()) return;
+  const destTrimmed = dest.trim();
+  if (fsTree[destTrimmed] === undefined) {
+    notify('Files', 'Destination not found: ' + destTrimmed);
+    return;
+  }
+  if (destTrimmed === fmCwd) { notify('Files', 'Already in this folder'); return; }
+  fmMoveItem(fmCwd, name, type, destTrimmed);
+}
+
+async function fmRenameItem(name, type) {
+  const newName = await osPrompt('Rename', name);
   if (!newName || newName === name) return;
   const dir = fmCwd;
   if (fsTree[dir][newName]) { notify('Files', `"${newName}" already exists`); return; }
@@ -2336,8 +2795,9 @@ function fmRenameItem(name, type) {
   notify('Files', `Renamed to "${newName}"`);
 }
 
-function fmDeleteItem(name, type) {
-  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+async function fmDeleteItem(name, type) {
+  const ok = await osConfirm('Delete "' + name + '"?', 'This cannot be undone.');
+  if (!ok) return;
   const path = fmJoinPath(fmCwd, name);
   delete fsTree[fmCwd][name];
   if (type === 'file') { delete fileContents[path]; }
@@ -2359,36 +2819,43 @@ function fmDeleteSubtree(basePath) {
   }
 }
 
-function fmCreateFolder() {
-  const name = prompt('Folder name:', 'New Folder');
+async function fmCreateFolder() {
+  const name = await osPrompt('New Folder', 'New Folder');
   if (!name) return;
-  if (fsTree[fmCwd][name]) { notify('Files', `"${name}" already exists`); return; }
+  if (!fsTree[fmCwd]) fsTree[fmCwd] = {};
+  if (fsTree[fmCwd][name]) { notify('Files', '"' + name + '" already exists'); return; }
   const newPath = fmJoinPath(fmCwd, name);
   fsTree[fmCwd][name] = 'dir';
   fsTree[newPath] = {};
   fmSelected = name;
   fmRender();
-  notify('Files', `Created folder "${name}"`);
+  notify('Files', 'Created folder "' + name + '"');
 }
 
-function fmCreateFile(ext) {
-  const name = prompt('File name:', `new-file.${ext}`);
+async function fmCreateFile(ext) {
+  const raw = await osPrompt('New File', 'new-file.' + (ext || 'txt'));
+  if (!raw) return;
+  const name = raw.trim();
   if (!name) return;
-  if (fsTree[fmCwd][name]) { notify('Files', `"${name}" already exists`); return; }
+  if (!fsTree[fmCwd]) fsTree[fmCwd] = {};
+  if (fsTree[fmCwd][name]) { notify('Files', '"' + name + '" already exists'); return; }
   const path = fmJoinPath(fmCwd, name);
-  fsTree[fmCwd][name] = 'file';
+  const realExt = name.includes('.') ? name.split('.').pop().toLowerCase() : (ext || '');
   const templates = {
     html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>New Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>',
     js: '// New JavaScript file\nconsole.log("Hello from HyperZOS!");',
     py: '# New Python file\nprint("Hello from HyperZOS!")',
     css: '/* New CSS file */\nbody {\n  background: #0d1117;\n  color: #c9d1d9;\n}',
+    md: '# New Document\n\nStart writing here.',
+    txt: '',
   };
-  fileContents[path] = templates[ext] || '';
+  fsTree[fmCwd][name] = 'file';
+  fileContents[path] = templates[realExt] !== undefined ? templates[realExt] : '';
   fmSelected = name;
   fmRender();
-  // Auto-open in editor
-  fmShowFilePreview(path);
-  notify('Files', `Created "${name}"`);
+  notify('Files', 'Created "' + name + '"');
+  // Open in editor after render
+  setTimeout(() => fmShowFilePreview(path), 80);
 }
 
 // ========================
@@ -2686,7 +3153,10 @@ function getOrCreateTabFrame(id) {
 function renderBrowserTabs() {
   const container = document.getElementById('browser-tabs-bar');
   if (!container) return;
-  container.innerHTML = '';
+  /* Remove only tab elements, keep the broken button */
+  Array.from(container.querySelectorAll('.browser-tab, .browser-tab-add')).forEach(el => el.remove());
+  /* Insert tabs before the broken button */
+  const brokenBtn = container.querySelector('.browser-broken-btn');
   browserTabs.forEach(t => {
     const el = document.createElement('div');
     el.className = 'browser-tab' + (t.id === activeTabId ? ' active' : '');
@@ -2694,14 +3164,14 @@ function renderBrowserTabs() {
     el.innerHTML = `<span style="font-size:12px">${t.favicon || '🌐'}</span><span style="overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">${escHtml((t.title || 'New Tab').substring(0,20))}</span><span class="tab-close">✕</span>`;
     el.addEventListener('click', () => switchBrowserTab(t.id));
     el.querySelector('.tab-close').addEventListener('click', e => { e.stopPropagation(); closeBrowserTab(t.id); });
-    container.appendChild(el);
+    container.insertBefore(el, brokenBtn || null);
   });
   const addBtn = document.createElement('div');
   addBtn.className = 'browser-tab-add';
   addBtn.textContent = '+';
   addBtn.title = 'New Tab';
   addBtn.addEventListener('click', newBrowserTab);
-  container.appendChild(addBtn);
+  container.insertBefore(addBtn, brokenBtn || null);
 }
 
 function switchBrowserTab(id) {
@@ -2765,9 +3235,48 @@ function bfrReload() {
 // ========================
 // BUILDERS
 // ========================
+function bfrReloadDirect() {
+  const tab = browserTabs.find(t => t.id === activeTabId);
+  if (!tab || !tab.url) return;
+  const url = tab.url;
+
+  brShowLoading(activeTabId, url);
+
+  const oldFrame = document.getElementById('browser-frame-' + activeTabId);
+  if (!oldFrame) { brShowFailed(activeTabId, url); return; }
+
+  /* Swap to a plain src= iframe, bypassing the proxy */
+  oldFrame.removeAttribute('srcdoc');
+  oldFrame.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation';
+  oldFrame.referrerPolicy = 'no-referrer';
+
+  let loaded = false, timedOut = false;
+  const timer = setTimeout(() => { if (!loaded) { timedOut = true; brShowFailed(activeTabId, url); } }, 12000);
+
+  const onLoad = () => {
+    if (timedOut) return;
+    loaded = true;
+    clearTimeout(timer);
+    oldFrame.removeEventListener('load', onLoad);
+    brHideLoading(activeTabId);
+    tab.loaded = true;
+  };
+  const onErr = () => {
+    if (timedOut) return;
+    clearTimeout(timer);
+    oldFrame.removeEventListener('error', onErr);
+    brShowFailed(activeTabId, url);
+  };
+  oldFrame.addEventListener('load', onLoad);
+  oldFrame.addEventListener('error', onErr);
+  oldFrame.src = url;
+}
+
 function buildBrowser() {
   return `
-    <div class="browser-tabs" id="browser-tabs-bar"></div>
+    <div class="browser-tabs" id="browser-tabs-bar">
+      <button class="browser-broken-btn" onclick="bfrReloadDirect()" title="Re-embed without proxy">⚠ Website Broken?</button>
+    </div>
     <div class="browser-toolbar">
       <div class="browser-nav-btn" id="bfr-back" onclick="bfrBack()">←</div>
       <div class="browser-nav-btn" id="bfr-fwd" onclick="bfrForward()">→</div>
@@ -2852,7 +3361,7 @@ function buildFiles() {
       <div class="browser-nav-btn" onclick="fmGoBack()" id="fm-back-btn" style="opacity:0.4">←</div>
       <div class="browser-nav-btn" onclick="fmGoForward()" id="fm-fwd-btn" style="opacity:0.4">→</div>
       <div class="browser-nav-btn" onclick="fmGoUp()">↑</div>
-      <input class="fm-path" id="fm-path" value="/home/user" readonly>
+      <input class="fm-path" id="fm-path" value="/home/user" spellcheck="false" autocomplete="off" onkeydown="if(event.key==='Enter'){fmNavigateTo(this.value.trim());this.blur();}">
       <div class="browser-nav-btn" onclick="fmToggleView()" id="fm-view-btn" title="Toggle view">⊞</div>
     </div>
     <div class="fm-body">
@@ -3144,13 +3653,7 @@ function showSettingsPanel(panel) {
           ${['dark','dim','amoled'].map(t => `<div id="theme-${t}" style="padding:5px 12px;border-radius:4px;background:${settingsState.theme===t?'var(--accent)':'var(--surface2)'};color:${settingsState.theme===t?'white':'var(--text-dim)'};cursor:pointer;font-size:11px;border:1px solid var(--border)">${t.charAt(0).toUpperCase()+t.slice(1)}</div>`).join('')}
         </div>
       </div>
-      <div class="settings-item">
-        <div><div class="settings-item-label">Taskbar Position</div></div>
-        <select id="taskbar-pos" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 8px;font-size:11px">
-          <option value="bottom"${settingsState.taskbarPos==='bottom'?' selected':''}>Bottom</option>
-          <option value="top"${settingsState.taskbarPos==='top'?' selected':''}>Top</option>
-        </select>
-      </div>
+
     `;
     ['dark','dim','amoled'].forEach(t => {
       el.querySelector('#theme-'+t).addEventListener('click', () => {
@@ -3167,18 +3670,7 @@ function showSettingsPanel(panel) {
         notify('Display', `Theme: ${t.charAt(0).toUpperCase()+t.slice(1)}`);
       });
     });
-    el.querySelector('#taskbar-pos').addEventListener('change', e => {
-      settingsState.taskbarPos = e.target.value;
-      const tb = document.getElementById('taskbar');
-      const desk = document.getElementById('desktop');
-      if (e.target.value === 'top') {
-        tb.style.top = '0'; tb.style.bottom = 'auto';
-        desk.style.top = '44px'; desk.style.bottom = '0'; desk.style.height = 'calc(100vh - 44px)';
-      } else {
-        tb.style.bottom = '0'; tb.style.top = 'auto';
-        desk.style.bottom = '44px'; desk.style.top = '0'; desk.style.height = 'calc(100vh - 44px)';
-      }
-    });
+
 
   } else if (panel === 'network') {
     el.innerHTML = `
@@ -3290,26 +3782,147 @@ function toggleStartMenu() {
 function closeStartMenu() {
   document.getElementById('start-menu').classList.remove('open');
 }
+// Dismiss start-menu on click outside; dismiss ctx-menu on mousedown outside
 document.addEventListener('click', e => {
   if (!e.target.closest('#start-menu') && !e.target.closest('#start-btn')) closeStartMenu();
+});
+// Use a flag to prevent the dismiss-on-mousedown from firing on the same
+// mousedown that OPENED the context menu (right-click → mousedown fires first in FF)
+let _ctxJustOpened = false;
+document.addEventListener('mousedown', e => {
+  if (_ctxJustOpened) { _ctxJustOpened = false; return; }
   if (!e.target.closest('#ctx-menu')) hideCtxMenu();
 });
 
 // ========================
+// OS DIALOG (replaces prompt/confirm for Firefox compatibility)
+// ========================
+function _osDialog({ title, msg, input, defaultVal, buttons }) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('os-dialog-overlay');
+    const titleEl = document.getElementById('os-dialog-title');
+    const msgEl   = document.getElementById('os-dialog-msg');
+    const inputEl = document.getElementById('os-dialog-input');
+    const btnsEl  = document.getElementById('os-dialog-btns');
+
+    titleEl.textContent = title || '';
+    msgEl.textContent   = msg   || '';
+    msgEl.style.display = msg ? 'block' : 'none';
+
+    if (input) {
+      inputEl.style.display = 'block';
+      inputEl.value = defaultVal || '';
+    } else {
+      inputEl.style.display = 'none';
+    }
+
+    btnsEl.innerHTML = '';
+    const cleanup = val => {
+      overlay.classList.remove('open');
+      overlay.onkeydown = null;
+      resolve(val);
+    };
+
+    buttons.forEach(btn => {
+      const el = document.createElement('button');
+      el.className = 'os-dialog-btn' + (btn.primary ? ' primary' : '') + (btn.danger ? ' danger' : '');
+      el.textContent = btn.label;
+      el.onclick = () => cleanup(btn.value === 'INPUT' ? inputEl.value.trim() : btn.value);
+      btnsEl.appendChild(el);
+    });
+
+    overlay.classList.add('open');
+    overlay.onkeydown = e => {
+      if (e.key === 'Escape') { cleanup(null); }
+      if (e.key === 'Enter' && input) {
+        // Enter confirms
+        const primaryBtn = buttons.find(b => b.primary);
+        if (primaryBtn) cleanup(primaryBtn.value === 'INPUT' ? inputEl.value.trim() : primaryBtn.value);
+      }
+    };
+
+    // Focus input or first button
+    setTimeout(() => {
+      if (input) { inputEl.focus(); inputEl.select(); }
+      else { const first = btnsEl.querySelector('.primary,.os-dialog-btn'); if (first) first.focus(); }
+    }, 30);
+  });
+}
+
+function osPrompt(title, defaultVal, msg) {
+  return _osDialog({
+    title,
+    msg: msg || '',
+    input: true,
+    defaultVal: defaultVal || '',
+    buttons: [
+      { label: 'Cancel', value: null },
+      { label: 'OK',     value: 'INPUT', primary: true },
+    ]
+  });
+}
+
+function osConfirm(title, msg) {
+  return _osDialog({
+    title,
+    msg,
+    input: false,
+    buttons: [
+      { label: 'Cancel', value: false },
+      { label: 'Delete', value: true, danger: true },
+    ]
+  });
+}
+
+// ========================
 // CONTEXT MENU
 // ========================
+let _ctxActions = [];
 function showCtxMenu(x, y, items) {
   const menu = document.getElementById('ctx-menu');
-  menu.innerHTML = items.map(item =>
-    item.sep ? '<div class="ctx-sep"></div>'
-             : `<div class="ctx-item" onclick="(${item.action.toString()})()">${item.label}</div>`
-  ).join('');
-  menu.style.left = Math.min(x, window.innerWidth - 180) + 'px';
-  menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
+  _ctxActions = [];
+  menu.innerHTML = '';
+  items.forEach(item => {
+    if (item.sep) {
+      const sep = document.createElement('div');
+      sep.className = 'ctx-sep';
+      menu.appendChild(sep);
+    } else {
+      const actionIdx = _ctxActions.length;
+      _ctxActions.push(item.action);
+      const el = document.createElement('div');
+      el.className = 'ctx-item';
+      el.textContent = item.label;
+      // Use mousedown so action fires before the global mousedown-dismiss listener
+      // stopPropagation prevents the global mousedown from hiding the menu before action runs
+      el.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        hideCtxMenu();
+        _ctxActions[actionIdx]();
+      });
+      menu.appendChild(el);
+    }
+  });
+  // Set flag so the mousedown that triggered this right-click doesn't immediately
+  // dismiss the menu we're about to show (Firefox fires mousedown before contextmenu)
+  _ctxJustOpened = true;
+  // Show offscreen first to measure, then reposition and animate
+  menu.style.visibility = 'hidden';
   menu.style.display = 'block';
+  menu.classList.remove('ctx-visible');
+  // Force reflow so animation replays correctly in Firefox
+  void menu.offsetWidth;
+  const mw = menu.offsetWidth || 180;
+  const mh = menu.offsetHeight || 200;
+  menu.style.left = Math.min(x, window.innerWidth - mw - 4) + 'px';
+  menu.style.top  = Math.min(y, window.innerHeight - mh - 4) + 'px';
+  menu.style.visibility = '';
+  menu.classList.add('ctx-visible');
 }
-function hideCtxMenu() { document.getElementById('ctx-menu').style.display = 'none'; }
-
+function hideCtxMenu() {
+  const menu = document.getElementById('ctx-menu');
+  if (menu) { menu.style.display = 'none'; menu.classList.remove('ctx-visible'); }
+}
 // ========================
 // SHUTDOWN
 // ========================
