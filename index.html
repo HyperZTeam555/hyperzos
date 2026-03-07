@@ -2946,44 +2946,57 @@ function brHideLoading(tabId) {
 
 function brShowFailed(tabId, url) {
   brHideLoading(tabId);
-  const frame = document.getElementById('browser-frame-' + tabId);
-  if (!frame) return;
-  frame.srcdoc =
-    `<html><body style="background:#0d1117;color:#c9d1d9;font-family:'IBM Plex Sans',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;margin:0;">` +
-    `<div style="font-size:44px">🚫</div>` +
-    `<div style="font-size:15px;font-weight:600;color:#f0f6fc;">Failed to load site</div>` +
-    `<div style="color:#8b949e;font-size:12px;text-align:center;max-width:320px;">All proxies failed and the site blocked direct framing.</div>` +
-    `<a href="${url}" target="_blank" style="color:#58a6ff;font-size:12px;margin-top:4px;">Open in new tab ↗</a>` +
-    `</body></html>`;
+  const wrap = document.getElementById('browser-frames-wrap');
+  /* Remove existing frame and replace with a fresh srcdoc one */
+  const old = document.getElementById('browser-frame-' + tabId);
+  if (old) old.remove();
+  const frame = document.createElement('iframe');
+  frame.id = 'browser-frame-' + tabId;
+  frame.className = 'browser-tab-frame active';
+  frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+  frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
+  if (wrap) wrap.appendChild(frame);
+  const failHtml =
+    '<html><body style="background:#0d1117;color:#c9d1d9;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;margin:0;">' +
+    '<div style="font-size:44px">🚫</div>' +
+    '<div style="font-size:15px;font-weight:600;color:#f0f6fc;">Failed to load site</div>' +
+    '<div style="color:#8b949e;font-size:12px;text-align:center;max-width:320px;">The site blocked framing. Try opening it directly.</div>' +
+    '<a href="' + url + '" target="_blank" style="color:#58a6ff;font-size:12px;margin-top:4px;">Open in new tab ↗</a>' +
+    '</body></html>';
+  frame.srcdoc = failHtml;
   const tab = browserTabs.find(t => t.id === tabId);
   if (tab) tab.loaded = true;
 }
 
 function brFallbackIframe(tabId, url) {
-  const frame = document.getElementById('browser-frame-' + tabId);
-  if (!frame) { brShowFailed(tabId, url); return; }
+  /* Always create a fresh iframe — mutating srcdoc→src fires spurious load events */
+  const wrap = document.getElementById('browser-frames-wrap');
+  const old = document.getElementById('browser-frame-' + tabId);
+  if (old) { try { old.srcdoc = ''; } catch(ex){} old.remove(); }
 
-  /* Swap srcdoc for direct src */
-  frame.removeAttribute('srcdoc');
-  frame.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation';
+  const frame = document.createElement('iframe');
+  frame.id = 'browser-frame-' + tabId;
+  frame.className = 'browser-tab-frame active';
+  frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+  frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation allow-top-navigation-by-user-activation');
+  frame.setAttribute('referrerpolicy', 'no-referrer');
+  if (wrap) wrap.appendChild(frame);
+  else { brShowFailed(tabId, url); return; }
 
-  let loaded = false, timedOut = false;
-  const timer = setTimeout(() => { if (!loaded) { timedOut = true; brShowFailed(tabId, url); } }, 10000);
+  let settled = false;
+  const timer = setTimeout(() => {
+    if (settled) return; settled = true; brShowFailed(tabId, url);
+  }, 12000);
 
-  frame.addEventListener('load', function onLoad() {
-    if (timedOut) return;
-    loaded = true;
-    clearTimeout(timer);
-    frame.removeEventListener('load', onLoad);
-    brHideLoading(tabId);
+  frame.addEventListener('load', () => {
+    if (settled) return; settled = true;
+    clearTimeout(timer); brHideLoading(tabId);
     const tab = browserTabs.find(t => t.id === tabId);
     if (tab) tab.loaded = true;
   });
-  frame.addEventListener('error', function onErr() {
-    if (timedOut) return;
-    clearTimeout(timer);
-    frame.removeEventListener('error', onErr);
-    brShowFailed(tabId, url);
+  frame.addEventListener('error', () => {
+    if (settled) return; settled = true;
+    clearTimeout(timer); brShowFailed(tabId, url);
   });
 
   frame.src = url;
@@ -3124,7 +3137,10 @@ window.addEventListener('message', function(e) {
   }
   if (e.data.type === 'BR_URL' && e.data.url) {
     const tab = browserTabs.find(t => t.id === activeTabId);
-    if (tab && !brIsGG(e.data.url)) { tab.url = e.data.url; updateBrowserUrlBar(); }
+    const u = e.data.url;
+    if (tab && !brIsGG(u) && u !== 'about:srcdoc' && u !== 'about:blank' && !u.startsWith('about:')) {
+      tab.url = u; updateBrowserUrlBar();
+    }
   }
 });
 
@@ -3239,37 +3255,47 @@ function bfrReloadDirect() {
   const tab = browserTabs.find(t => t.id === activeTabId);
   if (!tab || !tab.url) return;
   const url = tab.url;
+  const tabId = activeTabId;
 
-  brShowLoading(activeTabId, url);
+  brShowLoading(tabId, url);
 
-  const oldFrame = document.getElementById('browser-frame-' + activeTabId);
-  if (!oldFrame) { brShowFailed(activeTabId, url); return; }
+  /* Remove old frame entirely and create a fresh one with src= (not srcdoc)
+     Mutating srcdoc→src on an existing iframe fires spurious load events in Firefox */
+  const wrap = document.getElementById('browser-frames-wrap');
+  const oldFrame = document.getElementById('browser-frame-' + tabId);
+  if (oldFrame) { try { oldFrame.srcdoc = ''; } catch(ex){} oldFrame.remove(); }
 
-  /* Swap to a plain src= iframe, bypassing the proxy */
-  oldFrame.removeAttribute('srcdoc');
-  oldFrame.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation';
-  oldFrame.referrerPolicy = 'no-referrer';
+  const frame = document.createElement('iframe');
+  frame.id = 'browser-frame-' + tabId;
+  frame.className = 'browser-tab-frame active';
+  frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+  frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation allow-top-navigation-by-user-activation');
+  frame.setAttribute('referrerpolicy', 'no-referrer');
+  if (wrap) wrap.appendChild(frame);
 
-  let loaded = false, timedOut = false;
-  const timer = setTimeout(() => { if (!loaded) { timedOut = true; brShowFailed(activeTabId, url); } }, 12000);
+  let settled = false;
+  const timer = setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    brShowFailed(tabId, url);
+  }, 14000);
 
-  const onLoad = () => {
-    if (timedOut) return;
-    loaded = true;
+  frame.addEventListener('load', () => {
+    if (settled) return;
+    settled = true;
     clearTimeout(timer);
-    oldFrame.removeEventListener('load', onLoad);
-    brHideLoading(activeTabId);
+    brHideLoading(tabId);
     tab.loaded = true;
-  };
-  const onErr = () => {
-    if (timedOut) return;
+  });
+  frame.addEventListener('error', () => {
+    if (settled) return;
+    settled = true;
     clearTimeout(timer);
-    oldFrame.removeEventListener('error', onErr);
-    brShowFailed(activeTabId, url);
-  };
-  oldFrame.addEventListener('load', onLoad);
-  oldFrame.addEventListener('error', onErr);
-  oldFrame.src = url;
+    brShowFailed(tabId, url);
+  });
+
+  /* Set src after appending so load event fires reliably in Firefox */
+  frame.src = url;
 }
 
 function buildBrowser() {
