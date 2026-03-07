@@ -3014,21 +3014,6 @@ function loadBrowserUrl(url, _retry, _tabId) {
   const tab = browserTabs.find(t => t.id === tabId);
   if (!tab) return;
 
-  /* yep.com — skip proxies, load direct as plain iframe */
-  if (full.includes('yep.com')) {
-    tab.url = full; tab.loaded = false;
-    updateBrowserUrlBar();
-    const frame = getOrCreateTabFrame(tabId);
-    const newtab = document.getElementById('browser-newtab-page');
-    if (newtab) newtab.style.display = 'none';
-    document.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
-    frame.classList.add('active');
-    brShowLoading(tabId, full);
-    renderBrowserTabs();
-    brFallbackIframe(tabId, full);
-    return;
-  }
-
   /* file:// — use srcdoc from local fileContents */
   if (full.startsWith('file://')) {
     const path = full.replace('file://', '');
@@ -3163,7 +3148,7 @@ function browserNav() {
   const raw = document.getElementById('browser-url-bar').value.trim();
   if (!raw) return;
   const isUrl = raw.startsWith('http') || raw.startsWith('file://') || /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/|$)/.test(raw);
-  loadBrowserUrl(isUrl ? raw : 'https://yep.com/web?q=' + encodeURIComponent(raw));
+  loadBrowserUrl(isUrl ? raw : 'https://mojeek.com/search?q=' + encodeURIComponent(raw));
 }
 
 function getOrCreateTabFrame(id) {
