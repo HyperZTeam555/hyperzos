@@ -24,9 +24,11 @@
     --titlebar: #1c2128;
     --glass: rgba(12, 16, 22, 0.72);
     --glass-border: rgba(255,255,255,0.07);
-    --acrylic-blur: 44px;
-    --acrylic-sat: 180%;
+    --acrylic-blur: 10px;
+    --acrylic-sat: 80%;
     --acrylic-bright: 1.1;
+    --acrylic-bg: rgba(13,17,23,0.10);
+    --acrylic-bg-dark: rgba(10,13,18,0.10);
     --radius: 10px;
     --shadow: 0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4);
     --noise-opacity: 0.035;
@@ -53,15 +55,19 @@
     user-select: none;
   }
 
-  /* ── UNIFIED ACRYLIC MIXIN ────────────────────────────── */
-  /* All glass surfaces use this one definition via CSS vars */
-  .acrylic, .window, .titlebar,
-  #taskbar, #start-menu, #ctx-menu, .notif,
-  .browser-toolbar, .browser-tabs,
-  .editor-toolbar, .editor-lines, .editor-statusbar,
-  .fm-toolbar, .fm-sidebar, .fm-statusbar,
-  .notes-sidebar, .notes-toolbar,
-  .settings-nav, .terminal-body, .term-input-row {
+  /* ── TRUE ACRYLIC ────────────────────────────────────── */
+  /* Only elements that sit DIRECTLY on the desktop get backdrop-filter.
+     Child elements inside .window cannot blur through their parent —
+     they just use semi-transparent tints over the already-blurred window. */
+
+  /* Floating top-level elements: blur the desktop behind them */
+  #start-menu, #ctx-menu, .notif, .acrylic {
+    backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(var(--acrylic-bright));
+    -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(var(--acrylic-bright));
+  }
+
+  /* Window itself: the single acrylic layer — blurs desktop behind it */
+  .window {
     backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(var(--acrylic-bright));
     -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(var(--acrylic-bright));
   }
@@ -84,7 +90,7 @@
   #desktop {
     position: relative;
     width: 100vw;
-    height: calc(100vh - 44px);
+    height: 100vh;
     background: radial-gradient(ellipse at 20% 30%, #0d2137 0%, #0d1117 50%, #0a0f1a 100%);
     overflow: hidden;
   }
@@ -138,46 +144,62 @@
     line-height: 1.3;
   }
 
-  /* TASKBAR */
+  /* SNAP OVERLAY */
+  #snap-overlay {
+    position: fixed;
+    display: none;
+    border: 2px solid var(--accent);
+    background: rgba(88,166,255,0.08);
+    border-radius: var(--radius);
+    z-index: 9998;
+    pointer-events: none;
+    transition: all 0.08s ease;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 0 0 1px rgba(88,166,255,0.2), inset 0 0 20px rgba(88,166,255,0.05);
+  }
+  #snap-overlay.visible { display: block; }
+
+  /* TASKBAR — fully transparent container, pills float above desktop */
   #taskbar {
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    height: 44px;
-    background: rgba(8,11,16,0.75);
-    backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
-    -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
-    border-top: 1px solid rgba(255,255,255,0.06);
+    height: 52px;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    box-shadow: none;
     display: flex;
     align-items: center;
-    gap: 0;
-    padding: 0;
+    gap: 8px;
+    padding: 0 12px;
     z-index: 9999;
-    box-shadow: 0 -1px 20px rgba(0,0,0,0.4);
+    pointer-events: none;
   }
+  #taskbar > * { pointer-events: all; }
 
-  /* Wrapper div is no longer needed but keep for compat */
+  /* Wrapper div */
   #taskbar-top { display: contents; }
 
   #start-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 16px;
+    padding: 7px 18px;
     background: linear-gradient(135deg, #1f6feb, #388bfd);
     border: none;
-    border-radius: 0;
+    border-radius: 999px;
     color: white;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.05em;
-    transition: filter 0.15s;
+    transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
     flex-shrink: 0;
-    height: 44px;
-    box-shadow: 2px 0 12px rgba(31,111,235,0.25);
+    box-shadow: 0 2px 16px rgba(31,111,235,0.45);
   }
-  #start-btn:hover { filter: brightness(1.12); }
+  #start-btn:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 4px 22px rgba(31,111,235,0.6); }
 
   /* Morphing pill — grows horizontally as apps open */
   #taskbar-apps {
@@ -185,20 +207,37 @@
     flex-direction: row;
     align-items: center;
     gap: 3px;
-    padding: 5px 6px;
-    border-radius: 10px;
+    padding: 0;
+    border-radius: 999px;
     background: transparent;
     border: 1px solid transparent;
-    transition: background 0.2s, border-color 0.2s, padding 0.2s;
-    overflow: hidden;
+    transition: background 0.22s, border-color 0.22s, padding 0.22s, box-shadow 0.22s;
+    /* NO overflow:hidden — it kills backdrop-filter */
     min-width: 0;
-    margin-left: 8px;
+    position: relative;
   }
+  /* Blur layer via ::before so overflow doesn't clip it */
+  #taskbar-apps::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
+    -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
+    opacity: 0;
+    transition: opacity 0.22s;
+    pointer-events: none;
+    z-index: 0;
+  }
+  #taskbar-apps > * { position: relative; z-index: 1; }
   /* Pill appears only when apps are open */
   #taskbar-apps.has-apps {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.07);
+    padding: 5px 6px;
+    background: rgba(13,17,23,0.55);
+    border-color: rgba(255,255,255,0.10);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
   }
+  #taskbar-apps.has-apps::before { opacity: 1; }
 
   .taskbar-item {
     display: flex;
@@ -216,12 +255,18 @@
     max-width: 150px;
     overflow: hidden;
     flex-shrink: 0;
-    animation: tb-item-in 0.16s cubic-bezier(0.4,0,0.2,1);
   }
+  /* Taskbar item animations — applied by JS only when item is first added/removed */
   @keyframes tb-item-in {
-    from { opacity: 0; transform: scaleX(0.7); }
-    to   { opacity: 1; transform: scaleX(1); }
+    from { opacity: 0; transform: scaleX(0.7) translateX(-6px); }
+    to   { opacity: 1; transform: scaleX(1) translateX(0); }
   }
+  @keyframes tb-item-out {
+    from { opacity: 1; transform: scaleX(1) translateX(0); max-width: 150px; padding: 4px 10px; }
+    to   { opacity: 0; transform: scaleX(0.7) translateX(-6px); max-width: 0; padding: 4px 0; }
+  }
+  .taskbar-item.entering { animation: tb-item-in 0.16s cubic-bezier(0.4,0,0.2,1) forwards; }
+  .taskbar-item.leaving  { animation: tb-item-out 0.13s cubic-bezier(0.4,0,1,1) forwards; pointer-events: none; }
   .taskbar-item:hover { background: rgba(255,255,255,0.09); color: var(--text); }
   .taskbar-item.active {
     background: rgba(31,111,235,0.18);
@@ -241,10 +286,16 @@
     font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     color: var(--text-dim);
-    text-align: right;
+    text-align: center;
     flex-shrink: 0;
-    padding: 0 14px;
+    padding: 7px 16px;
     line-height: 1.4;
+    background: rgba(13,17,23,0.55);
+    backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
+    -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 999px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
   }
   #taskbar-clock .time { color: var(--text); font-size: 13px; font-weight: 500; }
   #clock-date-taskbar { font-size: 10px; }
@@ -252,10 +303,10 @@
   /* WINDOWS */
   .window {
     position: absolute;
-    background: var(--glass);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--acrylic-bg);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: var(--radius);
-    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.06);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -268,6 +319,35 @@
     box-shadow: var(--shadow), 0 0 0 1px rgba(88,166,255,0.12), inset 0 1px 0 rgba(255,255,255,0.07);
   }
   .window.minimized { display: none; }
+  .window-opening {
+    animation: win-open 0.18s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    pointer-events: none;
+  }
+  .window-closing {
+    animation: win-close 0.14s cubic-bezier(0.4,0,1,1) forwards;
+    pointer-events: none;
+  }
+  @keyframes win-open {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes win-close {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.9); }
+  }
+  .window-minimizing {
+    pointer-events: none;
+    /* transform/opacity driven by JS */
+  }
+  /* Start menu close state */
+  #start-menu.closing {
+    display: block !important;
+    animation: slide-down 0.16s ease forwards;
+  }
+  @keyframes slide-down {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(8px); }
+  }
 
   .titlebar {
     display: flex;
@@ -275,7 +355,7 @@
     gap: 8px;
     padding: 0 12px;
     height: 36px;
-    background: rgba(13,17,23,0.65);
+    background: rgba(0,0,0,0.18);
     border-bottom: 1px solid rgba(255,255,255,0.07);
     cursor: move;
     flex-shrink: 0;
@@ -333,7 +413,7 @@
 
   /* ===== ACRYLIC TOOLBAR / SIDEBAR BASE ===== */
   .acrylic-bar {
-    background: rgba(13,17,23,0.55) !important;
+    background: var(--acrylic-bg) !important;
     border-color: rgba(255,255,255,0.07) !important;
   }
 
@@ -362,7 +442,7 @@
     align-items: center;
     gap: 6px;
     padding: 6px 10px;
-    background: rgba(13,17,23,0.55);
+    background: rgba(0,0,0,0.15);
     border-bottom: 1px solid rgba(255,255,255,0.07);
     flex-shrink: 0;
   }
@@ -404,7 +484,7 @@
     display: flex;
     gap: 2px;
     padding: 4px 6px 0;
-    background: rgba(10,13,18,0.6);
+    background: rgba(0,0,0,0.2);
     border-bottom: 1px solid rgba(255,255,255,0.06);
     flex-shrink: 0;
     overflow-x: auto;
@@ -449,6 +529,25 @@
     transition: all 0.15s;
   }
   .browser-tab-add:hover { color: var(--text); background: rgba(88,166,255,0.07); }
+  /* Tab open: expand from zero width + fade in */
+  @keyframes tab-open {
+    from { max-width: 0; opacity: 0; padding-left: 0; padding-right: 0; }
+    to   { max-width: 160px; opacity: 1; padding-left: 10px; padding-right: 10px; }
+  }
+  /* Tab close: collapse width + fade out */
+  @keyframes tab-close {
+    from { max-width: 160px; opacity: 1; padding-left: 10px; padding-right: 10px; }
+    to   { max-width: 0; opacity: 0; padding-left: 0; padding-right: 0; }
+  }
+  .browser-tab.tab-opening {
+    animation: tab-open 0.18s cubic-bezier(0.4,0,0.2,1) forwards;
+    overflow: hidden;
+  }
+  .browser-tab.tab-closing {
+    animation: tab-close 0.15s cubic-bezier(0.4,0,1,1) forwards;
+    overflow: hidden;
+    pointer-events: none;
+  }
   /* Each tab's iframe panel */
   .browser-tab-frame {
     position: absolute; inset: 0;
@@ -492,7 +591,7 @@
   .editor-toolbar {
     display: flex; align-items: center; gap: 4px;
     padding: 5px 10px;
-    background: rgba(13,17,23,0.55);
+    background: rgba(0,0,0,0.15);
     border-bottom: 1px solid rgba(255,255,255,0.07);
     flex-shrink: 0;
   }
@@ -516,7 +615,7 @@
   }
   .editor-lines {
     padding: 10px 6px;
-    background: rgba(10,14,20,0.6);
+    background: rgba(0,0,0,0.2);
     border-right: 1px solid rgba(255,255,255,0.06);
     font-family: 'IBM Plex Mono', monospace; font-size: 12px;
     color: var(--text-dim); line-height: 1.6;
@@ -535,7 +634,7 @@
   .editor-statusbar {
     display: flex; align-items: center; gap: 12px;
     padding: 3px 12px;
-    background: rgba(10,14,20,0.6);
+    background: rgba(0,0,0,0.2);
     border-top: 1px solid rgba(255,255,255,0.06);
     font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     color: var(--text-dim); flex-shrink: 0;
@@ -579,7 +678,7 @@
   .fm-toolbar {
     display: flex; align-items: center; gap: 6px;
     padding: 6px 10px;
-    background: rgba(13,17,23,0.55);
+    background: rgba(0,0,0,0.15);
     border-bottom: 1px solid rgba(255,255,255,0.07);
     flex-shrink: 0;
   }
@@ -593,7 +692,7 @@
   .fm-sidebar {
     width: 140px; border-right: 1px solid rgba(255,255,255,0.06);
     padding: 8px 0; overflow-y: auto; flex-shrink: 0;
-    background: rgba(10,13,18,0.5);
+    background: rgba(0,0,0,0.2);
   }
   .fm-sidebar-item {
     display: flex; align-items: center; gap: 8px;
@@ -617,7 +716,7 @@
   .fm-drag-over { background: rgba(88,166,255,0.15) !important; border: 1px dashed rgba(88,166,255,0.5) !important; }
   .fm-statusbar {
     padding: 3px 12px;
-    background: rgba(10,14,20,0.6);
+    background: rgba(0,0,0,0.2);
     border-top: 1px solid rgba(255,255,255,0.06);
     font-size: 10px; color: var(--text-dim);
     font-family: 'IBM Plex Mono', monospace; flex-shrink: 0;
@@ -673,13 +772,13 @@
   .notes-sidebar {
     width: 150px; border-right: 1px solid rgba(255,255,255,0.06);
     display: flex; flex-direction: column;
-    background: rgba(10,13,18,0.5);
+    background: rgba(0,0,0,0.2);
     flex-shrink: 0;
   }
   .notes-toolbar {
     display: flex; align-items: center; justify-content: space-between;
     padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
-    background: rgba(13,17,23,0.4);
+    background: rgba(0,0,0,0.15);
   }
   .notes-toolbar span { font-size: 11px; color: var(--text-dim); font-weight: 500; }
   .notes-new-btn {
@@ -717,7 +816,7 @@
   }
   .settings-nav {
     width: 160px; border-right: 1px solid rgba(255,255,255,0.06);
-    background: rgba(10,13,18,0.5);
+    background: rgba(0,0,0,0.2);
     padding: 8px 0; flex-shrink: 0;
   }
   .settings-nav-item {
@@ -802,7 +901,7 @@
 
   /* START MENU */
   #start-menu {
-    position: fixed; bottom: 48px; left: 8px;
+    position: fixed; bottom: 55px; left: 8px;
     width: 300px;
     background: rgba(14, 19, 26, 0.7);
     border: 1px solid rgba(255,255,255,0.08);
@@ -1019,7 +1118,7 @@
 <!-- BOOT SCREEN -->
 <div id="boot">
   <div class="boot-logo">HyperZOS</div>
-  <div class="boot-sub">Version 1.0.0 · Kernel 6.8.2</div>
+  <div class="boot-sub">Version 2.0.0 · Kernel 6.8.2</div>
   <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
   <div class="boot-ver">© 2025 HyperZOS Systems. All rights reserved.</div>
 </div>
@@ -1048,6 +1147,9 @@
 <div id="desktop" id="desktop">
   <!-- Desktop icons injected by JS -->
 </div>
+
+<!-- SNAP OVERLAY -->
+<div id="snap-overlay"></div>
 
 <!-- TASKBAR -->
 <div id="taskbar">
@@ -1114,11 +1216,13 @@ let currentTrack = 0;
 // ========================
 // SETTINGS STATE (persists across panel switches & window reopen)
 // ========================
+window._animationsOn = true;
 const settingsState = {
   // Appearance
   accentColor: '#58a6ff',
-  blurIntensity: 44,
-  saturation: 180,
+  blurIntensity: 10,
+  saturation: 80,
+  acrylicAlpha: 0.10,
   animationsOn: true,
   // Desktop
   wallpaperIdx: 0,
@@ -1138,6 +1242,17 @@ const settingsState = {
   fwOn: true,
   vpnOn: false,
 };
+
+function applyAcrylicBg(alpha) {
+  const a = parseFloat(alpha);
+  // Window background transparency — this IS the acrylic layer
+  const bg = `rgba(13,17,23,${a})`;
+  document.documentElement.style.setProperty('--glass', bg);
+  document.querySelectorAll('.window').forEach(w => { w.style.background = bg; });
+  // Keep vars for any other uses
+  document.documentElement.style.setProperty('--acrylic-bg', bg);
+  document.documentElement.style.setProperty('--acrylic-bg-dark', `rgba(10,13,18,${Math.max(0, a - 0.08)})`);
+}
 
 const apps = [
   { id: 'browser',    name: 'Browser',       icon: '🌐', defaultW: 760, defaultH: 520 },
@@ -1182,6 +1297,8 @@ function doLogin() {
     // Success
     document.getElementById('login-screen').classList.add('login-screen-hidden');
     buildDesktop();
+    applyAcrylicBg(settingsState.acrylicAlpha);
+    applyFontSize(settingsState.fontSize);
     updateClock();
     setInterval(updateClock, 1000);
     notify('HyperZOS', 'Welcome back, User!');
@@ -1249,8 +1366,7 @@ function openApp(id) {
     // Bring to front
     const win = document.getElementById('win-' + id);
     if (win) {
-      win.classList.remove('minimized');
-      bringToFront(id);
+      restoreWin(id);
       return;
     }
   }
@@ -1301,6 +1417,21 @@ function openApp(id) {
   makeResizable(win, document.getElementById('rh-' + id));
   win.addEventListener('mousedown', () => bringToFront(id));
 
+  /* Open animation — only if animations enabled */
+  if (window._animationsOn !== false) {
+    win.dataset.opened = '0';
+    requestAnimationFrame(() => {
+      if (win.dataset.opened === '0') {
+        win.classList.add('window-opening');
+        win.dataset.opened = '1';
+        win.addEventListener('animationend', () => {
+          win.classList.remove('window-opening');
+          win.style.animation = '';
+        }, { once: true });
+      }
+    });
+  }
+
   updateTaskbar();
   bringToFront(id);
   initAppLogic(id);
@@ -1323,16 +1454,121 @@ function buildAppContent(id) {
 
 function closeWin(id) {
   const win = document.getElementById('win-' + id);
-  if (win) win.remove();
-  delete windows[id];
-  if (id === 'music') { clearInterval(musicInterval); musicPlaying = false; }
-  updateTaskbar();
+  if (!win) return;
+  // Remove opening class so it doesn't interfere
+  win.classList.remove('window-opening');
+  const doRemove = () => {
+    win.remove();
+    delete windows[id];
+    if (id === 'music') { clearInterval(musicInterval); musicPlaying = false; }
+    updateTaskbar();
+  };
+  if (!window._animationsOn) { doRemove(); return; }
+  win.classList.add('window-closing');
+  win.addEventListener('animationend', doRemove, { once: true });
+  setTimeout(() => { if (document.getElementById('win-' + id)) doRemove(); }, 300);
 }
 
 function minimizeWin(id) {
   const win = document.getElementById('win-' + id);
-  if (win) win.classList.add('minimized');
+  if (!win || windows[id].minimized) return;
   windows[id].minimized = true;
+  updateTaskbar();
+
+  win.classList.remove('window-opening');
+
+  if (!window._animationsOn) {
+    win.classList.add('minimized');
+    return;
+  }
+
+  win.classList.add('window-minimizing');
+  win.style.transition = 'none';
+  win.style.transformOrigin = 'center center';
+
+  const tbBtn = document.querySelector('.taskbar-item[data-tb-id="' + id + '"]');
+  const winRect = win.getBoundingClientRect();
+  let targetX, targetY;
+  if (tbBtn) {
+    const btnRect = tbBtn.getBoundingClientRect();
+    targetX = (btnRect.left + btnRect.right  / 2) - (winRect.left + winRect.width  / 2);
+    targetY = (btnRect.top  + btnRect.height / 2) - (winRect.top  + winRect.height / 2);
+  } else {
+    targetX = -winRect.left - winRect.width  / 2 + 60;
+    targetY =  window.innerHeight - winRect.top - winRect.height / 2;
+  }
+
+  const DURATION = 280;
+  const start = performance.now();
+  function easeIn(t) { return t * t * t; }
+  function step(now) {
+    if (!window._animationsOn) {
+      win.style.transform = ''; win.style.opacity = ''; win.style.transition = '';
+      win.classList.remove('window-minimizing'); win.classList.add('minimized'); return;
+    }
+    const t = Math.min(1, (now - start) / DURATION);
+    const e = easeIn(t);
+    win.style.transform = `translate(${targetX*e}px,${targetY*e}px) scale(${1-e*0.85})`;
+    win.style.opacity = 1 - e;
+    if (t < 1) { requestAnimationFrame(step); }
+    else {
+      win.style.transform = ''; win.style.opacity = ''; win.style.transition = '';
+      win.classList.remove('window-minimizing'); win.classList.add('minimized');
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function restoreWin(id) {
+  const win = document.getElementById('win-' + id);
+  if (!win) return;
+  windows[id].minimized = false;
+
+  /* Start from the taskbar button position, animate back to natural position */
+  const tbBtn = document.querySelector('.taskbar-item[data-tb-id="' + id + '"]');
+
+  /* Temporarily un-hide so we can read its rect */
+  win.classList.remove('minimized');
+
+  if (!window._animationsOn) {
+    bringToFront(id);
+    return;
+  }
+
+  win.style.opacity = '0';
+  win.style.transform = '';
+
+  const winRect = win.getBoundingClientRect();
+  let startX, startY;
+  if (tbBtn) {
+    const btnRect = tbBtn.getBoundingClientRect();
+    startX = (btnRect.left + btnRect.width  / 2) - (winRect.left + winRect.width  / 2);
+    startY = (btnRect.top  + btnRect.height / 2) - (winRect.top  + winRect.height / 2);
+  } else {
+    startX = -winRect.left - winRect.width  / 2 + 60;
+    startY =  window.innerHeight - winRect.top - winRect.height / 2;
+  }
+
+  const DURATION = 280;
+  const start = performance.now();
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  win.classList.add('window-minimizing');
+  function step(now) {
+    if (!window._animationsOn) {
+      win.style.transform = ''; win.style.opacity = '';
+      win.classList.remove('window-minimizing'); bringToFront(id); return;
+    }
+    const t = Math.min(1, (now - start) / DURATION);
+    const e = easeOut(t);
+    win.style.transform = `translate(${startX*(1-e)}px,${startY*(1-e)}px) scale(${0.15+e*0.85})`;
+    win.style.opacity = e;
+    if (t < 1) { requestAnimationFrame(step); }
+    else {
+      win.style.transform = ''; win.style.opacity = '';
+      win.classList.remove('window-minimizing'); bringToFront(id);
+    }
+  }
+  requestAnimationFrame(step);
   updateTaskbar();
 }
 
@@ -1372,34 +1608,62 @@ function bringToFront(id) {
 // ========================
 // TASKBAR
 // ========================
+function _makeTbItem(w) {
+  const el = document.createElement('div');
+  el.className = 'taskbar-item';
+  el.dataset.tbId = w.id;
+  el.innerHTML =
+    '<span class="ti-dot"></span>' +
+    '<span style="font-size:13px;flex-shrink:0">' + w.icon + '</span>' +
+    '<span style="overflow:hidden;text-overflow:ellipsis;max-width:100px">' + w.title + '</span>';
+  el.title = w.title;
+  el.onclick = () => {
+    const win = document.getElementById('win-' + w.id);
+    if (!win) return;
+    if (win.classList.contains('minimized')) {
+      restoreWin(w.id);
+    } else if (focusedWindow === w.id) {
+      minimizeWin(w.id);
+    } else {
+      bringToFront(w.id);
+    }
+  };
+  return el;
+}
+
 function updateTaskbar() {
   const bar = document.getElementById('taskbar-apps');
-  bar.innerHTML = '';
   const wins = Object.values(windows);
   bar.classList.toggle('has-apps', wins.length > 0);
+
+  const currentIds = new Set(wins.map(w => w.id));
+
+  /* Remove items that no longer exist — play leave animation */
+  Array.from(bar.querySelectorAll('.taskbar-item[data-tb-id]')).forEach(el => {
+    const id = el.dataset.tbId;
+    if (!currentIds.has(id) && !el.classList.contains('leaving')) {
+      el.classList.add('leaving');
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 300);
+    }
+  });
+
+  /* Add new items / update active state on existing ones */
   wins.forEach(w => {
     const isActive = focusedWindow === w.id && !w.minimized;
-    const el = document.createElement('div');
-    el.className = 'taskbar-item' + (isActive ? ' active' : '');
-    el.innerHTML =
-      '<span class="ti-dot"></span>' +
-      '<span style="font-size:13px;flex-shrink:0">' + w.icon + '</span>' +
-      '<span style="overflow:hidden;text-overflow:ellipsis;max-width:100px">' + w.title + '</span>';
-    el.title = w.title;
-    el.onclick = () => {
-      const win = document.getElementById('win-' + w.id);
-      if (!win) return;
-      if (win.classList.contains('minimized')) {
-        win.classList.remove('minimized');
-        windows[w.id].minimized = false;
-        bringToFront(w.id);
-      } else if (focusedWindow === w.id) {
-        minimizeWin(w.id);
-      } else {
-        bringToFront(w.id);
-      }
-    };
-    bar.appendChild(el);
+    let el = bar.querySelector('.taskbar-item[data-tb-id="' + w.id + '"]');
+    if (!el) {
+      /* Brand new — create and animate in */
+      el = _makeTbItem(w);
+      bar.appendChild(el);
+      /* Next frame so element is in DOM before animation starts */
+      requestAnimationFrame(() => el.classList.add('entering'));
+      el.addEventListener('animationend', () => el.classList.remove('entering'), { once: true });
+    }
+    /* Just toggle active — no rebuild, no animation */
+    el.classList.toggle('active', isActive);
+    const dot = el.querySelector('.ti-dot');
+    if (dot) dot.style.background = isActive ? 'var(--accent)' : '';
   });
 }
 
@@ -1429,6 +1693,52 @@ function makeDraggable(win, handle) {
     startWinY = win.offsetTop;
   }, { passive: true });
 
+  const SNAP_THRESHOLD = 32;
+  const snapOverlay = document.getElementById('snap-overlay');
+  let snapZone = null; // 'left'|'right'|'top'|null
+
+  function getSnapZone(x, y) {
+    if (!settingsState.snapOn) return null;
+    const W = window.innerWidth, H = window.innerHeight;
+    if (x <= SNAP_THRESHOLD) return 'left';
+    if (x >= W - SNAP_THRESHOLD) return 'right';
+    if (y <= SNAP_THRESHOLD) return 'top';
+    return null;
+  }
+
+  function showSnapPreview(zone) {
+    if (!snapOverlay) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    const ov = snapOverlay;
+    if (zone === 'left') {
+      ov.style.left = '6px'; ov.style.top = '6px';
+      ov.style.width = (W / 2 - 12) + 'px'; ov.style.height = (H - 64) + 'px';
+    } else if (zone === 'right') {
+      ov.style.left = (W / 2 + 6) + 'px'; ov.style.top = '6px';
+      ov.style.width = (W / 2 - 12) + 'px'; ov.style.height = (H - 64) + 'px';
+    } else if (zone === 'top') {
+      ov.style.left = '6px'; ov.style.top = '6px';
+      ov.style.width = (W - 12) + 'px'; ov.style.height = (H - 64) + 'px';
+    }
+    ov.classList.toggle('visible', !!zone);
+  }
+
+  function applySnap(zone) {
+    if (!snapOverlay) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    snapOverlay.classList.remove('visible');
+    if (zone === 'left') {
+      win.style.left = '6px'; win.style.top = '6px';
+      win.style.width = (W / 2 - 12) + 'px'; win.style.height = (H - 64) + 'px';
+    } else if (zone === 'right') {
+      win.style.left = (W / 2 + 6) + 'px'; win.style.top = '6px';
+      win.style.width = (W / 2 - 12) + 'px'; win.style.height = (H - 64) + 'px';
+    } else if (zone === 'top') {
+      win.style.left = '6px'; win.style.top = '6px';
+      win.style.width = (W - 12) + 'px'; win.style.height = (H - 64) + 'px';
+    }
+  }
+
   const onMove = (clientX, clientY) => {
     if (!dragging) return;
     const dx = clientX - startMouseX;
@@ -1438,12 +1748,21 @@ function makeDraggable(win, handle) {
     const newY = Math.max(0, Math.min(startWinY + dy, desktopH - win.offsetHeight));
     win.style.left = newX + 'px';
     win.style.top  = newY + 'px';
+    const zone = getSnapZone(clientX, clientY);
+    if (zone !== snapZone) { snapZone = zone; showSnapPreview(zone); }
+  };
+
+  const onUp = () => {
+    if (dragging && snapZone) applySnap(snapZone);
+    else if (snapOverlay) snapOverlay.classList.remove('visible');
+    snapZone = null;
+    dragging = false;
   };
 
   document.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
   document.addEventListener('touchmove', e => onMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-  document.addEventListener('mouseup', () => { dragging = false; });
-  document.addEventListener('touchend', () => { dragging = false; });
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onUp);
 }
 
 function makeResizable(win, handle) {
@@ -3166,22 +3485,60 @@ function getOrCreateTabFrame(id) {
   return frame;
 }
 
+function _makeBrowserTabEl(t) {
+  const el = document.createElement('div');
+  el.className = 'browser-tab';
+  el.dataset.tabId = t.id;
+  el.title = t.title || 'New Tab';
+  el.innerHTML = `<span style="font-size:12px">${t.favicon || '🌐'}</span><span style="overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">${escHtml((t.title || 'New Tab').substring(0,20))}</span><span class="tab-close">✕</span>`;
+  el.addEventListener('click', () => switchBrowserTab(t.id));
+  el.querySelector('.tab-close').addEventListener('click', e => { e.stopPropagation(); closeBrowserTab(t.id); });
+  return el;
+}
+
 function renderBrowserTabs() {
   const container = document.getElementById('browser-tabs-bar');
   if (!container) return;
-  /* Remove only tab elements, keep the broken button */
-  Array.from(container.querySelectorAll('.browser-tab, .browser-tab-add')).forEach(el => el.remove());
-  /* Insert tabs before the broken button */
   const brokenBtn = container.querySelector('.browser-broken-btn');
-  browserTabs.forEach(t => {
-    const el = document.createElement('div');
-    el.className = 'browser-tab' + (t.id === activeTabId ? ' active' : '');
-    el.title = t.title || 'New Tab';
-    el.innerHTML = `<span style="font-size:12px">${t.favicon || '🌐'}</span><span style="overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">${escHtml((t.title || 'New Tab').substring(0,20))}</span><span class="tab-close">✕</span>`;
-    el.addEventListener('click', () => switchBrowserTab(t.id));
-    el.querySelector('.tab-close').addEventListener('click', e => { e.stopPropagation(); closeBrowserTab(t.id); });
-    container.insertBefore(el, brokenBtn || null);
+  const currentIds = new Set(browserTabs.map(t => t.id));
+
+  /* Remove stale add button — will re-add at end */
+  const oldAdd = container.querySelector('.browser-tab-add');
+  if (oldAdd) oldAdd.remove();
+
+  /* Remove tabs that no longer exist — animate out */
+  Array.from(container.querySelectorAll('.browser-tab[data-tab-id]')).forEach(el => {
+    const id = parseInt(el.dataset.tabId);
+    if (!currentIds.has(id) && !el.classList.contains('tab-closing')) {
+      el.classList.add('tab-closing');
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 300);
+    }
   });
+
+  /* Add new tabs / update existing ones */
+  browserTabs.forEach(t => {
+    let el = container.querySelector('.browser-tab[data-tab-id="' + t.id + '"]');
+    if (!el) {
+      el = _makeBrowserTabEl(t);
+      container.insertBefore(el, brokenBtn || null);
+      /* Animate in on next frame */
+      requestAnimationFrame(() => {
+        el.classList.add('tab-opening');
+        el.addEventListener('animationend', () => el.classList.remove('tab-opening'), { once: true });
+      });
+    }
+    /* Update title/favicon in case they changed */
+    const iconEl = el.querySelector('span:first-child');
+    const titleEl = el.querySelector('span:nth-child(2)');
+    if (iconEl) iconEl.textContent = t.favicon || '🌐';
+    if (titleEl) titleEl.textContent = escHtml((t.title || 'New Tab').substring(0, 20));
+    el.title = t.title || 'New Tab';
+    /* Toggle active */
+    el.classList.toggle('active', t.id === activeTabId);
+  });
+
+  /* Re-add the + button before the broken button */
   const addBtn = document.createElement('div');
   addBtn.className = 'browser-tab-add';
   addBtn.textContent = '+';
@@ -3535,6 +3892,13 @@ function showSettingsPanel(panel) {
         </div>
       </div>
       <div class="settings-item">
+        <div><div class="settings-item-label">Surface Opacity</div><div class="settings-item-desc">Transparency of glass surfaces</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="range" id="alpha-slider" min="10" max="85" value="${Math.round(settingsState.acrylicAlpha*100)}" style="width:90px;accent-color:var(--accent)">
+          <span id="alpha-val" style="font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;min-width:30px">${Math.round(settingsState.acrylicAlpha*100)}%</span>
+        </div>
+      </div>
+      <div class="settings-item">
         <div><div class="settings-item-label">UI Animations</div><div class="settings-item-desc">Fade and slide effects</div></div>
         <div class="toggle${settingsState.animationsOn?' on':''}" id="toggle-animations"></div>
       </div>
@@ -3558,14 +3922,17 @@ function showSettingsPanel(panel) {
       const valEl = el.querySelector('#sat-val');
       if (valEl) valEl.textContent = e.target.value + '%';
     });
+    el.querySelector('#alpha-slider').addEventListener('input', e => {
+      const pct = parseInt(e.target.value);
+      settingsState.acrylicAlpha = pct / 100;
+      applyAcrylicBg(settingsState.acrylicAlpha);
+      const valEl = el.querySelector('#alpha-val');
+      if (valEl) valEl.textContent = pct + '%';
+    });
     el.querySelector('#toggle-animations').addEventListener('click', function() {
       this.classList.toggle('on');
       settingsState.animationsOn = this.classList.contains('on');
-      const on = settingsState.animationsOn;
-      document.documentElement.style.setProperty('--anim-speed', on ? '0.15s' : '0s');
-      document.querySelectorAll('.window,.notif,.browser-tab,.fm-item,.calc-btn').forEach(e2 => {
-        e2.style.transition = on ? '' : 'none';
-      });
+      applyAnimationSetting(settingsState.animationsOn);
     });
 
   } else if (panel === 'desktop') {
@@ -3658,7 +4025,7 @@ function showSettingsPanel(panel) {
     });
     el.querySelector('#font-size-sel').addEventListener('change', e => {
       settingsState.fontSize = parseInt(e.target.value);
-      document.body.style.fontSize = e.target.value + 'px';
+      applyFontSize(settingsState.fontSize);
     });
     el.querySelector('#term-font-sel').addEventListener('change', e => {
       settingsState.termFont = e.target.value;
@@ -3679,7 +4046,10 @@ function showSettingsPanel(panel) {
           ${['dark','dim','amoled'].map(t => `<div id="theme-${t}" style="padding:5px 12px;border-radius:4px;background:${settingsState.theme===t?'var(--accent)':'var(--surface2)'};color:${settingsState.theme===t?'white':'var(--text-dim)'};cursor:pointer;font-size:11px;border:1px solid var(--border)">${t.charAt(0).toUpperCase()+t.slice(1)}</div>`).join('')}
         </div>
       </div>
-
+      <div class="settings-item">
+        <div><div class="settings-item-label">Animations</div><div class="settings-item-desc">Window open/close/minimize effects</div></div>
+        <div class="toggle${settingsState.animationsOn?' on':''}" id="toggle-anim-display"></div>
+      </div>
     `;
     ['dark','dim','amoled'].forEach(t => {
       el.querySelector('#theme-'+t).addEventListener('click', () => {
@@ -3695,6 +4065,11 @@ function showSettingsPanel(panel) {
         });
         notify('Display', `Theme: ${t.charAt(0).toUpperCase()+t.slice(1)}`);
       });
+    });
+    el.querySelector('#toggle-anim-display').addEventListener('click', function() {
+      this.classList.toggle('on');
+      settingsState.animationsOn = this.classList.contains('on');
+      applyAnimationSetting(settingsState.animationsOn);
     });
 
 
@@ -3719,19 +4094,68 @@ function showSettingsPanel(panel) {
         <div style="font-size:52px">💻</div>
         <div>
           <div style="font-family:'IBM Plex Mono',monospace;font-size:20px;color:var(--accent);font-weight:600">HyperZOS</div>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Version 1.0.0 (Build 2025.1)</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Version 2.0.0 (Build 2026.1)</div>
         </div>
       </div>
       <div class="settings-item"><div class="settings-item-label">Kernel</div><div style="font-size:11px;color:var(--accent);font-family:'IBM Plex Mono',monospace">6.8.2-hyperzos</div></div>
       <div class="settings-item"><div class="settings-item-label">Shell</div><div style="font-size:11px;color:var(--text-dim)">HyperShell 2.0</div></div>
-      <div class="settings-item"><div class="settings-item-label">Memory</div><div style="font-size:11px;color:var(--text-dim)">8 GB simulated</div></div>
+      <div class="settings-item"><div class="settings-item-label">Memory</div><div style="font-size:11px;color:var(--text-dim)" id="about-mem"></div></div>
       <div class="settings-item"><div class="settings-item-label">Display</div><div style="font-size:11px;color:var(--text-dim)" id="about-res"></div></div>
       <div class="settings-item"><div class="settings-item-label">Built with</div><div style="font-size:11px;color:var(--text-dim)">HTML5 + Vanilla JS</div></div>
       <div class="settings-item"><div class="settings-item-label">Storage Used</div><div style="font-size:11px;color:var(--text-dim)" id="about-storage"></div></div>
     `;
     document.getElementById('about-res').textContent = `${window.innerWidth} × ${window.innerHeight}`;
+    const devMem = navigator.deviceMemory;
+    document.getElementById('about-mem').textContent = devMem ? devMem + ' GB' : 'Unknown';
     const storageSize = JSON.stringify(fileContents).length;
     document.getElementById('about-storage').textContent = `~${(storageSize/1024).toFixed(1)} KB`;
+  }
+}
+
+function applyFontSize(px) {
+  /* Inject/update a <style> tag that overrides font-size across UI text elements */
+  let style = document.getElementById('fs-override-style');
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'fs-override-style';
+    document.head.appendChild(style);
+  }
+  const sm  = Math.max(8,  px - 2);
+  const xs  = Math.max(7,  px - 3);
+  const lg  = px + 2;
+  const xl  = px + 4;
+  style.textContent = `
+    body, .window-body, .settings-body, .notes-body,
+    .taskbar-item, .sm-app, .ctx-item, .titlebar-title,
+    .term-output, .term-input { font-size: ${px}px !important; }
+    .settings-item-label { font-size: ${px}px !important; }
+    .settings-item-desc, .tab-close, .browser-tab,
+    .taskbar-item { font-size: ${sm}px !important; }
+    .calc-val { font-size: ${xl}px !important; }
+    .clock-digital { font-size: ${Math.round(px * 3.2)}px !important; }
+  `;
+}
+
+function applyAnimationSetting(on) {
+  window._animationsOn = on;
+  document.documentElement.style.setProperty('--anim-speed', on ? '0.15s' : '0s');
+  let style = document.getElementById('anim-kill-style');
+  if (!on) {
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'anim-kill-style';
+      document.head.appendChild(style);
+    }
+    style.textContent = `
+      *, *::before, *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+      }
+    `;
+  } else {
+    if (style) style.remove();
   }
 }
 
@@ -3803,10 +4227,22 @@ function notify(title, body) {
 // ========================
 function toggleStartMenu() {
   const menu = document.getElementById('start-menu');
-  menu.classList.toggle('open');
+  if (menu.classList.contains('open')) {
+    closeStartMenu();
+  } else {
+    menu.classList.remove('closing');
+    menu.classList.add('open');
+  }
 }
 function closeStartMenu() {
-  document.getElementById('start-menu').classList.remove('open');
+  const menu = document.getElementById('start-menu');
+  if (!menu.classList.contains('open')) return;
+  menu.classList.add('closing');
+  menu.addEventListener('animationend', () => {
+    menu.classList.remove('open', 'closing');
+  }, { once: true });
+  // Fallback
+  setTimeout(() => menu.classList.remove('open', 'closing'), 300);
 }
 // Dismiss start-menu on click outside; dismiss ctx-menu on mousedown outside
 document.addEventListener('click', e => {
