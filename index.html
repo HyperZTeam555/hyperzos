@@ -3148,7 +3148,7 @@ function browserNav() {
   const raw = document.getElementById('browser-url-bar').value.trim();
   if (!raw) return;
   const isUrl = raw.startsWith('http') || raw.startsWith('file://') || /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/|$)/.test(raw);
-  loadBrowserUrl(isUrl ? raw : 'https://mojeek.com/search?q=' + encodeURIComponent(raw));
+  loadBrowserUrl(isUrl ? raw : 'https://mojeek.com/search?q=' + encodeURIComponent(raw) + '&theme=dark');
 }
 
 function getOrCreateTabFrame(id) {
