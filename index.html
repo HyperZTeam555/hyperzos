@@ -395,21 +395,26 @@
   }
 
   /* RESIZE HANDLE */
-  .resize-handle {
-    position: absolute;
-    bottom: 0; right: 0;
-    width: 14px; height: 14px;
-    cursor: nwse-resize;
-    opacity: 0.4;
-  }
-  .resize-handle::after {
+  .rh { position: absolute; z-index: 10; }
+  .rh-n  { top: 0;    left: 6px;  right: 6px; height: 5px; cursor: n-resize; }
+  .rh-s  { bottom: 0; left: 6px;  right: 6px; height: 5px; cursor: s-resize; }
+  .rh-w  { left: 0;   top: 6px;   bottom: 6px; width: 5px; cursor: w-resize; }
+  .rh-e  { right: 0;  top: 6px;   bottom: 6px; width: 5px; cursor: e-resize; }
+  .rh-nw { top: 0;    left: 0;    width: 10px; height: 10px; cursor: nw-resize; }
+  .rh-ne { top: 0;    right: 0;   width: 10px; height: 10px; cursor: ne-resize; }
+  .rh-sw { bottom: 0; left: 0;    width: 10px; height: 10px; cursor: sw-resize; }
+  .rh-se { bottom: 0; right: 0;   width: 10px; height: 10px; cursor: se-resize; }
+  .rh-se::after {
     content: '';
     position: absolute;
     bottom: 3px; right: 3px;
     width: 8px; height: 8px;
     border-right: 2px solid var(--text-dim);
     border-bottom: 2px solid var(--text-dim);
+    opacity: 0.4;
   }
+  /* legacy single handle — keep for compat */
+  .resize-handle { display: none; }
 
   /* ===== ACRYLIC TOOLBAR / SIDEBAR BASE ===== */
   .acrylic-bar {
@@ -1636,14 +1641,21 @@ function openApp(id) {
       <div style="width:52px"></div>
     </div>
     <div class="window-body" id="body-${id}">${buildAppContent(id)}</div>
-    <div class="resize-handle" id="rh-${id}"></div>
+    <div class="rh rh-n"  data-dir="n"></div>
+    <div class="rh rh-s"  data-dir="s"></div>
+    <div class="rh rh-w"  data-dir="w"></div>
+    <div class="rh rh-e"  data-dir="e"></div>
+    <div class="rh rh-nw" data-dir="nw"></div>
+    <div class="rh rh-ne" data-dir="ne"></div>
+    <div class="rh rh-sw" data-dir="sw"></div>
+    <div class="rh rh-se" data-dir="se"></div>
   `;
 
   document.getElementById('desktop').appendChild(win);
   windows[id] = { id, minimized: false, title: app.name, icon: app.icon };
 
   makeDraggable(win, document.getElementById('tb-' + id));
-  makeResizable(win, document.getElementById('rh-' + id));
+  win.querySelectorAll('.rh[data-dir]').forEach(h => makeResizable(win, h, h.dataset.dir));
   win.addEventListener('mousedown', () => bringToFront(id));
 
   /* Open animation — only if animations enabled */
@@ -1941,27 +1953,7 @@ function updateTaskbar() {
 // DRAG & RESIZE
 // ========================
 function makeDraggable(win, handle) {
-  let dragging = false, startMouseX, startMouseY, startWinX, startWinY;
-
-  handle.addEventListener('mousedown', e => {
-    if (e.target.classList.contains('tbtn')) return;
-    dragging = true;
-    startMouseX = e.clientX;
-    startMouseY = e.clientY;
-    startWinX = win.offsetLeft;
-    startWinY = win.offsetTop;
-    e.preventDefault();
-  });
-
-  // Also support touch for mobile
-  handle.addEventListener('touchstart', e => {
-    if (e.target.classList.contains('tbtn')) return;
-    dragging = true;
-    startMouseX = e.touches[0].clientX;
-    startMouseY = e.touches[0].clientY;
-    startWinX = win.offsetLeft;
-    startWinY = win.offsetTop;
-  }, { passive: true });
+  let startMouseX, startMouseY, startWinX, startWinY;
 
   const SNAP_THRESHOLD = 32;
   const snapOverlay = document.getElementById('snap-overlay');
@@ -2009,61 +2001,118 @@ function makeDraggable(win, handle) {
     }
   }
 
-  const onMove = (clientX, clientY) => {
-    if (!dragging) return;
-    const dx = clientX - startMouseX;
-    const dy = clientY - startMouseY;
+  function onMouseMove(e) {
+    const dx = e.clientX - startMouseX;
+    const dy = e.clientY - startMouseY;
     const desktopH = window.innerHeight - 44;
     const newX = Math.max(0, Math.min(startWinX + dx, window.innerWidth - win.offsetWidth));
     const newY = Math.max(0, Math.min(startWinY + dy, desktopH - win.offsetHeight));
     win.style.left = newX + 'px';
     win.style.top  = newY + 'px';
-    const zone = getSnapZone(clientX, clientY);
+    const zone = getSnapZone(e.clientX, e.clientY);
     if (zone !== snapZone) { snapZone = zone; showSnapPreview(zone); }
-  };
+  }
 
-  const onUp = () => {
-    if (dragging && snapZone) applySnap(snapZone);
+  function onTouchMove(e) {
+    const dx = e.touches[0].clientX - startMouseX;
+    const dy = e.touches[0].clientY - startMouseY;
+    const desktopH = window.innerHeight - 44;
+    const newX = Math.max(0, Math.min(startWinX + dx, window.innerWidth - win.offsetWidth));
+    const newY = Math.max(0, Math.min(startWinY + dy, desktopH - win.offsetHeight));
+    win.style.left = newX + 'px';
+    win.style.top  = newY + 'px';
+  }
+
+  function onUp() {
+    if (snapZone) applySnap(snapZone);
     else if (snapOverlay) snapOverlay.classList.remove('visible');
     snapZone = null;
-    dragging = false;
-  };
-
-  document.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
-  document.addEventListener('touchmove', e => onMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-  document.addEventListener('mouseup', onUp);
-  document.addEventListener('touchend', onUp);
-}
-
-function makeResizable(win, handle) {
-  let dragging = false, startMouseX, startMouseY, startW, startH;
+    document.body.style.userSelect = '';
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('touchmove',  onTouchMove);
+    document.removeEventListener('mouseup',    onUp);
+    document.removeEventListener('touchend',   onUp);
+  }
 
   handle.addEventListener('mousedown', e => {
-    dragging = true;
+    if (e.target.classList.contains('tbtn')) return;
     startMouseX = e.clientX;
     startMouseY = e.clientY;
-    startW = win.offsetWidth;
-    startH = win.offsetHeight;
+    startWinX = win.offsetLeft;
+    startWinY = win.offsetTop;
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('touchmove',  onTouchMove, { passive: true });
+    document.addEventListener('mouseup',    onUp);
+    document.addEventListener('touchend',   onUp);
     e.preventDefault();
-    e.stopPropagation();
   });
 
-  const onMove = (clientX, clientY) => {
-    if (!dragging) return;
+  handle.addEventListener('touchstart', e => {
+    if (e.target.classList.contains('tbtn')) return;
+    startMouseX = e.touches[0].clientX;
+    startMouseY = e.touches[0].clientY;
+    startWinX = win.offsetLeft;
+    startWinY = win.offsetTop;
+    document.addEventListener('touchmove',  onTouchMove, { passive: true });
+    document.addEventListener('touchend',   onUp);
+  }, { passive: true });
+}
+
+function makeResizable(win, handle, dir) {
+  const MIN_W = 300, MIN_H = 200;
+  let startX, startY, startW, startH, startL, startT;
+  let active = false;
+
+  function onMove(e) {
+    if (!active) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
     const desktopH = window.innerHeight - 44;
-    const winLeft = win.offsetLeft;
-    const winTop  = win.offsetTop;
-    // Clamp so window can't resize beyond the screen right/bottom edge
-    const maxW = window.innerWidth - winLeft;
-    const maxH = desktopH - winTop;
-    const newW = Math.max(300, Math.min(startW + (clientX - startMouseX), maxW));
-    const newH = Math.max(200, Math.min(startH + (clientY - startMouseY), maxH));
+    let newW = startW, newH = startH, newL = startL, newT = startT;
+
+    if (dir.includes('e')) newW = Math.max(MIN_W, Math.min(startW + dx, window.innerWidth - startL));
+    if (dir.includes('s')) newH = Math.max(MIN_H, Math.min(startH + dy, desktopH - startT));
+    if (dir.includes('w')) {
+      const w = Math.max(MIN_W, startW - dx);
+      newL = startL + (startW - w);
+      newW = w;
+    }
+    if (dir.includes('n')) {
+      const h = Math.max(MIN_H, startH - dy);
+      newT = Math.max(0, startT + (startH - h));
+      newH = startH - (newT - startT);
+    }
+
     win.style.width  = newW + 'px';
     win.style.height = newH + 'px';
-  };
+    win.style.left   = newL + 'px';
+    win.style.top    = newT + 'px';
+  }
 
-  document.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
-  document.addEventListener('mouseup', () => { dragging = false; });
+  function onUp(e) {
+    if (!active) return;
+    active = false;
+    try { handle.releasePointerCapture(e.pointerId); } catch(_) {}
+    handle.removeEventListener('pointermove',   onMove);
+    handle.removeEventListener('pointerup',     onUp);
+    handle.removeEventListener('pointercancel', onUp);
+    document.body.style.userSelect = '';
+  }
+
+  handle.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    startX = e.clientX; startY = e.clientY;
+    startW = win.offsetWidth;  startH = win.offsetHeight;
+    startL = win.offsetLeft;   startT = win.offsetTop;
+    active = true;
+    handle.setPointerCapture(e.pointerId);
+    handle.addEventListener('pointermove',   onMove);
+    handle.addEventListener('pointerup',     onUp);
+    handle.addEventListener('pointercancel', onUp);
+    document.body.style.userSelect = 'none';
+    e.preventDefault(); e.stopPropagation();
+  });
 }
 
 // Clamp all open windows back into the viewport when the screen resizes
