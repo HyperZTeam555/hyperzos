@@ -708,6 +708,18 @@
     gap: 10px;
   }
   .bsm-item:last-child { border-bottom: none; }
+  .bsm-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 10px;
+    padding: 4px 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    max-width: 120px;
+  }
+  .bsm-select:focus { outline: none; border-color: var(--accent); }
   .bsm-item-label { flex: 1; }
   .bsm-item-desc { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
 
@@ -1380,7 +1392,35 @@ let currentTrack = 0;
 // SETTINGS STATE (persists across panel switches & window reopen)
 // ========================
 window._animationsOn = true;
-const browserSettings = { verticalTabs: true };
+const browserSettings = { verticalTabs: true, searchEngine: 'startpage' };
+const SEARCH_ENGINES = {
+  startpage:   { name: 'Startpage',         url: 'https://www.startpage.com/sp/search?q=%s',      proxy: true  },
+  mojeek:      { name: 'Mojeek',            url: 'https://mojeek.com/search?q=%s&theme=dark',     proxy: true  },
+  webcrawler:  { name: 'Webcrawler',        url: 'https://www.webcrawler.com/serp?q=%s',           proxy: true  },
+  dogpile:     { name: 'DogPile (NoProxy!)',url: 'https://www.dogpile.com/serp?q=%s',              proxy: false },
+  wikipedia:   { name: 'Wikipedia',         url: 'https://en.wikipedia.org/w/index.php?search=%s', proxy: true  },
+};
+function updateNewtabPoweredBy() {
+  /* Try to update powered-by text in the active tab's iframe newtab page */
+  try {
+    const frame = document.getElementById('browser-frame-' + activeTabId);
+    if (!frame) return;
+    const el = frame.contentDocument && frame.contentDocument.getElementById('newtab-powered-by');
+    if (el) {
+      const eng = SEARCH_ENGINES[browserSettings.searchEngine] || SEARCH_ENGINES.startpage;
+      el.textContent = eng.name;
+    }
+  } catch(e) {}
+}
+
+function getSearchUrl(query) {
+  const eng = SEARCH_ENGINES[browserSettings.searchEngine] || SEARCH_ENGINES.startpage;
+  return eng.url.replace('%s', encodeURIComponent(query));
+}
+function isNoproxySearch(query) {
+  const eng = SEARCH_ENGINES[browserSettings.searchEngine] || SEARCH_ENGINES.startpage;
+  return !eng.proxy;
+}
 const NEWTAB_SRCDOC = `<html><head><style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;
@@ -1398,7 +1438,7 @@ p{font-size:12px;color:#8b949e;text-align:center;}
 .note{font-size:10px;color:#6e7681;margin-top:8px;}
 </style></head><body>
 <h2>🌐 HyperZBrowser</h2>
-<p>Powered by <b style="color:#58a6ff">Mojeek</b> · Enter a URL or search above</p>
+<p>Powered by <b style="color:#58a6ff" id="newtab-powered-by">Startpage</b> · Enter a URL or search above</p>
 <div class="ql">
   <div class="ql-item" onclick="window.parent.postMessage({type:'BR_NAV',url:'https://penguinmod.com'},'*')"><span class="ql-icon">🐧</span>PenguinMod</div>
   <div class="ql-item" onclick="window.parent.postMessage({type:'BR_NAV',url:'https://www.pcjs.org'},'*')"><span class="ql-icon">💾</span>PCjs</div>
@@ -2413,12 +2453,24 @@ function initAppLogic(id) {
     applyVerticalTabs(browserSettings.verticalTabs);
     const bsmToggle = document.getElementById('bsm-toggle-vtabs');
     if (bsmToggle) {
-      /* Sync initial visual state */
       if (browserSettings.verticalTabs) bsmToggle.classList.add('on');
       bsmToggle.addEventListener('click', function() {
         this.classList.toggle('on');
         browserSettings.verticalTabs = this.classList.contains('on');
         applyVerticalTabs(browserSettings.verticalTabs);
+      });
+    }
+    const bsmSE = document.getElementById('bsm-search-engine');
+    if (bsmSE) {
+      bsmSE.value = browserSettings.searchEngine;
+      bsmSE.addEventListener('change', function() {
+        browserSettings.searchEngine = this.value;
+        /* Update placeholder to reflect engine */
+        const eng = SEARCH_ENGINES[this.value];
+        const bar = document.getElementById('browser-url-bar');
+        if (bar) bar.placeholder = 'Search with ' + (eng ? eng.name : 'Startpage') + ' or enter URL...';
+        /* Update newtab powered-by label in active frame */
+        updateNewtabPoweredBy();
       });
     }
     /* Extra drag handles: tabs bars + sidebar */
@@ -3724,7 +3776,14 @@ function browserNav() {
   const raw = document.getElementById('browser-url-bar').value.trim();
   if (!raw) return;
   const isUrl = raw.startsWith('http') || raw.startsWith('https://') || raw.startsWith('file://') || (raw.indexOf('.') !== -1 && !raw.includes(' ') && !/^[^.]+$/.test(raw));
-  loadBrowserUrl(isUrl ? raw : 'https://mojeek.com/search?q=' + encodeURIComponent(raw) + '&theme=dark');
+  if (isUrl) {
+    loadBrowserUrl(raw);
+  } else if (isNoproxySearch(raw)) {
+    /* NoProxy engine — open direct in iframe via fallback (no proxy fetch) */
+    brFallbackIframe(activeTabId, getSearchUrl(raw));
+  } else {
+    loadBrowserUrl(getSearchUrl(raw));
+  }
 }
 
 function getOrCreateTabFrame(id, showNewtab) {
@@ -4061,7 +4120,7 @@ function buildBrowser() {
       <div class="browser-nav-btn" id="bfr-back" onclick="bfrBack()">←</div>
       <div class="browser-nav-btn" id="bfr-fwd" onclick="bfrForward()">→</div>
       <div class="browser-nav-btn" onclick="bfrReload()">↻</div>
-      <input class="browser-url" id="browser-url-bar" placeholder="Search with Mojeek or enter URL..." onkeydown="if(event.key==='Enter')browserNav()">
+      <input class="browser-url" id="browser-url-bar" placeholder="Search with Startpage or enter URL..." onkeydown="if(event.key==='Enter')browserNav()">
       <button class="browser-go" onclick="browserNav()">Go</button>
       <div class="browser-settings-btn" id="browser-settings-btn" onclick="toggleBrowserSettingsMenu(event)" title="Browser settings">⚙</div>
       <div class="browser-settings-menu" id="browser-settings-menu">
@@ -4072,6 +4131,19 @@ function buildBrowser() {
             <div class="bsm-item-desc">Sidebar tab list like Arc / Zen</div>
           </div>
           <div class="toggle" id="bsm-toggle-vtabs"></div>
+        </div>
+        <div class="bsm-item">
+          <div class="bsm-item-label">
+            <div>Search Engine</div>
+            <div class="bsm-item-desc">Default search provider</div>
+          </div>
+          <select class="bsm-select" id="bsm-search-engine">
+            <option value="startpage">Startpage</option>
+            <option value="mojeek">Mojeek</option>
+            <option value="webcrawler">Webcrawler</option>
+            <option value="dogpile">DogPile ⚠</option>
+            <option value="wikipedia">Wikipedia</option>
+          </select>
         </div>
 
       </div>
