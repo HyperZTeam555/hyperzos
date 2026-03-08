@@ -480,6 +480,8 @@
     flex-shrink: 0;
   }
   .browser-go:hover { filter: brightness(1.1); }
+  .browser-tabs { display: flex; }
+  .browser-tabs.hidden, #browser-tabs-wrapper.hidden { display: none !important; }
   .browser-tabs {
     display: flex;
     gap: 2px;
@@ -548,6 +550,167 @@
     overflow: hidden;
     pointer-events: none;
   }
+  /* ── VERTICAL TABS SIDEBAR ── */
+  .browser-layout {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    position: relative;
+  }
+  .browser-vtab-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: rgba(13,17,23,0.55);
+    backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
+    -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.88);
+    border-right: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .browser-vtab-sidebar-header {
+    padding: 8px 10px 6px;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .browser-vtab-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px;
+  }
+  .browser-vtab-list::-webkit-scrollbar { width: 3px; }
+  .browser-vtab-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .browser-vtab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: background 0.12s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+  }
+  .browser-vtab-item:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+  .browser-vtab-item.active {
+    background: rgba(88,166,255,0.14);
+    color: var(--text);
+    border: 1px solid rgba(88,166,255,0.25);
+  }
+  .browser-vtab-item .vtab-favicon { font-size: 13px; flex-shrink: 0; }
+  .browser-vtab-item .vtab-title { flex: 1; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .browser-vtab-item .vtab-close {
+    opacity: 0; font-size: 10px; flex-shrink: 0; padding: 2px 3px;
+    border-radius: 3px; transition: opacity 0.1s;
+  }
+  .browser-vtab-item:hover .vtab-close { opacity: 0.5; }
+  .browser-vtab-item .vtab-close:hover { opacity: 1 !important; color: var(--accent3); }
+  .browser-vtab-footer {
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+  .browser-vtab-add {
+    margin: 4px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  .browser-vtab-add:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+  /* Vertical tab open/close animations */
+  @keyframes vtab-open {
+    from { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
+    to   { max-height: 40px; opacity: 1; padding-top: 7px; padding-bottom: 7px; }
+  }
+  @keyframes vtab-close {
+    from { max-height: 40px; opacity: 1; padding-top: 7px; padding-bottom: 7px; }
+    to   { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
+  }
+  .browser-vtab-item.tab-opening { animation: vtab-open 0.16s cubic-bezier(0.4,0,0.2,1) forwards; overflow: hidden; }
+  .browser-vtab-item.tab-closing { animation: vtab-close 0.13s cubic-bezier(0.4,0,1,1) forwards; overflow: hidden; pointer-events: none; }
+
+  /* ── BROWSER SETTINGS BUTTON + DROPDOWN ── */
+  .browser-settings-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; flex-shrink: 0;
+    position: relative;
+  }
+  .browser-settings-btn:hover { color: var(--text); background: var(--border); }
+  .browser-settings-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 220px;
+    background: rgba(13,17,23,0.82);
+    backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.9);
+    -webkit-backdrop-filter: blur(var(--acrylic-blur)) saturate(var(--acrylic-sat)) brightness(0.9);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    z-index: 999;
+    overflow: hidden;
+    display: none;
+  }
+  .browser-settings-menu.open {
+    display: block;
+    animation: bsm-open 0.14s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .browser-settings-menu.closing {
+    display: block !important;
+    animation: bsm-close 0.12s cubic-bezier(0.4,0,1,1) forwards;
+  }
+  @keyframes bsm-open {
+    from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes bsm-close {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to   { opacity: 0; transform: scale(0.92) translateY(-6px); }
+  }
+  .bsm-header {
+    padding: 10px 14px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-bright);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  .bsm-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    font-size: 11px;
+    color: var(--text);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 10px;
+  }
+  .bsm-item:last-child { border-bottom: none; }
+  .bsm-item-label { flex: 1; }
+  .bsm-item-desc { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+
   /* Each tab's iframe panel */
   .browser-tab-frame {
     position: absolute; inset: 0;
@@ -1217,6 +1380,7 @@ let currentTrack = 0;
 // SETTINGS STATE (persists across panel switches & window reopen)
 // ========================
 window._animationsOn = true;
+const browserSettings = { verticalTabs: true };
 const settingsState = {
   // Appearance
   accentColor: '#58a6ff',
@@ -1255,7 +1419,7 @@ function applyAcrylicBg(alpha) {
 }
 
 const apps = [
-  { id: 'browser',    name: 'Browser',       icon: '🌐', defaultW: 760, defaultH: 520 },
+  { id: 'browser',    name: 'ZBrowser',      icon: '🌐', defaultW: 760, defaultH: 520 },
   { id: 'editor',     name: 'Text Editor',   icon: '📝', defaultW: 640, defaultH: 480 },
   { id: 'terminal',   name: 'Terminal',      icon: '💻', defaultW: 560, defaultH: 380 },
   { id: 'files',      name: 'Files',         icon: '📁', defaultW: 620, defaultH: 440 },
@@ -1575,22 +1739,63 @@ function restoreWin(id) {
 function maximizeWin(id) {
   const win = document.getElementById('win-' + id);
   if (!win) return;
+
+  /* Block if animation is already running */
+  if (win.dataset.maxAnimating === '1') return;
+
+  const TRANS = 'left 0.22s cubic-bezier(0.4,0,0.2,1), top 0.22s cubic-bezier(0.4,0,0.2,1), width 0.22s cubic-bezier(0.4,0,0.2,1), height 0.22s cubic-bezier(0.4,0,0.2,1)';
+
+  const animateWin = (toL, toT, toW, toH) => {
+    if (!window._animationsOn) {
+      win.style.left = toL; win.style.top = toT;
+      win.style.width = toW; win.style.height = toH;
+      return;
+    }
+    win.dataset.maxAnimating = '1';
+    win.style.transition = TRANS;
+    win.style.left = toL; win.style.top = toT;
+    win.style.width = toW; win.style.height = toH;
+    let cleared = false;
+    /* transitionend fires once per property (4 times) — only clear after the last one */
+    const PROPS = new Set(['left', 'top', 'width', 'height']);
+    const done = new Set();
+    const onEnd = (e) => {
+      if (!PROPS.has(e.propertyName)) return;
+      done.add(e.propertyName);
+      if (done.size < PROPS.size) return;
+      clear();
+    };
+    const clear = () => {
+      if (cleared) return;
+      cleared = true;
+      win.removeEventListener('transitionend', onEnd);
+      win.style.transition = '';
+      win.dataset.maxAnimating = '0';
+    };
+    win.addEventListener('transitionend', onEnd);
+    setTimeout(clear, 350);
+  };
+
   if (win.dataset.restored) {
-    win.style.left   = win.dataset.ox;
-    win.style.top    = win.dataset.oy;
-    win.style.width  = win.dataset.ow;
-    win.style.height = win.dataset.oh;
+    const ox = win.dataset.ox, oy = win.dataset.oy, ow = win.dataset.ow, oh = win.dataset.oh;
     delete win.dataset.restored;
+    animateWin(ox, oy, ow, oh);
   } else {
-    win.dataset.ox = win.style.left;
-    win.dataset.oy = win.style.top;
-    win.dataset.ow = win.style.width;
-    win.dataset.oh = win.style.height;
-    win.style.left   = '0px';
-    win.style.top    = '0px';
-    win.style.width  = window.innerWidth + 'px';
-    win.style.height = (window.innerHeight - 44) + 'px';
+    /* Snapshot current computed position before animating */
+    const rect = win.getBoundingClientRect();
+    win.dataset.ox = rect.left + 'px';
+    win.dataset.oy = rect.top + 'px';
+    win.dataset.ow = rect.width + 'px';
+    win.dataset.oh = rect.height + 'px';
+    /* Lock these so mid-animation snapshots don't get saved */
+    win.style.left   = rect.left + 'px';
+    win.style.top    = rect.top  + 'px';
+    win.style.width  = rect.width  + 'px';
+    win.style.height = rect.height + 'px';
     win.dataset.restored = '1';
+    /* Force layout before starting transition */
+    win.getBoundingClientRect();
+    animateWin('0px', '0px', window.innerWidth + 'px', (window.innerHeight - 44) + 'px');
   }
 }
 
@@ -2172,7 +2377,29 @@ function initAppLogic(id) {
       }
     }, 50);
   }
-  if (id === 'browser') { setTimeout(() => { renderBrowserTabs(); brStartGGCheck(); }, 50); }
+  if (id === 'browser') { setTimeout(() => {
+    renderBrowserTabs();
+    brStartGGCheck();
+    applyVerticalTabs(browserSettings.verticalTabs);
+    const bsmToggle = document.getElementById('bsm-toggle-vtabs');
+    if (bsmToggle) {
+      /* Sync initial visual state */
+      if (browserSettings.verticalTabs) bsmToggle.classList.add('on');
+      bsmToggle.addEventListener('click', function() {
+        this.classList.toggle('on');
+        browserSettings.verticalTabs = this.classList.contains('on');
+        applyVerticalTabs(browserSettings.verticalTabs);
+      });
+    }
+    /* Close settings menu on outside click */
+    document.addEventListener('mousedown', function closeBsm(e) {
+      const menu = document.getElementById('browser-settings-menu');
+      const btn  = document.getElementById('browser-settings-btn');
+      if (menu && !menu.contains(e.target) && btn && !btn.contains(e.target)) {
+        closeBrowserSettingsMenu();
+      }
+    });
+  }, 50); }
   if (id === 'files') {
     setTimeout(() => {
       fmCwd = '/home/user'; fmHistory = ['/home/user']; fmHistIdx = 0; fmRender();
@@ -3485,6 +3712,109 @@ function getOrCreateTabFrame(id) {
   return frame;
 }
 
+function closeBrowserSettingsMenu() {
+  const menu = document.getElementById('browser-settings-menu');
+  if (!menu || !menu.classList.contains('open')) return;
+  menu.classList.add('closing');
+  menu.addEventListener('animationend', () => {
+    menu.classList.remove('open', 'closing');
+  }, { once: true });
+  setTimeout(() => menu.classList.remove('open', 'closing'), 300);
+}
+
+function toggleBrowserSettingsMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('browser-settings-menu');
+  if (!menu) return;
+  if (menu.classList.contains('open')) {
+    closeBrowserSettingsMenu();
+  } else {
+    menu.classList.remove('closing');
+    menu.classList.add('open');
+  }
+}
+
+function applyVerticalTabs(on) {
+  browserSettings.verticalTabs = on;
+  const layout = document.getElementById('browser-layout');
+  const hbar   = document.getElementById('browser-tabs-wrapper');
+  if (!layout) return;
+  /* Remove existing sidebar if any */
+  const existing = layout.querySelector('.browser-vtab-sidebar');
+  if (existing) existing.remove();
+  if (on) {
+    if (hbar) hbar.classList.add('hidden');
+    const sidebar = document.createElement('div');
+    sidebar.className = 'browser-vtab-sidebar';
+    sidebar.id = 'browser-vtab-sidebar';
+    sidebar.innerHTML = `
+      <div class="browser-vtab-sidebar-header"><span>Tabs</span></div>
+      <div class="browser-vtab-list" id="browser-vtab-list">
+        <!-- tabs injected here, new tab btn appended after each tab by renderVTabs -->
+      </div>
+      <div class="browser-vtab-footer">
+        <button class="browser-broken-btn" onclick="bfrReloadDirect()" title="Re-embed without proxy" style="width:100%;margin:0;border-radius:0;border-left:none;border-right:none;border-bottom:none;text-align:left;padding:8px 12px">⚠ Website Broken?</button>
+      </div>
+    `;
+    layout.insertBefore(sidebar, layout.firstChild);
+    renderVTabs();
+  } else {
+    if (hbar) {
+      hbar.classList.remove('hidden');
+      /* Debug: force inline style to guarantee visibility */
+      hbar.style.display = 'flex';
+      hbar.style.minHeight = '32px';
+    }
+    renderBrowserTabs();
+  }
+}
+
+function renderVTabs() {
+  const list = document.getElementById('browser-vtab-list');
+  if (!list) return;
+  const currentIds = new Set(browserTabs.map(t => t.id));
+  /* Remove departed tabs */
+  Array.from(list.querySelectorAll('.browser-vtab-item[data-tab-id]')).forEach(el => {
+    const id = parseInt(el.dataset.tabId);
+    if (!currentIds.has(id) && !el.classList.contains('tab-closing')) {
+      el.classList.add('tab-closing');
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 300);
+    }
+  });
+  /* Remove old new-tab btn — will re-append at end */
+  const oldAddBtn = list.querySelector('.browser-vtab-add');
+  if (oldAddBtn) oldAddBtn.remove();
+
+  /* Add/update tabs */
+  browserTabs.forEach(t => {
+    let el = list.querySelector('.browser-vtab-item[data-tab-id="' + t.id + '"]');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'browser-vtab-item';
+      el.dataset.tabId = t.id;
+      el.innerHTML = `<span class="vtab-favicon">${t.favicon || '🌐'}</span><span class="vtab-title">${escHtml((t.title||'New Tab').substring(0,22))}</span><span class="vtab-close">✕</span>`;
+      el.addEventListener('click', () => switchBrowserTab(t.id));
+      el.querySelector('.vtab-close').addEventListener('click', e => { e.stopPropagation(); closeBrowserTab(t.id); });
+      list.appendChild(el);
+      requestAnimationFrame(() => {
+        el.classList.add('tab-opening');
+        el.addEventListener('animationend', () => el.classList.remove('tab-opening'), { once: true });
+      });
+    }
+    const fav = el.querySelector('.vtab-favicon'); if (fav) fav.textContent = t.favicon || '🌐';
+    const ttl = el.querySelector('.vtab-title');   if (ttl) ttl.textContent = escHtml((t.title||'New Tab').substring(0,22));
+    el.classList.toggle('active', t.id === activeTabId);
+  });
+
+  /* New Tab button always after the last tab */
+  const addBtn = document.createElement('div');
+  addBtn.className = 'browser-vtab-add';
+  addBtn.innerHTML = '<span style="font-size:16px;line-height:1">+</span><span>New Tab</span>';
+  addBtn.addEventListener('click', newBrowserTab);
+  list.appendChild(addBtn);
+}
+
 function _makeBrowserTabEl(t) {
   const el = document.createElement('div');
   el.className = 'browser-tab';
@@ -3545,6 +3875,8 @@ function renderBrowserTabs() {
   addBtn.title = 'New Tab';
   addBtn.addEventListener('click', newBrowserTab);
   container.insertBefore(addBtn, brokenBtn || null);
+  /* Also sync vertical sidebar if open */
+  if (browserSettings.verticalTabs) renderVTabs();
 }
 
 function switchBrowserTab(id) {
@@ -3657,34 +3989,51 @@ function bfrReloadDirect() {
 
 function buildBrowser() {
   return `
-    <div class="browser-tabs" id="browser-tabs-bar">
-      <button class="browser-broken-btn" onclick="bfrReloadDirect()" title="Re-embed without proxy">⚠ Website Broken?</button>
+    <div id="browser-tabs-wrapper" style="display:flex;align-items:stretch;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0">
+      <div class="browser-tabs" id="browser-tabs-bar" style="flex:1;border-bottom:none;background:none"></div>
+      <button class="browser-broken-btn" onclick="bfrReloadDirect()" title="Re-embed without proxy" style="flex-shrink:0;align-self:center;margin:0 6px 0 0">⚠ Website Broken?</button>
     </div>
-    <div class="browser-toolbar">
+    <div class="browser-toolbar" style="position:relative">
       <div class="browser-nav-btn" id="bfr-back" onclick="bfrBack()">←</div>
       <div class="browser-nav-btn" id="bfr-fwd" onclick="bfrForward()">→</div>
       <div class="browser-nav-btn" onclick="bfrReload()">↻</div>
       <input class="browser-url" id="browser-url-bar" placeholder="Search with Mojeek or enter URL..." onkeydown="if(event.key==='Enter')browserNav()">
       <button class="browser-go" onclick="browserNav()">Go</button>
-    </div>
-    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative">
-      <div class="browser-newtab" id="browser-newtab-page" style="position:absolute;inset:0;z-index:2">
-        <h2>🌐 HyperZOS Browser</h2>
-        <p>Powered by <strong style="color:var(--accent)">Mojeek</strong> search engine · Enter a URL or search above</p>
-        <div class="browser-quicklinks">
-          <div class="browser-quicklink" onclick="loadBrowserUrl('https://penguinmod.com')">
-            <span class="ql-icon">🐧</span>PenguinMod
+      <div class="browser-settings-btn" id="browser-settings-btn" onclick="toggleBrowserSettingsMenu(event)" title="Browser settings">⚙</div>
+      <div class="browser-settings-menu" id="browser-settings-menu">
+        <div class="bsm-header">ZBrowser Settings</div>
+        <div class="bsm-item">
+          <div class="bsm-item-label">
+            <div>Vertical Tabs</div>
+            <div class="bsm-item-desc">Sidebar tab list like Arc / Zen</div>
           </div>
-          <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.pcjs.org')">
-            <span class="ql-icon">💾</span>PCjs
-          </div>
-          <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.wikipedia.org')">
-            <span class="ql-icon">📖</span>Wikipedia
-          </div>
+          <div class="toggle" id="bsm-toggle-vtabs"></div>
         </div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:16px">Note: Some sites block embedding. Use the URL bar to navigate.</div>
+
       </div>
-      <div id="browser-frames-wrap" style="position:absolute;inset:0;z-index:1"></div>
+    </div>
+    <div class="browser-layout" id="browser-layout">
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div style="flex:1;position:relative;overflow:hidden">
+        <div class="browser-newtab" id="browser-newtab-page" style="position:absolute;inset:0;z-index:2">
+          <h2>🌐 HyperZBrowser</h2>
+          <p>Powered by <strong style="color:var(--accent)">Mojeek</strong> search engine · Enter a URL or search above</p>
+          <div class="browser-quicklinks">
+            <div class="browser-quicklink" onclick="loadBrowserUrl('https://penguinmod.com')">
+              <span class="ql-icon">🐧</span>PenguinMod
+            </div>
+            <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.pcjs.org')">
+              <span class="ql-icon">💾</span>PCjs
+            </div>
+            <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.wikipedia.org')">
+              <span class="ql-icon">📖</span>Wikipedia
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:16px">Note: Some sites block embedding. Use the URL bar to navigate.</div>
+        </div>
+        <div id="browser-frames-wrap" style="position:absolute;inset:0;z-index:1"></div>
+        </div>
+      </div>
     </div>
   `;
 }
