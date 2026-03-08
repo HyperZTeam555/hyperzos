@@ -1400,9 +1400,9 @@ p{font-size:12px;color:#8b949e;text-align:center;}
 <h2>🌐 HyperZBrowser</h2>
 <p>Powered by <b style="color:#58a6ff">Mojeek</b> · Enter a URL or search above</p>
 <div class="ql">
-  <a class="ql-item" href="https://penguinmod.com" target="_top"><span class="ql-icon">🐧</span>PenguinMod</a>
-  <a class="ql-item" href="https://www.pcjs.org" target="_top"><span class="ql-icon">💾</span>PCjs</a>
-  <a class="ql-item" href="https://www.wikipedia.org" target="_top"><span class="ql-icon">📖</span>Wikipedia</a>
+  <div class="ql-item" onclick="window.parent.postMessage({type:'BR_NAV',url:'https://penguinmod.com'},'*')"><span class="ql-icon">🐧</span>PenguinMod</div>
+  <div class="ql-item" onclick="window.parent.postMessage({type:'BR_NAV',url:'https://www.pcjs.org'},'*')"><span class="ql-icon">💾</span>PCjs</div>
+  <div class="ql-item" onclick="window.parent.postMessage({type:'BR_NAV',url:'https://www.wikipedia.org'},'*')"><span class="ql-icon">📖</span>Wikipedia</div>
 </div>
 <div class="note">Note: Some sites block embedding.</div>
 </body></html>`;
