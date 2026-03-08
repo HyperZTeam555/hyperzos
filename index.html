@@ -1381,6 +1381,31 @@ let currentTrack = 0;
 // ========================
 window._animationsOn = true;
 const browserSettings = { verticalTabs: true };
+const NEWTAB_SRCDOC = `<html><head><style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;
+     display:flex;flex-direction:column;align-items:center;justify-content:center;
+     height:100vh;gap:16px;}
+h2{font-size:18px;font-weight:600;color:#f0f6fc;}
+p{font-size:12px;color:#8b949e;text-align:center;}
+.ql{display:flex;gap:12px;margin-top:4px;}
+.ql-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+         border-radius:10px;padding:12px 18px;cursor:pointer;font-size:12px;
+         display:flex;flex-direction:column;align-items:center;gap:6px;
+         transition:background 0.15s;color:#c9d1d9;text-decoration:none;}
+.ql-item:hover{background:rgba(88,166,255,0.12);}
+.ql-icon{font-size:22px;}
+.note{font-size:10px;color:#6e7681;margin-top:8px;}
+</style></head><body>
+<h2>🌐 HyperZBrowser</h2>
+<p>Powered by <b style="color:#58a6ff">Mojeek</b> · Enter a URL or search above</p>
+<div class="ql">
+  <a class="ql-item" href="https://penguinmod.com" target="_top"><span class="ql-icon">🐧</span>PenguinMod</a>
+  <a class="ql-item" href="https://www.pcjs.org" target="_top"><span class="ql-icon">💾</span>PCjs</a>
+  <a class="ql-item" href="https://www.wikipedia.org" target="_top"><span class="ql-icon">📖</span>Wikipedia</a>
+</div>
+<div class="note">Note: Some sites block embedding.</div>
+</body></html>`;
 const settingsState = {
   // Appearance
   accentColor: '#58a6ff',
@@ -2378,6 +2403,11 @@ function initAppLogic(id) {
     }, 50);
   }
   if (id === 'browser') { setTimeout(() => {
+    /* Create iframe for the initial tab showing newtab page */
+    if (browserTabs.length > 0) {
+      const firstFrame = getOrCreateTabFrame(browserTabs[0].id, true);
+      if (firstFrame) firstFrame.classList.add('active');
+    }
     renderBrowserTabs();
     brStartGGCheck();
     applyVerticalTabs(browserSettings.verticalTabs);
@@ -3571,8 +3601,6 @@ function loadBrowserUrl(url, _retry, _tabId) {
     tab.url = full;
     tab.loaded = true;
     updateBrowserUrlBar();
-    const newtab = document.getElementById('browser-newtab-page');
-    if (newtab) newtab.style.display = 'none';
     if (content !== undefined) frame.srcdoc = content;
     renderBrowserTabs();
     return;
@@ -3583,9 +3611,8 @@ function loadBrowserUrl(url, _retry, _tabId) {
   updateBrowserUrlBar();
 
   const frame = getOrCreateTabFrame(tabId);
-  const newtab = document.getElementById('browser-newtab-page');
-  if (newtab) newtab.style.display = 'none';
-  document.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
+  const wrap = document.getElementById('browser-frames-wrap');
+  if (wrap) wrap.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
   frame.classList.add('active');
 
   brShowLoading(tabId, full);
@@ -3700,7 +3727,7 @@ function browserNav() {
   loadBrowserUrl(isUrl ? raw : 'https://mojeek.com/search?q=' + encodeURIComponent(raw) + '&theme=dark');
 }
 
-function getOrCreateTabFrame(id) {
+function getOrCreateTabFrame(id, showNewtab) {
   const wrap = document.getElementById('browser-frames-wrap');
   if (!wrap) return null;
   let frame = document.getElementById('browser-frame-' + id);
@@ -3709,7 +3736,8 @@ function getOrCreateTabFrame(id) {
     frame.id = 'browser-frame-' + id;
     frame.className = 'browser-tab-frame';
     frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
-    frame.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups allow-modals';
+    frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation allow-top-navigation-by-user-activation');
+    if (showNewtab) frame.srcdoc = NEWTAB_SRCDOC;
     wrap.appendChild(frame);
   }
   return frame;
@@ -3921,16 +3949,13 @@ function switchBrowserTab(id) {
   activeTabId = id;
   const tab = browserTabs.find(t => t.id === id);
   updateBrowserUrlBar();
-  document.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
-  const newtab = document.getElementById('browser-newtab-page');
-  if (!tab || !tab.url) {
-    if (newtab) newtab.style.display = 'flex';
-  } else {
-    if (newtab) newtab.style.display = 'none';
-    const frame = getOrCreateTabFrame(id);
-    if (frame) frame.classList.add('active');
-    if (tab && !tab.loaded) loadBrowserUrl(tab.url, 0, id);
-  }
+  const wrap = document.getElementById('browser-frames-wrap');
+  if (wrap) wrap.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
+  if (!tab) { renderBrowserTabs(); return; }
+  /* Get or create iframe — show newtab srcdoc if no URL yet */
+  const frame = getOrCreateTabFrame(id, !tab.url);
+  if (frame) frame.classList.add('active');
+  if (tab.url && !tab.loaded) loadBrowserUrl(tab.url, 0, id);
   renderBrowserTabs();
 }
 
@@ -3938,9 +3963,10 @@ function newBrowserTab() {
   const id = tabIdCounter++;
   browserTabs.push({ id, title: 'New Tab', url: '', favicon: '🌐', loaded: false });
   activeTabId = id;
-  const newtab = document.getElementById('browser-newtab-page');
-  if (newtab) newtab.style.display = 'flex';
-  document.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
+  const wrap = document.getElementById('browser-frames-wrap');
+  if (wrap) wrap.querySelectorAll('.browser-tab-frame').forEach(f => f.classList.remove('active'));
+  const frame = getOrCreateTabFrame(id, true); /* true = show newtab page */
+  if (frame) frame.classList.add('active');
   const urlbar = document.getElementById('browser-url-bar');
   if (urlbar) urlbar.value = '';
   renderBrowserTabs();
@@ -4053,22 +4079,7 @@ function buildBrowser() {
     <div class="browser-layout" id="browser-layout">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
         <div style="flex:1;position:relative;overflow:hidden">
-        <div class="browser-newtab" id="browser-newtab-page" style="position:absolute;inset:0;z-index:2">
-          <h2>🌐 HyperZBrowser</h2>
-          <p>Powered by <strong style="color:var(--accent)">Mojeek</strong> search engine · Enter a URL or search above</p>
-          <div class="browser-quicklinks">
-            <div class="browser-quicklink" onclick="loadBrowserUrl('https://penguinmod.com')">
-              <span class="ql-icon">🐧</span>PenguinMod
-            </div>
-            <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.pcjs.org')">
-              <span class="ql-icon">💾</span>PCjs
-            </div>
-            <div class="browser-quicklink" onclick="loadBrowserUrl('https://www.wikipedia.org')">
-              <span class="ql-icon">📖</span>Wikipedia
-            </div>
-          </div>
-          <div style="font-size:10px;color:var(--text-dim);margin-top:16px">Note: Some sites block embedding. Use the URL bar to navigate.</div>
-        </div>
+
         <div id="browser-frames-wrap" style="position:absolute;inset:0;z-index:1"></div>
         </div>
       </div>
