@@ -2391,6 +2391,9 @@ function initAppLogic(id) {
         applyVerticalTabs(browserSettings.verticalTabs);
       });
     }
+    /* Extra drag handles: tabs bars + sidebar */
+    attachBrowserDragHandles();
+
     /* Close settings menu on outside click */
     document.addEventListener('mousedown', function closeBsm(e) {
       const menu = document.getElementById('browser-settings-menu');
@@ -3734,6 +3737,39 @@ function toggleBrowserSettingsMenu(e) {
   }
 }
 
+function attachBrowserDragHandles() {
+  const win = document.getElementById('win-browser');
+  if (!win) return;
+  const SKIP = ['browser-tab','browser-tab-add','browser-vtab-item','browser-vtab-add',
+                'browser-broken-btn','browser-settings-btn','browser-settings-menu',
+                'browser-go','toggle','tbtn','browser-nav-btn'];
+  function shouldSkip(el) {
+    if (!el) return false;
+    if (['INPUT','BUTTON'].includes(el.tagName)) return true;
+    return SKIP.some(cls => el.classList.contains(cls) || el.closest('.' + cls));
+  }
+  function addHandle(handle) {
+    if (!handle) return;
+    handle.style.cursor = 'default';
+    let dragging = false, sx, sy, wx, wy;
+    handle.addEventListener('mousedown', e => {
+      if (shouldSkip(e.target)) return;
+      dragging = true;
+      sx = e.clientX; sy = e.clientY;
+      wx = win.offsetLeft; wy = win.offsetTop;
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      win.style.left = (wx + e.clientX - sx) + 'px';
+      win.style.top  = Math.max(0, wy + e.clientY - sy) + 'px';
+    });
+    document.addEventListener('mouseup', () => { dragging = false; });
+  }
+  addHandle(document.getElementById('browser-tabs-wrapper'));
+  addHandle(document.getElementById('browser-vtab-sidebar'));
+}
+
 function applyVerticalTabs(on) {
   browserSettings.verticalTabs = on;
   const layout = document.getElementById('browser-layout');
@@ -3758,6 +3794,8 @@ function applyVerticalTabs(on) {
     `;
     layout.insertBefore(sidebar, layout.firstChild);
     renderVTabs();
+    /* Re-attach drag handle to new sidebar */
+    setTimeout(attachBrowserDragHandles, 0);
   } else {
     if (hbar) {
       hbar.classList.remove('hidden');
