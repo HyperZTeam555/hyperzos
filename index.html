@@ -5056,10 +5056,13 @@ let activeTabId = 1;
 let tabIdCounter = 2;
 
 /* ── PROXY ENGINE ──────────────────────────────────────── */
-const BR_PROXY_LIST = [
-  'https://corsproxy.io/?',
-  'https://api.allorigins.win/raw?url=',
-  'https://cors-anywhere.herokuapp.com/'
+const BR_PROXIES = [
+  { build: url => `https://corsproxy.io/?url=${encodeURIComponent(url)}` },
+  { build: url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}` },
+  { build: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
+  { build: url => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}` },
+  { build: url => `https://cors.sh/?${encodeURIComponent(url)}`, headers: { 'x-cors-api-key': 'temp_' } },
+  { build: url => `https://proxy.cors.sh/${url}` },
 ];
 let brProxyIndex = 0;
 
@@ -5229,13 +5232,15 @@ function loadBrowserUrl(url, _retry, _tabId) {
   brShowLoading(tabId, full);
   renderBrowserTabs();
 
-  const proxyUrl = BR_PROXY_LIST[brProxyIndex] + encodeURIComponent(full);
+  const proxy = BR_PROXIES[brProxyIndex];
+  const proxyUrl = proxy.build(full);
+  const fetchOpts = proxy.headers ? { headers: proxy.headers } : {};
   const capturedTabId = tabId;
 
-  fetch(proxyUrl)
+  fetch(proxyUrl, fetchOpts)
     .then(function(res) {
-      if (!res.ok && _retry < BR_PROXY_LIST.length - 1) {
-        brProxyIndex = (_retry + 1) % BR_PROXY_LIST.length;
+      if (!res.ok && _retry < BR_PROXIES.length - 1) {
+        brProxyIndex = (_retry + 1) % BR_PROXIES.length;
         loadBrowserUrl(full, _retry + 1, capturedTabId);
         return null;
       }
@@ -5273,8 +5278,8 @@ function loadBrowserUrl(url, _retry, _tabId) {
       if (capturedTabId === activeTabId) updateBrowserUrlBar();
     })
     .catch(function() {
-      if (_retry < BR_PROXY_LIST.length - 1) {
-        brProxyIndex = (_retry + 1) % BR_PROXY_LIST.length;
+      if (_retry < BR_PROXIES.length - 1) {
+        brProxyIndex = (_retry + 1) % BR_PROXIES.length;
         loadBrowserUrl(full, _retry + 1, capturedTabId);
         return;
       }
