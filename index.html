@@ -122,29 +122,38 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    padding: 10px 8px;
+    gap: 5px;
+    padding: 8px 6px;
     border-radius: 8px;
     cursor: pointer;
     width: 80px;
     transition: background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
   }
-  .desktop-icon:hover { background: rgba(88,166,255,0.1); }
-  .desktop-icon:active { background: rgba(88,166,255,0.2); }
+  .desktop-icon:hover { background: rgba(88,166,255,0.12); }
+  .desktop-icon.selected { background: rgba(88,166,255,0.22); outline: 1px solid rgba(88,166,255,0.5); outline-offset: -1px; }
   .desktop-icon .icon-img {
-    font-size: 32px;
+    font-size: 40px;
     line-height: 1;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+    display: flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px;
   }
+  .desktop-icon .icon-char { font-size: 40px; line-height: 1; }
   .desktop-icon span {
     font-size: 11px;
-    color: var(--text);
+    color: #fff;
     text-align: center;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 10px rgba(0,0,0,0.7);
     line-height: 1.3;
+    max-width: 76px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  /* DESKTOP DROP GHOST — outline shown when dragging file from FM onto desktop */
+  /* DESKTOP DROP GHOST */
   #desktop-drop-ghost {
     position: fixed;
     pointer-events: none;
@@ -152,17 +161,17 @@
     display: none;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     width: 80px;
-    padding: 10px 8px;
+    padding: 8px 6px;
     border-radius: 8px;
-    border: 2px dashed rgba(88,166,255,0.7);
-    background: rgba(88,166,255,0.08);
+    border: 2px dashed rgba(88,166,255,0.85);
+    background: rgba(88,166,255,0.1);
     box-shadow: 0 0 0 1px rgba(88,166,255,0.2), 0 4px 20px rgba(0,0,0,0.3);
   }
-  #desktop-drop-ghost .icon-img { font-size: 32px; line-height: 1; opacity: 0.7; }
-  #desktop-drop-ghost span { font-size: 11px; color: rgba(88,166,255,0.9); text-align: center; line-height: 1.3; }
-  .desktop-icon.dragging { opacity: 0.4; }
+  #desktop-drop-ghost .icon-img { font-size: 40px; line-height: 1; opacity: 0.7; display:flex; align-items:center; justify-content:center; width:52px; height:52px; }
+  #desktop-drop-ghost span { font-size: 11px; color: rgba(88,166,255,0.9); text-align: center; line-height: 1.3; max-width:76px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .desktop-icon.dragging { opacity: 0.35; pointer-events: none; }
 
   #snap-overlay {
     position: fixed;
@@ -1587,13 +1596,12 @@ function doLogin() {
 // Track desktop icon positions: appId/filename → {x, y}
 const desktopIconPositions = {};
 
-function addDesktopIcon(label, iconChar, action, x, y, key) {
+function addDesktopIcon(label, iconChar, action, x, y, key, isFile) {
   const desktop = document.getElementById('desktop');
-  const ICON_W = 88, ICON_H = 92;
-  // Snap to a grid if no explicit position
+  const ICON_W = 90, ICON_H = 96;
   if (x === undefined) {
     const existing = desktop.querySelectorAll('.desktop-icon').length;
-    const ROWS = 3, PAD_X = 12, PAD_Y = 12;
+    const ROWS = 4, PAD_X = 14, PAD_Y = 14;
     const col = Math.floor(existing / ROWS), row = existing % ROWS;
     x = PAD_X + col * ICON_W; y = PAD_Y + row * ICON_H;
   }
@@ -1602,7 +1610,8 @@ function addDesktopIcon(label, iconChar, action, x, y, key) {
   el.style.left = x + 'px';
   el.style.top  = y + 'px';
   if (key) el.dataset.iconKey = key;
-  el.innerHTML = `<div class="icon-img">${iconChar}</div><span>${label}</span>`;
+  el.dataset.isFile = isFile ? '1' : '0';
+  el.innerHTML = `<div class="icon-img"><span class="icon-char">${iconChar}</span></div><span>${label}</span>`;
   el.ondblclick = action;
   wireDesktopIconDrag(el);
   desktop.appendChild(el);
@@ -1612,12 +1621,53 @@ function addDesktopIcon(label, iconChar, action, x, y, key) {
 
 function wireDesktopIconDrag(el) {
   const THRESH = 5;
+
+  // Right-click context menu
+  el.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const key = el.dataset.iconKey || '';
+    const label = el.querySelector('span') ? el.querySelector('span').textContent : '';
+    const isApp = key.startsWith('app:');
+    const isFile = key.startsWith('file:');
+    const filePath = isFile ? key.slice(5) : null;
+    const appId = isApp ? key.slice(4) : null;
+    const items = [];
+    if (isApp) {
+      items.push({ label: '▶ Open ' + label, action: () => el.ondblclick && el.ondblclick() });
+      items.push({ sep: true });
+      items.push({ label: '🔒 Remove from Desktop', action: () => {
+        notify('HyperZInstaller', '🔒 "' + label + '" is protected by HyperZInstaller and cannot be removed.');
+      }});
+    } else if (isFile) {
+      items.push({ label: '▶ Open', action: () => el.ondblclick && el.ondblclick() });
+      items.push({ label: '📁 Show in Files', action: () => {
+        const dir = filePath.split('/').slice(0,-1).join('/') || '/';
+        openApp('files'); setTimeout(() => fmNavigate(dir), 150);
+      }});
+      items.push({ sep: true });
+      items.push({ label: '🗑️ Delete', action: async () => {
+        const name = filePath.split('/').pop();
+        const ok = await osConfirm(`Delete "${name}"?`, 'This cannot be undone.');
+        if (!ok) return;
+        const dir2 = filePath.split('/').slice(0,-1).join('/') || '/';
+        if (fsTree[dir2]) delete fsTree[dir2][name];
+        if (fileContents[filePath] !== undefined) delete fileContents[filePath];
+        el.remove();
+        delete desktopIconPositions[key];
+        notify('Desktop', `Deleted "${name}"`);
+      }});
+    }
+    showCtxMenu(e.clientX, e.clientY, items);
+  });
+
+  // Drag — supports repositioning on desktop OR dragging into Files window
   el.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
-    // Don't start drag on dblclick — single click only
     const startX = e.clientX, startY = e.clientY;
     const origLeft = parseInt(el.style.left), origTop = parseInt(el.style.top);
     let dragging = false;
+    let ghost = null;
 
     const onMove = ev => {
       const dx = ev.clientX - startX, dy = ev.clientY - startY;
@@ -1625,17 +1675,67 @@ function wireDesktopIconDrag(el) {
         if (Math.sqrt(dx*dx+dy*dy) < THRESH) return;
         dragging = true;
         el.classList.add('dragging');
+        // Create floating ghost for drag-to-files
+        ghost = document.createElement('div');
+        ghost.style.cssText = `position:fixed;z-index:99999;pointer-events:none;padding:4px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,0.5);white-space:nowrap;opacity:0.9`;
+        const iconEl = el.querySelector('.icon-char');
+        const lbl = el.querySelector('span:last-child');
+        ghost.textContent = (iconEl ? iconEl.textContent : '') + ' ' + (lbl ? lbl.textContent : '');
+        document.body.appendChild(ghost);
       }
       el.style.left = Math.max(0, origLeft + dx) + 'px';
       el.style.top  = Math.max(0, origTop  + dy) + 'px';
+      if (ghost) { ghost.style.left = (ev.clientX + 14) + 'px'; ghost.style.top = (ev.clientY + 4) + 'px'; }
+
+      // Highlight Files window if hovering over it
+      const fmBody = document.getElementById('body-files');
+      if (fmBody) {
+        const r = fmBody.getBoundingClientRect();
+        const over = ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
+        fmBody.style.outline = over ? '2px solid var(--accent)' : '';
+      }
     };
 
     const onUp = ev => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
-      if (!dragging) return;
+      if (ghost) { ghost.remove(); ghost = null; }
+      const fmBody = document.getElementById('body-files');
+      if (fmBody) fmBody.style.outline = '';
+      if (!dragging) { el.classList.remove('dragging'); return; }
       el.classList.remove('dragging');
-      const key = el.dataset.iconKey;
+
+      // Check if dropped on Files window
+      const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+      const droppedOnFiles = hit && hit.closest('#win-files') && !hit.closest('#win-files .window-titlebar');
+      const key = el.dataset.iconKey || '';
+      const isFileDrag = key.startsWith('file:');
+
+      if (droppedOnFiles && isFileDrag) {
+        // Move file from Desktop folder into current FM directory
+        const filePath = key.slice(5);
+        const fname = filePath.split('/').pop();
+        const srcDir = filePath.split('/').slice(0,-1).join('/') || '/';
+        const dstDir = fmCwd;
+        if (srcDir !== dstDir) {
+          fmMoveItem(srcDir, fname, fsTree[srcDir] && fsTree[srcDir][fname] === 'dir' ? 'dir' : 'file', dstDir);
+          el.remove();
+          delete desktopIconPositions[key];
+          notify('Files', `Moved "${fname}" to ${dstDir}`);
+        } else {
+          // Snap back
+          el.style.left = origLeft + 'px'; el.style.top = origTop + 'px';
+        }
+        return;
+      }
+
+      // Snap back if dragged off desktop onto something else (a window)
+      if (hit && hit.closest('.window') && !hit.closest('#desktop')) {
+        el.style.left = origLeft + 'px'; el.style.top = origTop + 'px';
+        return;
+      }
+
+      // Stayed on desktop — save position
       if (key) desktopIconPositions[key] = { x: parseInt(el.style.left), y: parseInt(el.style.top) };
     };
 
@@ -1644,17 +1744,82 @@ function wireDesktopIconDrag(el) {
   });
 }
 
+// Sync desktop icons from /home/user/Desktop folder contents
+function syncDesktopFromFS() {
+  const desktop = document.getElementById('desktop');
+  if (!desktop) return;
+  const DESKTOP_DIR = '/home/user/Desktop';
+  const desktopFiles = fsTree[DESKTOP_DIR] || {};
+
+  // Remove file icons that no longer exist in Desktop folder
+  desktop.querySelectorAll('.desktop-icon[data-icon-key^="file:"]').forEach(el => {
+    const key = el.dataset.iconKey;
+    const path = key.slice(5);
+    const dir = path.split('/').slice(0,-1).join('/');
+    const name = path.split('/').pop();
+    if (dir === DESKTOP_DIR && !desktopFiles[name]) {
+      el.remove();
+      delete desktopIconPositions[key];
+    }
+  });
+
+  // Add icons for files in Desktop folder that don't have icons yet (skip .lnk — apps are native)
+  Object.entries(desktopFiles).forEach(([name, type]) => {
+    if (name.endsWith('.lnk')) return;
+    const path = DESKTOP_DIR + '/' + name;
+    const key = 'file:' + path;
+    if (document.querySelector(`[data-icon-key="${CSS.escape(key)}"]`)) return; // already on desktop
+
+    const iconChar = fmGetIcon(name, type);
+    const label = name.replace(/\.[^.]+$/, '') || name;
+    let action;
+    if (type === 'dir') {
+      action = () => { openApp('files'); setTimeout(() => fmNavigate(path), 150); };
+    } else {
+      action = () => fmOpenPath(path, type);
+    }
+    const saved = desktopIconPositions[key];
+    addDesktopIcon(label, iconChar, action, saved ? saved.x : undefined, saved ? saved.y : undefined, key, true);
+  });
+}
+
 function buildDesktop() {
   const desktop = document.getElementById('desktop');
+  const ICON_W = 90, ICON_H = 96;
+  const PAD_X = 14, PAD_Y = 14;
+  const ROWS = 4;
 
-  const ICON_W = 88, ICON_H = 92;
-  const PAD_X = 12, PAD_Y = 12;
-  const ROWS = 3;
-
+  // Place app icons in left column grid
   apps.forEach((app, i) => {
     const col = Math.floor(i / ROWS), row = i % ROWS;
     const x = PAD_X + col * ICON_W, y = PAD_Y + row * ICON_H;
-    addDesktopIcon(app.name, app.icon, () => openApp(app.id), x, y, 'app:' + app.id);
+    const key = 'app:' + app.id;
+    addDesktopIcon(app.name, app.icon, () => openApp(app.id), x, y, key, false);
+  });
+
+  // Load file icons from /home/user/Desktop (skip .lnk files whose apps already have icons)
+  const DESKTOP_DIR = '/home/user/Desktop';
+  const desktopFiles = fsTree[DESKTOP_DIR] || {};
+  const appLnkIds = new Set(apps.map(a => a.id));
+  let fileIconCount = 0;
+  Object.entries(desktopFiles).forEach(([name, type]) => {
+    // Skip .lnk shortcuts — apps already shown as icons above
+    if (name.endsWith('.lnk')) return;
+    const path = DESKTOP_DIR + '/' + name;
+    const key = 'file:' + path;
+    const iconChar = fmGetIcon(name, type);
+    const label = name.replace(/\.[^.]+$/, '') || name;
+    let action;
+    if (type === 'dir') {
+      action = () => { openApp('files'); setTimeout(() => fmNavigate(path), 150); };
+    } else {
+      action = () => fmOpenPath(path, type);
+    }
+    const colOffset = Math.ceil(apps.length / ROWS);
+    const col2 = colOffset + Math.floor(fileIconCount / ROWS);
+    const row2 = fileIconCount % ROWS;
+    addDesktopIcon(label, iconChar, action, PAD_X + col2 * ICON_W, PAD_Y + row2 * ICON_H, key, true);
+    fileIconCount++;
   });
 
   // Start menu grid
@@ -1667,15 +1832,17 @@ function buildDesktop() {
     grid.appendChild(el);
   });
 
-  // Desktop right-click
-  desktop.addEventListener('contextmenu', (e) => {
+  // Desktop right-click (on desktop background, not on icons)
+  desktop.addEventListener('contextmenu', e => {
+    if (e.target.closest('.desktop-icon')) return; // handled by icon's own listener
     e.preventDefault();
     showCtxMenu(e.clientX, e.clientY, [
-      { label: '🔄 Refresh Desktop', action: () => {} },
-      { label: '📋 Paste', action: () => {} },
+      { label: '🔄 Refresh Desktop', action: () => syncDesktopFromFS() },
       { sep: true },
-      { label: '🖥️ Display Settings', action: () => openApp('settings') },
-      { label: '⚙️ System Settings', action: () => openApp('settings') },
+      { label: '📁 Open Files', action: () => openApp('files') },
+      { label: '💻 Open Terminal', action: () => openApp('terminal') },
+      { sep: true },
+      { label: '⚙️ Settings', action: () => openApp('settings') },
     ]);
   });
 }
@@ -1772,7 +1939,16 @@ function buildAppContent(id) {
   }
 }
 
-function closeWin(id) {
+async function closeWin(id) {
+  // If closing the editor with unsaved changes, prompt first
+  if (id === 'editor') {
+    const win = document.getElementById('win-editor');
+    if (win && win.dataset.editorDirty === '1') {
+      const save = await osConfirm('Save your edits?', 'You have unsaved changes. Save before closing?', 'Save');
+      if (save) saveEditorFile();
+      // Always close after prompt (whether they saved or not)
+    }
+  }
   const win = document.getElementById('win-' + id);
   if (!win) return;
   win.classList.remove('window-opening');
@@ -2555,7 +2731,7 @@ let fsTree = {
   '/': { home: 'dir', etc: 'dir', usr: 'dir', var: 'dir', tmp: 'dir' },
   '/home': { user: 'dir' },
   '/home/user': { 'readme.txt':'file', 'notes.md':'file', 'projects':'dir', '.bashrc':'file', 'Desktop':'dir', 'scripts':'dir' },
-  '/home/user/Desktop': { 'ZBrowser.lnk':'file', 'Text Editor.lnk':'file', 'ZTerminal.lnk':'file', 'Files.lnk':'file', 'Calculator.lnk':'file', 'Notes.lnk':'file', 'Music.lnk':'file', 'Settings.lnk':'file', 'Clock.lnk':'file' },
+  '/home/user/Desktop': {},
   '/home/user/projects': { 'hello.py':'file', 'index.html':'file', 'style.css':'file' },
   '/etc': { 'hosts':'file', 'passwd':'file', 'os-release':'file', 'hostname':'file' },
   '/usr': { bin:'dir', lib:'dir', share:'dir' },
@@ -2565,15 +2741,6 @@ let fsTree = {
   '/tmp': {},
 };
 let fileContents = {
-  '/home/user/Desktop/ZBrowser.lnk': 'browser',
-  '/home/user/Desktop/Text Editor.lnk': 'editor',
-  '/home/user/Desktop/ZTerminal.lnk': 'terminal',
-  '/home/user/Desktop/Files.lnk': 'files',
-  '/home/user/Desktop/Calculator.lnk': 'calc',
-  '/home/user/Desktop/Notes.lnk': 'notes',
-  '/home/user/Desktop/Music.lnk': 'music',
-  '/home/user/Desktop/Settings.lnk': 'settings',
-  '/home/user/Desktop/Clock.lnk': 'clock',
   '/home/user/readme.txt': 'Welcome to HyperZOS!\nThis is a simulated terminal.\nType "help" for available commands.',
   '/home/user/notes.md': '# Notes\n- Try different commands\n- Type help for more\n- Use cd, ls, cat to navigate',
   '/home/user/.bashrc': '# HyperZOS bash config\nexport PS1="user@hyperzos:$PWD$ "\nexport PATH=/usr/bin:$PATH',
@@ -2981,6 +3148,7 @@ function execCmd(cmd) {
         const win = document.getElementById('win-editor');
         if (win) win.dataset.filePath = filePath;
         if (!fsTree[parentD][fName]) { fsTree[parentD][fName] = 'file'; fileContents[filePath] = content; }
+        if (window._editorMarkClean) window._editorMarkClean();
       }, 150);
       return `<span class="term-info">Opening ${args[0]} in HyperZOS Editor...</span>`;
     }
@@ -3906,6 +4074,25 @@ function initEditor() {
   const ta = document.getElementById('editor-ta');
   const lines = document.getElementById('editor-lines');
   if (!ta) return;
+
+  // Track dirty state — set when content changes after last save
+  const win = document.getElementById('win-editor');
+  let savedContent = ta.value;
+  if (win) win.dataset.editorDirty = '0';
+
+  function markDirty() {
+    const dirty = ta.value !== savedContent;
+    if (win) win.dataset.editorDirty = dirty ? '1' : '0';
+    const savedEl = document.getElementById('ed-stat-saved');
+    if (savedEl && dirty && savedEl.textContent === '✓ Saved') savedEl.textContent = '';
+    // Show unsaved dot in title
+    const titleEl = win ? win.querySelector('.window-title') : null;
+    if (titleEl) {
+      const base = titleEl.textContent.replace(/^● /, '');
+      titleEl.textContent = dirty ? '● ' + base : base;
+    }
+  }
+
   function updateLines() {
     const n = ta.value.split('\n').length;
     lines.innerHTML = Array.from({length:n},(_,i)=>i+1).join('<br>');
@@ -3917,7 +4104,26 @@ function initEditor() {
       el.textContent = `Ln ${ln}, Col ${col}`;
     }
     updateEditorFileType();
+    markDirty();
   }
+
+  // When a file is loaded into editor, reset dirty baseline
+  if (win) {
+    const observer = new MutationObserver(() => {
+      savedContent = ta.value;
+      if (win) win.dataset.editorDirty = '0';
+      const titleEl = win.querySelector('.window-title');
+      if (titleEl) titleEl.textContent = titleEl.textContent.replace(/^● /, '');
+    });
+    // We'll reset baseline manually via editorMarkClean()
+  }
+  window._editorMarkClean = () => {
+    savedContent = ta.value;
+    if (win) win.dataset.editorDirty = '0';
+    const titleEl = win ? win.querySelector('.window-title') : null;
+    if (titleEl) titleEl.textContent = titleEl.textContent.replace(/^● /, '');
+  };
+
   ta.addEventListener('input', updateLines);
   ta.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
@@ -3927,7 +4133,6 @@ function initEditor() {
       ta.selectionStart = ta.selectionEnd = s + 2;
       updateLines();
     }
-    // Ctrl+S to save
     if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       saveEditorFile();
@@ -3995,6 +4200,7 @@ function saveEditorFile() {
   }
 
   notify('Editor', `Saved: ${savePath}`);
+  if (window._editorMarkClean) window._editorMarkClean();
   fmRefreshIfOpen();
 }
 
@@ -4290,13 +4496,15 @@ function fmWireDrag(main, entries) {
       // Show desktop drop ghost or folder highlight
       const ddg = document.getElementById('desktop-drop-ghost');
       if (onDesktop && ddg) {
-        // Show outline ghost on the desktop at drop position
-        const icon = fmGetIcon(info.name, info.type);
-        document.getElementById('ddg-icon').textContent = icon;
+        const ICON_W = 90, ICON_H = 96;
+        const rawX = ev.clientX - 41, rawY = ev.clientY - 40;
+        const snapX = Math.max(14, Math.round((rawX - 14) / ICON_W) * ICON_W + 14);
+        const snapY = Math.max(14, Math.round((rawY - 14) / ICON_H) * ICON_H + 14);
+        document.getElementById('ddg-icon').textContent = fmGetIcon(info.name, info.type);
         document.getElementById('ddg-label').textContent = info.name.replace(/\.[^.]+$/, '') || info.name;
         ddg.style.display = 'flex';
-        ddg.style.left = (ev.clientX - 40) + 'px';
-        ddg.style.top  = (ev.clientY - 46) + 'px';
+        ddg.style.left = snapX + 'px';
+        ddg.style.top  = snapY + 'px';
       } else {
         if (ddg) ddg.style.display = 'none';
         // Highlight folder/sidebar targets
@@ -4334,29 +4542,34 @@ function fmWireDrag(main, entries) {
       // Dropped on desktop?
       const onDesktop = hit && (hit.id === 'desktop' || hit.closest('#desktop')) && !hit.closest('.window') && !hit.closest('#taskbar') && !hit.closest('[data-fm-idx]');
       if (onDesktop) {
-        const dropX = ev.clientX - 40;
-        const dropY = ev.clientY - 46;
+        const ICON_W = 90, ICON_H = 96;
+        const rawX = ev.clientX - 41, rawY = ev.clientY - 40;
+        const snapX = Math.max(14, Math.round((rawX - 14) / ICON_W) * ICON_W + 14);
+        const snapY = Math.max(14, Math.round((rawY - 14) / ICON_H) * ICON_H + 14);
         const fname = _fmDrag.name;
         const ftype = _fmDrag.type;
-        const fullPath = fmJoinPath(_fmDrag.fromDir, fname);
-        const iconChar = fmGetIcon(fname, ftype);
-        const label = fname.replace(/\.[^.]+$/, '') || fname;
-        const key = 'file:' + fullPath;
-        // Don't add duplicate
-        if (!document.querySelector(`[data-icon-key="${CSS.escape(key)}"]`)) {
-          let action;
-          if (fname.endsWith('.lnk')) {
-            const appId = (fileContents[fullPath] || '').trim();
-            const app = apps.find(a => a.id === appId || a.name === appId);
-            action = app ? () => openApp(app.id) : () => notify('Desktop', 'Unknown shortcut');
-          } else if (ftype === 'dir') {
-            action = () => { openApp('files'); setTimeout(() => fmNavigate(fullPath), 150); };
-          } else {
-            action = () => fmShowFilePreview(fullPath);
-          }
-          addDesktopIcon(label, iconChar, action, Math.max(0, dropX), Math.max(0, dropY), key);
-          notify('Desktop', `"${fname}" added to desktop`);
+        const srcPath = fmJoinPath(_fmDrag.fromDir, fname);
+        const DESKTOP_DIR = '/home/user/Desktop';
+        const dstPath = DESKTOP_DIR + '/' + fname;
+        const key = 'file:' + dstPath;
+
+        if (_fmDrag.fromDir === DESKTOP_DIR) {
+          // Already in Desktop folder — just update position
+          const existing = document.querySelector(`[data-icon-key="${CSS.escape(key)}"]`);
+          if (existing) { existing.style.left = snapX + 'px'; existing.style.top = snapY + 'px'; desktopIconPositions[key] = { x: snapX, y: snapY }; }
+          _fmDrag = null; return;
         }
+
+        if (!fsTree[DESKTOP_DIR]) fsTree[DESKTOP_DIR] = {};
+        if (fsTree[DESKTOP_DIR][fname]) { notify('Desktop', `"${fname}" already on Desktop`); _fmDrag = null; return; }
+
+        // Move file into Desktop folder
+        fmMoveItem(_fmDrag.fromDir, fname, ftype, DESKTOP_DIR);
+
+        // Record desired position so syncDesktopFromFS places it correctly
+        desktopIconPositions[key] = { x: snapX, y: snapY };
+        syncDesktopFromFS();
+        notify('Desktop', `"${fname}" added to Desktop`);
         _fmDrag = null; return;
       }
 
@@ -4499,13 +4712,17 @@ function fmJoinPath(dir, name) {
 
 function fmOpen(name, type) {
   const fullPath = fmJoinPath(fmCwd, name);
+  fmOpenPath(fullPath, type);
+}
+
+function fmOpenPath(fullPath, type) {
+  const name = fullPath.split('/').pop();
   if (type === 'dir') {
-    fmNavigate(fullPath);
+    openApp('files'); setTimeout(() => fmNavigate(fullPath), 150);
   } else if (name.endsWith('.zt')) {
-    // Run .zt scripts in terminal
     openApp('terminal');
     setTimeout(() => {
-      const relPath = fullPath.replace('/home/user/', '');
+      const relPath = fullPath.startsWith('/home/user/') ? fullPath.replace('/home/user/', '') : fullPath;
       const result = execCmd('run ' + relPath);
       if (result) addTermLine(result);
       scrollTerm();
@@ -4559,6 +4776,8 @@ function fmShowFilePreview(path) {
       fsTree[dir][name] = 'file';
       if (fileContents[path] === undefined) fileContents[path] = '';
     }
+    // Reset dirty flag — file just loaded, no unsaved changes
+    if (window._editorMarkClean) window._editorMarkClean();
     notify('Editor', `Opened: ${name}`);
   }, 150);
 }
@@ -4612,6 +4831,7 @@ function fmMoveItem(fromDir, name, type, toDir) {
     fmMoveSubtree(srcPath, dstPath);
   }
   fmRender();
+  syncDesktopFromFS();
   notify('Files', `Moved "${name}" to ${toDir}`);
 }
 
@@ -4661,6 +4881,7 @@ function showFmCtxMenu(x, y, name, type) {
             if (ta) { ta.value = fileContents[path] || ''; ta.dispatchEvent(new Event('input')); }
             if (fn) fn.value = name;
             if (win) win.dataset.filePath = path;
+            if (window._editorMarkClean) window._editorMarkClean();
           }, 150);
         }});
       }
@@ -4759,6 +4980,7 @@ async function fmRenameItem(name, type) {
   }
   fmSelected = newName;
   fmRender();
+  syncDesktopFromFS();
   notify('Files', `Renamed to "${newName}"`);
 }
 
@@ -4771,6 +4993,7 @@ async function fmDeleteItem(name, type) {
   else { fmDeleteSubtree(path); }
   if (fmSelected === name) fmSelected = null;
   fmRender();
+  syncDesktopFromFS();
   notify('Files', `Deleted "${name}"`);
 }
 
@@ -6124,15 +6347,15 @@ function osPrompt(title, defaultVal, msg) {
   });
 }
 
-function osConfirm(title, msg) {
+function osConfirm(title, msg, confirmLabel, dangerConfirm) {
+  const isCustom = !!confirmLabel;
+  const confirmBtn = { label: confirmLabel || 'Delete', value: true, danger: !isCustom, primary: isCustom };
+  const cancelBtn  = { label: 'Cancel', value: false };
   return _osDialog({
     title,
     msg,
     input: false,
-    buttons: [
-      { label: 'Cancel', value: false },
-      { label: 'Delete', value: true, danger: true },
-    ]
+    buttons: isCustom ? [confirmBtn, cancelBtn] : [cancelBtn, confirmBtn],
   });
 }
 
