@@ -189,7 +189,7 @@ overflow-y: auto;
 <span class="text-sm font-medium">☀ Brightness</span>
 <span id="qs-brightness-val" class="text-xs text-gray-400">100%</span>
 </div>
-<input type="range" min="30" max="100" value="100" class="qs-slider" id="qs-brightness-slider">
+<input type="range" min="10" max="100" value="100" class="qs-slider" id="qs-brightness-slider">
 <div class="flex items-center justify-between mt-2">
 <span class="text-sm font-medium">🔊 Volume</span>
 <span id="qs-volume-val" class="text-xs text-gray-400">80%</span>
@@ -300,18 +300,21 @@ if(volVal) volVal.textContent = this.data.volume + '%';
 }
 };
 const Toast = {
-show(msg, dur=3000) {
-const t = document.createElement('div');
-t.className = 'toast';
-t.innerHTML = msg;
-document.body.appendChild(t);
-setTimeout(() => {
-t.style.transition = 'all 0.4s';
-t.style.opacity = '0';
-t.style.transform = 'translateX(120%)';
-setTimeout(() => t.remove(), 400);
-}, dur);
-}
+    show(msg, dur=3000) {
+        // Check if notifications are disabled or Focus Assist is on
+        if (!Settings.data.notifications || Settings.data.focusAssist) return; 
+        
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.innerHTML = msg;
+        document.body.appendChild(t);
+        setTimeout(() => {
+            t.style.transition = 'all 0.4s';
+            t.style.opacity = '0';
+            t.style.transform = 'translateX(120%)';
+            setTimeout(() => t.remove(), 400);
+        }, dur);
+    }
 };
 const Bios = {
 isOpen: false,
@@ -1451,6 +1454,7 @@ body.innerHTML = `
 <button data-act="up" class="p-1.5 rounded hover:bg-white/10 transition-colors" title="Up">${Apps.icons.up(16)}</button>
 <div class="flex-1 bg-black/20 rounded px-2 py-1 text-xs font-mono border border-white/5 overflow-hidden whitespace-nowrap" id="pathbar-${state.uid}">${state.path}</div>
 <button data-act="refresh" class="p-1.5 rounded hover:bg-white/10 transition-colors" title="Refresh">↻</button>
+<button data-act="upload" class="p-1.5 rounded hover:bg-white/10 transition-colors" title="Upload File">⬆</button>
 </div>
 <div class="flex items-center gap-2 px-2 py-1.5 bg-[rgba(35,35,40,0.4)] border-b border-white/5" style="backdrop-filter:blur(12px);">
 <input type="text" placeholder="Search across all drives..." class="flex-1 bg-black/20 rounded px-2 py-1 text-xs outline-none border border-white/5 focus:border-[var(--accent)] transition-colors" id="search-${state.uid}" autocomplete="off">
@@ -1486,6 +1490,30 @@ else if (a === 'forward' && state.historyIdx < state.history.length - 1) { state
 else if (a === 'up') { const p = state.path.split('/'); if (p.length > 1) { p.pop(); navigate(p.join('/') || p[0]); } }
 else if (a === 'refresh') loadDir();
 else if (a === 'search') doSearch();
+else if (a === 'upload') {
+    if (!state.path.startsWith('C:')) {
+        Toast.show('Cannot upload files to Infinite Drive (Read-Only)');
+        return;
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                if (FS.createFile(state.path, file.name, 'file', evt.target.result)) {
+                    Toast.show('Uploaded: ' + file.name);
+                    loadDir();
+                } else {
+                    Toast.show('Upload failed (file may already exist)');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    input.click();
+}
 });
 });
 body.querySelectorAll('[data-nav]').forEach(it => it.addEventListener('click', () => navigate(it.dataset.nav)));
@@ -1798,55 +1826,148 @@ setTimeout(() => input.focus(), 50);
 WM.create({ appId: 'terminal', title: 'Command Prompt', icon: Apps.icons.terminal(14), width: 720, height: 460, content: render });
 },
 openSettings() {
-const state = { page: 'system', uid: uid() };
-const render = (body) => {
-body.classList.add('app-settings-body');
-body.innerHTML = `
-<div class="flex h-full text-[#e0e0e0]">
-<div class="w-56 bg-[rgba(30,30,35,0.4)] border-r border-white/5 p-2 overflow-y-auto flex-shrink-0" style="backdrop-filter:blur(12px);">
-<div class="px-3 py-3 mb-2 flex items-center gap-2"><div class="hz-logo hz-logo-sm">HZ</div><div class="text-lg font-semibold">Settings</div></div>
-<div class="sidebar-item active" data-page="system">⚙ System</div>
-<div class="sidebar-item" data-page="display">🖥 Display</div>
-<div class="sidebar-item" data-page="personalize">🎨 Personalization</div>
-<div class="sidebar-item" data-page="about">ℹ About</div>
-</div>
-<div class="flex-1 overflow-y-auto p-6" id="settings-content-${state.uid}"></div>
-</div>`;
-const pages = {
-system: `<h2 class="text-2xl mb-4">System</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between transition-colors hover:bg-[rgba(50,50,55,0.4)]"><div><div class="font-medium">Notifications</div><div class="text-xs text-gray-400">Get tips and suggestions</div></div><div class="toggle ${Settings.data.notifications ? 'on' : ''}" data-toggle="notif"></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between transition-colors hover:bg-[rgba(50,50,55,0.4)]"><div><div class="font-medium">Focus Assist</div><div class="text-xs text-gray-400">Silence notifications</div></div><div class="toggle ${Settings.data.focusAssist ? 'on' : ''}" data-toggle="focus"></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Storage</div><div class="text-xs text-gray-400 mb-2">System (C:) — 247 GB free of 512 GB</div><div class="w-full bg-black/40 rounded-full h-2 overflow-hidden"><div class="bg-[var(--accent)] h-full" style="width:52%"></div></div><div class="text-xs text-gray-400 mt-3 mb-2">Infinite Drive (INF:) — ∞ bytes</div><div class="w-full bg-black/40 rounded-full h-2 overflow-hidden"><div class="bg-purple-500 h-full" style="width:0.1%"></div></div></div></div>`,
-display: `<h2 class="text-2xl mb-4">Display</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Brightness</div><input type="range" min="30" max="100" value="${Settings.data.brightness}" class="w-full" id="bright-${state.uid}"></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between"><div><div class="font-medium">CRT Scanlines</div><div class="text-xs text-gray-400">Retro effect</div></div><div class="toggle ${Settings.data.crt ? 'on' : ''}" data-toggle="crt"></div></div></div>`,
-personalize: `<h2 class="text-2xl mb-4">Personalization</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Accent Color</div><div class="flex flex-wrap gap-2" id="accent-picker-${state.uid}">${['#0078d4','#107c10','#ff8c00','#e81123','#5c2d91','#00b7c3','#e3008c','#767676'].map(c => `<div class="w-10 h-10 rounded cursor-pointer hover:scale-110 transition-transform" style="background:${c};${c===Settings.data.accent?'outline:2px solid white;outline-offset:2px':''}" data-color="${c}"></div>`).join('')}</div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Wallpaper</div><p class="text-xs text-gray-400 mb-3">Animated gradient wallpaper is active.</p><button class="px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all" id="cycle-wallpaper-${state.uid}">Cycle Wallpaper</button></div></div>`,
-about: `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.06.12</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div>`
-};
-const showPage = (page) => { state.page = page; body.querySelector(`#settings-content-${state.uid}`).innerHTML = pages[page] || ''; body.querySelectorAll('[data-page]').forEach(i => i.classList.toggle('active', i.dataset.page === page)); bindContentEvents(); };
-const bindContentEvents = () => {
-body.querySelectorAll('[data-toggle]').forEach(t => {
-t.addEventListener('click', () => {
-t.classList.toggle('on');
-const key = t.dataset.toggle;
-if (key === 'crt') { Settings.data.crt = t.classList.contains('on'); Settings.save(); Toast.show('CRT ' + (Settings.data.crt ? 'enabled' : 'disabled')); }
-else if (key === 'notif') { Settings.data.notifications = t.classList.contains('on'); Settings.save(); }
-else if (key === 'focus') { Settings.data.focusAssist = t.classList.contains('on'); Settings.save(); }
-});
-});
-const bright = body.querySelector(`#bright-${state.uid}`);
-if (bright) bright.addEventListener('input', () => { Settings.data.brightness = parseInt(bright.value); Settings.save(); });
-body.querySelectorAll(`#accent-picker-${state.uid} [data-color]`).forEach(c => {
-c.addEventListener('click', () => {
-Settings.data.accent = c.dataset.color;
-Settings.save();
-body.querySelectorAll(`#accent-picker-${state.uid} [data-color]`).forEach(x => { x.style.outline='none'; });
-c.style.outline='2px solid white'; c.style.outlineOffset='2px';
-Toast.show('Accent color updated');
-});
-});
-const cycle = body.querySelector(`#cycle-wallpaper-${state.uid}`);
-if (cycle) cycle.addEventListener('click', () => { cycleWallpaper(); });
-};
-body.querySelectorAll('[data-page]').forEach(i => i.addEventListener('click', () => showPage(i.dataset.page)));
-showPage('system');
-};
-WM.create({ appId: 'settings', title: 'Settings', icon: Apps.icons.settings(14), width: 820, height: 560, content: render });
+    const state = { page: 'system', uid: uid() };
+    const render = (body) => {
+        body.classList.add('app-settings-body');
+        body.innerHTML = `
+        <div class="flex h-full text-[#e0e0e0]">
+            <div class="w-56 bg-[rgba(30,30,35,0.4)] border-r border-white/5 p-2 overflow-y-auto flex-shrink-0" style="backdrop-filter:blur(12px);">
+                <div class="px-3 py-3 mb-2 flex items-center gap-2"><div class="hz-logo hz-logo-sm">HZ</div><div class="text-lg font-semibold">Settings</div></div>
+                <div class="sidebar-item active" data-page="system">⚙ System</div>
+                <div class="sidebar-item" data-page="display">🖥 Display</div>
+                <div class="sidebar-item" data-page="personalize">🎨 Personalization</div>
+                <div class="sidebar-item" data-page="about">ℹ About</div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6" id="settings-content-${state.uid}"></div>
+        </div>`;
+
+        // Dynamic HTML generation to ensure fresh state on every tab switch
+        const getPageHtml = (page) => {
+            if (page === 'system') {
+                return `<h2 class="text-2xl mb-4">System</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between transition-colors hover:bg-[rgba(50,50,55,0.4)]"><div><div class="font-medium">Notifications</div><div class="text-xs text-gray-400">Get tips and suggestions</div></div><div class="toggle ${Settings.data.notifications ? 'on' : ''}" data-toggle="notif"></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between transition-colors hover:bg-[rgba(50,50,55,0.4)]"><div><div class="font-medium">Focus Assist</div><div class="text-xs text-gray-400">Silence notifications</div></div><div class="toggle ${Settings.data.focusAssist ? 'on' : ''}" data-toggle="focus"></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Test Notification</div><button id="test-notif-${state.uid}" class="px-3 py-1.5 bg-white/10 rounded text-xs hover:bg-white/20 transition-colors">Send Test Toast</button></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Storage</div><div class="text-xs text-gray-400 mb-2">System (C:) — 247 GB free of 512 GB</div><div class="w-full bg-black/40 rounded-full h-2 overflow-hidden"><div class="bg-[var(--accent)] h-full" style="width:52%"></div></div><div class="text-xs text-gray-400 mt-3 mb-2">Infinite Drive (INF:) — ∞ bytes</div><div class="w-full bg-black/40 rounded-full h-2 overflow-hidden"><div class="bg-purple-500 h-full" style="width:0.1%"></div></div></div></div>`;
+            } else if (page === 'display') {
+                // UPDATED: min="10" for 10% limit
+                return `<h2 class="text-2xl mb-4">Display</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Brightness</div><input type="range" min="10" max="100" value="${Settings.data.brightness}" class="w-full" id="bright-${state.uid}"></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between"><div><div class="font-medium">CRT Scanlines</div><div class="text-xs text-gray-400">Retro effect</div></div><div class="toggle ${Settings.data.crt ? 'on' : ''}" data-toggle="crt"></div></div></div>`;
+            } else if (page === 'personalize') {
+                return `<h2 class="text-2xl mb-4">Personalization</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Accent Color</div><div class="flex flex-wrap gap-2" id="accent-picker-${state.uid}">${['#0078d4','#107c10','#ff8c00','#e81123','#5c2d91','#00b7c3','#e3008c','#767676'].map(c => `<div class="w-10 h-10 rounded cursor-pointer hover:scale-110 transition-transform" style="background:${c};${c===Settings.data.accent?'outline:2px solid white;outline-offset:2px':''}" data-color="${c}"></div>`).join('')}</div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Wallpaper</div><p class="text-xs text-gray-400 mb-3">Upload a custom image or cycle through gradients.</p><div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all" id="upload-wallpaper-${state.uid}">Upload Image</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="cycle-wallpaper-${state.uid}">Cycle Gradient</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="default-wallpaper-${state.uid}">Default</button></div><input type="file" id="wallpaper-input-${state.uid}" accept="image/*" style="display:none"></div></div>`;
+            } else if (page === 'about') {
+                return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.06.12</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div>`;
+            }
+            return '';
+        };
+
+        const showPage = (page) => { 
+            state.page = page; 
+            // Regenerate HTML every time to get fresh toggle states
+            body.querySelector(`#settings-content-${state.uid}`).innerHTML = getPageHtml(page); 
+            body.querySelectorAll('[data-page]').forEach(i => i.classList.toggle('active', i.dataset.page === page)); 
+            bindContentEvents(); 
+        };
+
+        const bindContentEvents = () => {
+            // Toggles
+            body.querySelectorAll('[data-toggle]').forEach(t => {
+                t.addEventListener('click', () => {
+                    t.classList.toggle('on');
+                    const key = t.dataset.toggle;
+                    if (key === 'crt') { 
+                        Settings.data.crt = t.classList.contains('on'); 
+                        Settings.save(); 
+                        Toast.show('CRT ' + (Settings.data.crt ? 'enabled' : 'disabled')); 
+                    }
+                    else if (key === 'notif') { 
+                        Settings.data.notifications = t.classList.contains('on'); 
+                        Settings.save(); 
+                    }
+                    else if (key === 'focus') { 
+                        Settings.data.focusAssist = t.classList.contains('on'); 
+                        Settings.save(); 
+                        Toast.show('Focus Assist ' + (Settings.data.focusAssist ? 'ON' : 'OFF'));
+                    }
+                });
+            });
+
+            // Brightness - UPDATED WITH 10% HARD LIMIT
+            const bright = body.querySelector(`#bright-${state.uid}`);
+            if (bright) {
+                bright.addEventListener('input', () => { 
+                    let val = parseInt(bright.value);
+                    if (val < 10) val = 10; // Hard limit
+                    Settings.data.brightness = val; 
+                    Settings.save(); 
+                });
+            }
+
+            // Accent Colors
+            body.querySelectorAll(`#accent-picker-${state.uid} [data-color]`).forEach(c => {
+                c.addEventListener('click', () => {
+                    Settings.data.accent = c.dataset.color;
+                    Settings.save();
+                    // Re-render personalize page to update outline
+                    if (state.page === 'personalize') showPage('personalize');
+                    else Toast.show('Accent color updated');
+                });
+            });
+
+            // --- WALLPAPER LOGIC ---
+            const uploadBtn = body.querySelector(`#upload-wallpaper-${state.uid}`);
+            const cycleBtn = body.querySelector(`#cycle-wallpaper-${state.uid}`);
+            const defaultBtn = body.querySelector(`#default-wallpaper-${state.uid}`);
+            const fileInput = body.querySelector(`#wallpaper-input-${state.uid}`);
+
+            if (uploadBtn && fileInput) {
+                uploadBtn.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (evt) => {
+                            const wp = document.getElementById('wallpaper');
+                            wp.style.backgroundImage = `url(${evt.target.result})`;
+                            wp.style.backgroundSize = 'cover';
+                            wp.style.backgroundPosition = 'center';
+                            wp.style.animation = 'none'; // Stop gradient animation
+                            Toast.show('Wallpaper updated');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if (cycleBtn) {
+                cycleBtn.addEventListener('click', () => {
+                    const wp = document.getElementById('wallpaper');
+                    wp.style.backgroundImage = 'none'; // Clear custom image
+                    cycleWallpaper(); // Use global function
+                });
+            }
+
+            if (defaultBtn) {
+                defaultBtn.addEventListener('click', () => {
+                    const wp = document.getElementById('wallpaper');
+                    wp.style.background = wallpaperGradients[0];
+                    wp.style.backgroundSize = '200% 200%';
+                    wp.style.backgroundImage = 'none';
+                    wp.style.animation = 'wallpaperShift 30s ease-in-out infinite';
+                    if (typeof currentWallpaperIdx !== 'undefined') currentWallpaperIdx = 0;
+                    Toast.show('Default wallpaper restored');
+                });
+            }
+            // -----------------------
+
+            // Test Notification Button
+            const testBtn = body.querySelector(`#test-notif-${state.uid}`);
+            if (testBtn) {
+                testBtn.addEventListener('click', () => {
+                    Toast.show('🔔 This is a test notification!');
+                });
+            }
+        };
+
+        body.querySelectorAll('[data-page]').forEach(i => i.addEventListener('click', () => showPage(i.dataset.page)));
+        showPage('system');
+    };
+    WM.create({ appId: 'settings', title: 'Settings', icon: Apps.icons.settings(14), width: 820, height: 560, content: render });
 },
 openCalculator() {
 const state = { display: '0', prev: null, op: null, justEval: false, uid: uid() };
