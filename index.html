@@ -2008,7 +2008,7 @@ openCamera() {
         <div class="flex flex-col h-full text-[#e0e0e0]">
             <div class="flex items-center justify-between px-3 py-2 bg-[rgba(40,40,45,0.4)] border-b border-white/5" style="backdrop-filter:blur(12px);">
                 <div class="flex items-center gap-2"><span style="color:var(--accent);">📷</span><span class="text-sm font-medium">Camera</span></div>
-                <div id="cam-status-${state.uid}" class="text-xs text-yellow-400">Requesting permissions...</div>
+                <div id="cam-status-${state.uid}" class="text-xs text-yellow-400">Ready</div>
             </div>
             
             <!-- Mode Switcher -->
@@ -2020,9 +2020,9 @@ openCamera() {
             <div class="flex-1 relative bg-black overflow-hidden flex items-center justify-center" id="cam-container-${state.uid}">
                 <div id="cam-permission-${state.uid}" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 bg-black/80">
                     <div style="font-size:64px;margin-bottom:16px;">📷</div>
-                    <h2 class="text-xl font-semibold mb-2">Camera & Microphone Permission Required</h2>
-                    <p class="text-sm text-gray-400 mb-6 max-w-sm">HyperZOS Camera needs permission to access your camera and microphone.</p>
-                    <button id="cam-request-btn-${state.uid}" class="px-4 py-2 bg-[var(--accent)] rounded hover:brightness-110 transition-all">Allow Access</button>
+                    <h2 class="text-xl font-semibold mb-2">Camera Access</h2>
+                    <p class="text-sm text-gray-400 mb-6 max-w-sm">Click below to start the camera.</p>
+                    <button id="cam-request-btn-${state.uid}" class="px-4 py-2 bg-[var(--accent)] rounded hover:brightness-110 transition-all">Start Camera</button>
                     <div id="cam-error-${state.uid}" class="text-red-400 text-xs mt-4 hidden"></div>
                 </div>
                 <video id="cam-video-${state.uid}" class="w-full h-full object-cover" autoplay playsinline muted style="display:none;"></video>
@@ -2075,21 +2075,44 @@ openCamera() {
         videoBtn.addEventListener('click', () => setMode('video'));
 
         const startCamera = async () => {
-            try {
-                statusDiv.textContent = 'Requesting permissions...';
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                window.currentCameraStream = stream;
-                state.stream = stream;
-                video.srcObject = stream;
+            // If we already have a stream, just use it
+            if (state.stream && state.stream.active) {
+                video.srcObject = state.stream;
                 video.style.display = 'block';
                 permissionDiv.style.display = 'none';
                 controlsDiv.style.display = 'flex';
                 statusDiv.textContent = '● Ready';
                 statusDiv.className = 'text-xs text-green-400';
+                return;
+            }
+
+            try {
+                statusDiv.textContent = 'Requesting permissions...';
+                errorDiv.classList.add('hidden');
+                
+                // Request both video and audio
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                
+                window.currentCameraStream = stream;
+                state.stream = stream;
+                
+                video.srcObject = stream;
+                video.style.display = 'block';
+                permissionDiv.style.display = 'none';
+                controlsDiv.style.display = 'flex';
+                
+                statusDiv.textContent = '● Ready';
+                statusDiv.className = 'text-xs text-green-400';
             } catch (err) {
-                errorDiv.textContent = 'Error: ' + (err.message || 'Permission denied.');
+                console.error("Camera Error:", err);
+                let msg = 'Permission denied or no camera found.';
+                if (err.name === 'NotAllowedError') msg = 'Permission denied. Please allow camera access in your browser settings.';
+                else if (err.name === 'NotFoundError') msg = 'No camera device found.';
+                else if (err.name === 'NotReadableError') msg = 'Camera is already in use by another app.';
+                
+                errorDiv.textContent = 'Error: ' + msg;
                 errorDiv.classList.remove('hidden');
-                statusDiv.textContent = 'Permission denied';
+                statusDiv.textContent = 'Error';
                 statusDiv.className = 'text-xs text-red-400';
             }
         };
@@ -2177,6 +2200,7 @@ openCamera() {
 
         const observer = new MutationObserver(() => {
             if (!document.body.contains(body)) {
+                // Only stop tracks if we are closing the window
                 if (window.currentCameraStream) {
                     window.currentCameraStream.getTracks().forEach(track => track.stop());
                     window.currentCameraStream = null;
