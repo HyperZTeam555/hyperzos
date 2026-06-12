@@ -2000,7 +2000,7 @@ openCamera() {
         mediaRecorder: null, 
         recordedChunks: [], 
         isRecording: false,
-        mode: 'photo' // 'photo' or 'video'
+        mode: 'photo'
     };
     const render = (body) => {
         body.classList.add('app-camera-body');
@@ -2021,7 +2021,7 @@ openCamera() {
                 <div id="cam-permission-${state.uid}" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 bg-black/80">
                     <div style="font-size:64px;margin-bottom:16px;">📷</div>
                     <h2 class="text-xl font-semibold mb-2">Camera Access</h2>
-                    <p class="text-sm text-gray-400 mb-6 max-w-sm">Click below to start the camera.</p>
+                    <p class="text-sm text-gray-400 mb-6 max-w-sm">Click below to start the camera. If it fails, check your browser permissions.</p>
                     <button id="cam-request-btn-${state.uid}" class="px-4 py-2 bg-[var(--accent)] rounded hover:brightness-110 transition-all">Start Camera</button>
                     <div id="cam-error-${state.uid}" class="text-red-400 text-xs mt-4 hidden"></div>
                 </div>
@@ -2075,22 +2075,18 @@ openCamera() {
         videoBtn.addEventListener('click', () => setMode('video'));
 
         const startCamera = async () => {
-            // If we already have a stream, just use it
-            if (state.stream && state.stream.active) {
-                video.srcObject = state.stream;
-                video.style.display = 'block';
-                permissionDiv.style.display = 'none';
-                controlsDiv.style.display = 'flex';
-                statusDiv.textContent = '● Ready';
-                statusDiv.className = 'text-xs text-green-400';
-                return;
+            // Reset UI
+            errorDiv.classList.add('hidden');
+            statusDiv.textContent = 'Requesting...';
+            
+            // Clean up old stream if it exists but is broken
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => track.stop());
+                state.stream = null;
             }
 
             try {
-                statusDiv.textContent = 'Requesting permissions...';
-                errorDiv.classList.add('hidden');
-                
-                // Request both video and audio
+                // Request fresh permissions
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 
                 window.currentCameraStream = stream;
@@ -2105,12 +2101,12 @@ openCamera() {
                 statusDiv.className = 'text-xs text-green-400';
             } catch (err) {
                 console.error("Camera Error:", err);
-                let msg = 'Permission denied or no camera found.';
-                if (err.name === 'NotAllowedError') msg = 'Permission denied. Please allow camera access in your browser settings.';
-                else if (err.name === 'NotFoundError') msg = 'No camera device found.';
-                else if (err.name === 'NotReadableError') msg = 'Camera is already in use by another app.';
+                let msg = 'Could not access camera.';
+                if (err.name === 'NotAllowedError') msg = 'Permission denied. Please allow camera in browser settings.';
+                else if (err.name === 'NotFoundError') msg = 'No camera found.';
+                else if (err.name === 'NotReadableError') msg = 'Camera is busy. Close other apps using it.';
                 
-                errorDiv.textContent = 'Error: ' + msg;
+                errorDiv.textContent = msg;
                 errorDiv.classList.remove('hidden');
                 statusDiv.textContent = 'Error';
                 statusDiv.className = 'text-xs text-red-400';
@@ -2127,7 +2123,6 @@ openCamera() {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            // Flash effect
             flashDiv.style.opacity = '1';
             setTimeout(() => flashDiv.style.opacity = '0', 100);
 
@@ -2200,7 +2195,6 @@ openCamera() {
 
         const observer = new MutationObserver(() => {
             if (!document.body.contains(body)) {
-                // Only stop tracks if we are closing the window
                 if (window.currentCameraStream) {
                     window.currentCameraStream.getTracks().forEach(track => track.stop());
                     window.currentCameraStream = null;
