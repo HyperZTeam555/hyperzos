@@ -30,7 +30,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-se
 .task-btn.active::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 18px; height: 2px; background: var(--accent); border-radius: 1px; }
 .task-btn.running::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 6px; height: 2px; background: rgba(255,255,255,0.5); border-radius: 1px; }
 
-/* UPDATED WINDOW STYLES FOR ANIMATION */
+
 .hz-window { 
     position: absolute; 
     background: rgba(25, 25, 30, 0.65); 
@@ -42,7 +42,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-se
     display: flex; 
     flex-direction: column; 
     overflow: hidden; 
-    /* Smooth transition for fullscreen/unfullscreen */
+    
     transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
                 left 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
                 width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
@@ -154,514 +154,10 @@ overflow-y: auto;
     cursor: grabbing;
     display: none;
 }
-
-/* ============================================================ */
-/* MOBILE MODE (Android-style) - all scoped to body.mobile-mode  */
-/* ============================================================ */
-body.mobile-mode {
-    --mobile-accent: #a78bfa;
-    --mobile-accent-dark: #7c3aed;
-    --statusbar-h: 28px;
-    --navbar-h: 44px;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-}
-/* Hide desktop-only UI in mobile mode */
-body.mobile-mode #desktop-area { display: none !important; }
-body.mobile-mode #start-menu { display: none !important; }
-body.mobile-mode #quick-settings { display: none !important; }
-body.mobile-mode .taskbar { display: none !important; }
-body.mobile-mode #selection-box { display: none !important; }
-body.mobile-mode #window-layer {
-    top: var(--statusbar-h) !important;
-    bottom: var(--navbar-h) !important;
-    left: 0 !important;
-    right: 0 !important;
-}
-/* Material You-style wallpaper */
-body.mobile-mode #wallpaper {
-    background: radial-gradient(ellipse at 30% 20%, rgba(167, 139, 250, 0.42) 0%, transparent 55%),
-                radial-gradient(ellipse at 70% 80%, rgba(96, 165, 250, 0.38) 0%, transparent 55%),
-                linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%) !important;
-    background-size: 200% 200% !important;
-}
-
-/* Status bar (translucent, Android 12+ style) */
-body.mobile-mode #mobile-status-bar {
-    position: fixed; top: 0; left: 0; right: 0;
-    height: var(--statusbar-h);
-    background: linear-gradient(to bottom, rgba(0,0,0,0.50), rgba(0,0,0,0.25));
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    z-index: 9600;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 16px;
-    font-size: 12px; font-weight: 500; color: #fff;
-    user-select: none;
-    cursor: pointer;
-}
-body.mobile-mode #mobile-status-bar .sb-left,
-body.mobile-mode #mobile-status-bar .sb-right {
-    display: flex; align-items: center; gap: 6px;
-}
-
-/* Home screen container */
-body.mobile-mode #mobile-home-screen {
-    position: fixed;
-    top: var(--statusbar-h); left: 0; right: 0; bottom: var(--navbar-h);
-    z-index: 100;
-    display: flex; flex-direction: column;
-    overflow: hidden; min-height: 0;
-    transition: opacity 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-body.mobile-mode #mobile-home-screen.hidden {
-    opacity: 0; pointer-events: none; transform: scale(0.96);
-}
-body.mobile-mode #mobile-home-search {
-    margin: 12px 24px 4px;
-    padding: 10px 16px;
-    background: rgba(255,255,255,0.14);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 24px;
-    color: #fff; font-size: 13px;
-    display: flex; align-items: center; gap: 8px;
-    cursor: pointer;
-}
-body.mobile-mode #mobile-page-dots {
-    display: flex; justify-content: center; gap: 6px; padding: 6px 0 2px;
-}
-body.mobile-mode #mobile-page-dots .dot {
-    width: 6px; height: 6px; border-radius: 3px;
-    background: rgba(255,255,255,0.4);
-    transition: all 0.2s;
-}
-body.mobile-mode #mobile-page-dots .dot.active {
-    width: 18px; background: #fff;
-}
-body.mobile-mode #mobile-app-grid {
-    flex: 1; min-height: 0;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px 12px;
-    padding: 18px 24px;
-    align-content: start;
-    overflow-y: auto;
-}
-body.mobile-mode #mobile-dock {
-    display: flex; justify-content: space-around;
-    padding: 12px 24px 14px;
-    background: rgba(0,0,0,0.22);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    gap: 8px;
-}
-body.mobile-mode #mobile-dock .mobile-app-icon .app-icon-bg {
-    background: rgba(255,255,255,0.20) !important;
-}
-
-/* App icon (Material You rounded square) */
-body.mobile-mode .mobile-app-icon {
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    cursor: pointer; user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    transition: transform 0.15s;
-}
-body.mobile-mode .mobile-app-icon:active { transform: scale(0.88); }
-body.mobile-mode .mobile-app-icon .app-icon-bg {
-    width: 56px; height: 56px; border-radius: 18px;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(30,30,45,0.85);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
-    color: #fff;
-    transition: all 0.2s;
-}
-body.mobile-mode .mobile-app-icon.long-pressing .app-icon-bg {
-    transform: scale(1.15);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 3px var(--mobile-accent);
-}
-body.mobile-mode .mobile-app-icon .app-icon-label {
-    font-size: 11px; color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.85);
-    text-align: center; line-height: 1.2;
-    max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-/* Bottom nav bar (3-button Android style) */
-body.mobile-mode #mobile-nav-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: var(--navbar-h);
-    background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.30));
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    border-top: 1px solid rgba(255,255,255,0.05);
-    z-index: 9800;
-    display: flex; align-items: center; justify-content: space-around;
-    user-select: none;
-}
-body.mobile-mode #mobile-nav-bar .nav-btn {
-    width: 80px; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: #fff; opacity: 0.85;
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-    position: relative; overflow: hidden; border-radius: 14px;
-}
-body.mobile-mode #mobile-nav-bar .nav-btn:active {
-    opacity: 1; transform: scale(0.88);
-    background: rgba(255,255,255,0.10); border-radius: 14px;
-}
-
-/* Notification shade (pull-down) */
-body.mobile-mode #mobile-notification-shade {
-    position: fixed; top: 0; left: 0; right: 0; bottom: var(--navbar-h);
-    background: linear-gradient(180deg, rgba(15,15,30,0.85) 0%, rgba(20,20,40,0.7) 50%, rgba(10,10,25,0.85) 100%);
-    backdrop-filter: blur(40px) saturate(2);
-    -webkit-backdrop-filter: blur(40px) saturate(2);
-    z-index: 9700;
-    transform: translateY(-100%);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    overflow-y: auto;
-    padding: 40px 16px 16px;
-    color: #fff;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-body.mobile-mode #mobile-notification-shade.open { transform: translateY(0); }
-body.mobile-mode #mobile-notification-shade .notif-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 16px; padding: 0 8px;
-}
-body.mobile-mode #mobile-notification-shade .notif-quick-toggles {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-    margin-bottom: 16px;
-}
-body.mobile-mode #mobile-notification-shade .notif-qt {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    padding: 12px 4px; border-radius: 16px;
-    background: rgba(255,255,255,0.06); cursor: pointer;
-    transition: background 0.2s; font-size: 10px; text-align: center;
-}
-body.mobile-mode #mobile-notification-shade .notif-qt.active {
-    background: var(--mobile-accent); color: #fff;
-}
-body.mobile-mode #mobile-notification-shade .notif-card {
-    background: rgba(255,255,255,0.09);
-    border-radius: 16px; padding: 12px 14px; margin-bottom: 8px;
-    display: flex; gap: 10px; align-items: flex-start;
-    animation: mobileNotifSlide 0.3s;
-}
-@keyframes mobileNotifSlide {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-body.mobile-mode #mobile-notification-shade .notif-card .notif-icon {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--mobile-accent); flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: #fff;
-}
-body.mobile-mode #mobile-notification-shade .notif-card .notif-title {
-    font-size: 13px; font-weight: 600; margin-bottom: 2px;
-}
-body.mobile-mode #mobile-notification-shade .notif-card .notif-body {
-    font-size: 12px; opacity: 0.85; line-height: 1.4;
-}
-
-/* App drawer (swipe up) */
-body.mobile-mode #mobile-app-drawer {
-    position: fixed;
-    top: var(--statusbar-h); left: 0; right: 0; bottom: var(--navbar-h);
-    background: rgba(15, 15, 25, 0.93);
-    backdrop-filter: blur(28px) saturate(1.5);
-    -webkit-backdrop-filter: blur(28px) saturate(1.5);
-    z-index: 9400;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow-y: auto; padding: 16px;
-    color: #fff;
-}
-body.mobile-mode #mobile-app-drawer.open { transform: translateY(0); }
-body.mobile-mode #mobile-app-drawer .drawer-title {
-    text-align: center; font-size: 14px; opacity: 0.7;
-    margin: 8px 0 16px;
-}
-body.mobile-mode #mobile-app-drawer .drawer-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px 12px;
-    padding-bottom: 80px;
-}
-
-/* App switcher (Recent apps) */
-body.mobile-mode #mobile-app-switcher {
-    position: fixed;
-    top: var(--statusbar-h); left: 0; right: 0; bottom: var(--navbar-h);
-    background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(10,10,25,0.65) 100%);
-    backdrop-filter: blur(30px) saturate(1.8);
-    -webkit-backdrop-filter: blur(30px) saturate(1.8);
-    z-index: 9500;
-    display: none;
-    overflow-x: auto; overflow-y: hidden;
-    padding: 40px 24px;
-    align-items: center; gap: 20px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-}
-body.mobile-mode #mobile-app-switcher.open { display: flex; animation: mobileRecentsFadeIn 0.3s cubic-bezier(0.22,1,0.36,1); }
-@keyframes mobileRecentsFadeIn { from { opacity: 0; } to { opacity: 1; } }
-body.mobile-mode #mobile-app-switcher .recent-app-card {
-    flex-shrink: 0; width: 75vw; max-width: 320px; height: 70%;
-    background: linear-gradient(135deg, rgba(40,40,55,0.6), rgba(25,25,40,0.5));
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    border-radius: 24px; overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
-    scroll-snap-align: center;
-    border: 1px solid rgba(255,255,255,0.08);
-    display: flex; flex-direction: column;
-    animation: mobileRecentsSlide 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    cursor: pointer;
-    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
-}
-body.mobile-mode #mobile-app-switcher .recent-app-card.closing {
-    animation: mobileRecentsClose 0.35s cubic-bezier(0.4,0,1,1) forwards;
-}
-@keyframes mobileRecentsClose {
-    to { opacity: 0; transform: translateY(-60vh) scale(0.7); }
-}
-@keyframes mobileRecentsSlide {
-    from { opacity: 0; transform: translateY(40px) scale(0.85); filter: blur(6px); }
-    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-}
-body.mobile-mode #mobile-app-switcher .recent-app-card .recent-app-header {
-    padding: 10px 14px;
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    background: rgba(0,0,0,0.25);
-}
-body.mobile-mode #mobile-app-switcher .recent-app-card .recent-app-body {
-    flex: 1; position: relative; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.30); font-size: 60px;
-}
-body.mobile-mode #mobile-app-switcher .recent-empty {
-    margin: auto; text-align: center; color: rgba(255,255,255,0.5); font-size: 14px;
-}
-
-/* Long-press context menu */
-body.mobile-mode #mobile-longpress-menu {
-    position: fixed;
-    background: rgba(40,40,55,0.96);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 8px; min-width: 180px;
-    z-index: 9995;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-    display: none;
-    animation: mobileLongPress 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes mobileLongPress {
-    from { opacity: 0; transform: scale(0.85); }
-    to { opacity: 1; transform: scale(1); }
-}
-body.mobile-mode #mobile-longpress-menu.open { display: block; }
-body.mobile-mode #mobile-longpress-menu .lp-item {
-    padding: 10px 14px; border-radius: 10px;
-    font-size: 13px; cursor: pointer;
-    display: flex; align-items: center; gap: 10px;
-    transition: background 0.15s; color: #fff;
-}
-body.mobile-mode #mobile-longpress-menu .lp-item:active {
-    background: rgba(255,255,255,0.14);
-}
-
-/* Edge-swipe back gesture visual feedback */
-body.mobile-mode .mobile-edge-flash {
-    position: fixed;
-    top: 30%; bottom: 30%;
-    width: 24px;
-    z-index: 9999;
-    pointer-events: none;
-    opacity: 1;
-    transition: opacity 0.35s;
-}
-body.mobile-mode .mobile-edge-flash.left {
-    left: 0;
-    background: linear-gradient(to right, rgba(167,139,250,0.55), transparent);
-}
-body.mobile-mode .mobile-edge-flash.right {
-    right: 0;
-    background: linear-gradient(to left, rgba(167,139,250,0.55), transparent);
-}
-
-/* App windows become full-screen Android apps */
-body.mobile-mode .hz-window {
-    position: fixed !important;
-    top: var(--statusbar-h) !important;
-    left: 0 !important; right: 0 !important;
-    bottom: var(--navbar-h) !important;
-    width: 100% !important;
-    height: calc(100vh - var(--statusbar-h) - var(--navbar-h)) !important;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: rgba(18, 18, 28, 0.97) !important;
-    backdrop-filter: blur(20px) saturate(1.5) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s !important;
-}
-/* Override desktop window animations with mobile slide animations */
-body.mobile-mode .hz-window.anim-open {
-    animation: mobileAppOpen 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-}
-body.mobile-mode .hz-window.anim-close {
-    animation: mobileAppClose 0.28s cubic-bezier(0.4, 0, 1, 1) forwards !important;
-}
-body.mobile-mode .hz-window.anim-min {
-    animation: mobileAppMin 0.3s cubic-bezier(0.4, 0, 1, 1) forwards !important;
-}
-@keyframes mobileAppOpen {
-    from { opacity: 0; transform: translateY(35%) scale(0.92); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes mobileAppClose {
-    from { opacity: 1; transform: translateY(0) scale(1); }
-    to { opacity: 0; transform: translateY(-30%) scale(0.9); }
-}
-@keyframes mobileAppMin {
-    from { opacity: 1; transform: scale(1) translateY(0); }
-    to { opacity: 0; transform: scale(0.7) translateY(35%); }
-}
-/* Hide titlebar/controls in mobile apps (full-screen) */
-body.mobile-mode .hz-titlebar { display: none !important; }
-body.mobile-mode .hz-body {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-/* Mobile toast position (above nav bar, full width) */
-body.mobile-mode .toast {
-    bottom: calc(var(--navbar-h) + 16px) !important;
-    left: 16px !important; right: 16px !important;
-    max-width: none !important;
-    border-radius: 12px;
-}
-
-/* Boot screen fit for narrow phones */
-body.mobile-mode #boot-screen .w-96 { width: 90vw !important; max-width: 360px; }
-
-/* At a Glance widget (top of home screen) */
-body.mobile-mode #mobile-at-glance {
-    padding: 16px 24px 4px;
-    color: #fff;
-    display: flex; flex-direction: column; gap: 2px;
-    pointer-events: none;
-}
-body.mobile-mode #mobile-at-glance .at-glance-date {
-    font-size: 22px; font-weight: 500; line-height: 1.2;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
-}
-body.mobile-mode #mobile-at-glance .at-glance-weather {
-    font-size: 13px; opacity: 0.92;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-}
-
-/* Nav button ripple effect */
-body.mobile-mode #mobile-nav-bar .nav-btn .ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.3);
-    pointer-events: none;
-    transform: scale(0);
-    animation: mobileRipple 0.6s ease-out forwards;
-}
-@keyframes mobileRipple {
-    to { transform: scale(4); opacity: 0; }
-}
-
-/* Edit mode: jiggle icons + banner + remove zone + drag ghost */
-body.mobile-mode #mobile-home-screen.edit-mode .mobile-app-icon,
-body.mobile-mode #mobile-home-screen.edit-mode #mobile-dock .mobile-app-icon {
-    animation: mobileJiggle 0.4s infinite alternate ease-in-out;
-}
-body.mobile-mode #mobile-home-screen.edit-mode .mobile-app-icon:nth-child(2n) {
-    animation-delay: 0.2s;
-}
-@keyframes mobileJiggle {
-    0% { transform: rotate(-4deg) scale(0.95); }
-    100% { transform: rotate(4deg) scale(0.95); }
-}
-body.mobile-mode #mobile-edit-banner {
-    position: fixed;
-    top: calc(var(--statusbar-h) + 8px);
-    left: 50%; transform: translateX(-50%);
-    background: rgba(167, 139, 250, 0.25);
-    border: 1px solid rgba(167, 139, 250, 0.5);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: #fff;
-    padding: 6px 16px;
-    border-radius: 16px;
-    font-size: 12px;
-    z-index: 9100;
-    display: none;
-    pointer-events: none;
-    max-width: 90vw;
-    text-align: center;
-}
-body.mobile-mode #mobile-edit-banner.visible { display: block; }
-body.mobile-mode #mobile-edit-remove-zone {
-    position: fixed;
-    top: calc(var(--statusbar-h) + 56px);
-    left: 50%; transform: translateX(-50%);
-    background: rgba(239, 68, 68, 0.18);
-    border: 2px dashed rgba(239, 68, 68, 0.6);
-    color: #fff;
-    padding: 18px 36px;
-    border-radius: 18px;
-    z-index: 9100;
-    display: none;
-    pointer-events: none;
-    text-align: center;
-    transition: all 0.2s;
-}
-body.mobile-mode #mobile-edit-remove-zone.visible { display: block; }
-body.mobile-mode #mobile-edit-remove-zone.over {
-    background: rgba(239, 68, 68, 0.5);
-    transform: translateX(-50%) scale(1.06);
-}
-body.mobile-mode .mobile-app-icon.drag-ghost {
-    position: fixed;
-    z-index: 9998;
-    pointer-events: none;
-    opacity: 0.85;
-    transform: scale(1.15);
-    transition: none;
-    animation: none !important;
-}
-body.mobile-mode .mobile-app-icon.dragging {
-    opacity: 0.3;
-    animation: none !important;
-}
-body.mobile-mode #mobile-dock.drop-target {
-    background: rgba(167, 139, 250, 0.25) !important;
-    box-shadow: 0 0 0 2px var(--mobile-accent) inset;
-}
-body.mobile-mode #mobile-app-grid.drop-target {
-    background: rgba(167, 139, 250, 0.08);
-    box-shadow: 0 0 0 2px var(--mobile-accent) inset;
-}
 </style>
 </head>
 <body class="crt">
 <div id="wallpaper"></div>
-<div id="brightness-overlay" style="position:fixed;inset:0;background:#000;pointer-events:none;z-index:99998;opacity:0;transition:opacity 0.3s ease;"></div>
 <div id="desktop" class="fixed inset-0 z-10 flex flex-col opacity-0 transition-opacity duration-700">
 <div class="flex-1 relative p-2" id="desktop-area">
 <div id="selection-box"></div>
@@ -709,10 +205,6 @@ All Settings
 About
 </button>
 </div>
-<button class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs flex items-center gap-2 mt-2" onclick="if(typeof Mobile!=='undefined'){if(Mobile.enabled){document.body.classList.remove('mobile-mode');Mobile.enabled=false;location.reload();}else{Mobile.enable();}}">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-Toggle Mobile Mode
-</button>
 </div>
 <div class="taskbar flex items-center px-2 z-50">
 <div class="flex items-center gap-1">
@@ -743,7 +235,7 @@ Toggle Mobile Mode
 <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden border border-gray-800">
 <div id="boot-bar" class="boot-bar-indeterminate h-full w-1/3"></div>
 </div>
-<div class="text-[10px] text-gray-600 text-center mt-3">HyperZOS v3.1 · Build 2026.12.07</div>
+<div class="text-[10px] text-gray-600 text-center mt-3">HyperZOS v3.0 · Build 2026.06.13</div>
 <div class="text-[9px] text-gray-700 mt-2">Press ` rapidly to enter BIOS</div>
 </div>
 </div>
@@ -795,13 +287,8 @@ this.apply();
 apply() {
 document.body.classList.toggle('no-crt', !this.data.crt);
 document.documentElement.style.setProperty('--accent', this.data.accent);
-// Apply brightness via a black overlay — dimming the entire OS
-const overlay = document.getElementById('brightness-overlay');
-if(overlay){
-    // brightness 100 = 0% overlay, brightness 10 = 72% overlay, linear in between
-    const dimAmount = (100 - this.data.brightness) / 100 * 0.8;
-    overlay.style.opacity = String(dimAmount);
-}
+const wp = document.getElementById('wallpaper');
+if(wp) wp.style.filter = `brightness(${this.data.brightness/100})`;
 const qsSlider = document.getElementById('qs-brightness-slider');
 const qsVal = document.getElementById('qs-brightness-val');
 if(qsSlider) qsSlider.value = this.data.brightness;
@@ -814,7 +301,7 @@ if(volVal) volVal.textContent = this.data.volume + '%';
 };
 const Toast = {
     show(msg, dur=3000) {
-        // Check if notifications are disabled or Focus Assist is on
+        
         if (!Settings.data.notifications || Settings.data.focusAssist) return; 
         
         const t = document.createElement('div');
@@ -921,7 +408,7 @@ this.render();
 },
 render() {
 const screen = document.getElementById('bios-screen');
-let html = '<div class="bios-header">HyperZOS BIOS Setup Utility - Version 3.1.2026</div>';
+let html = '<div class="bios-header">HyperZOS BIOS Setup Utility - Version 3.0.2026</div>';
 html += '<div style="display:flex;gap:20px;">';
 html += '<div style="width:150px;">';
 this.sections.forEach((sec, idx) => {
@@ -1331,7 +818,7 @@ const FS = {
             
             request.onsuccess = () => {
                 this.cache = {};
-                // Reconstruct tree from flat paths
+                
                 request.result.forEach(item => {
                     const parts = item.path.split('/').filter(p => p);
                     let current = this.cache;
@@ -1454,7 +941,7 @@ const FS = {
             node[name] = {};
         } else {
             node[name] = { type: 'file', content: content || '' };
-            // Save to DB
+            
             if (this.db) {
                 const fullPath = parentPath === 'C:' ? 'C:/' + name : parentPath + '/' + name;
                 try {
@@ -1473,14 +960,13 @@ const FS = {
         
         const fullPath = parentPath === 'C:' ? 'C:/' + name : parentPath + '/' + name;
         
-        // Delete from DB
         if (this.db) {
             try {
                 const tx = this.db.transaction(['files'], 'readwrite');
                 const store = tx.objectStore('files');
-                // Delete the file itself
+                
                 store.delete(fullPath);
-                // Note: Deleting folders recursively in IDB is complex, so we at least delete the entry
+                
             } catch(e) {}
         }
         
@@ -1496,7 +982,6 @@ const FS = {
         const oldFullPath = parentPath === 'C:' ? 'C:/' + oldName : parentPath + '/' + oldName;
         const newFullPath = parentPath === 'C:' ? 'C:/' + newName : parentPath + '/' + newName;
         
-        // Update DB
         if (this.db) {
             try {
                 const tx = this.db.transaction(['files'], 'readwrite');
@@ -1533,7 +1018,6 @@ const FS = {
         return false;
     },
 
-    // --- INFINITE DRIVE LOGIC (Procedural, not saved) ---
     listInfiniteDir(path) {
         const parts = path.split('/').filter(p => p && p !== '.');
         if (parts.length === 1) return [{ name: 'Random', type: 'folder' }, { name: 'Actual Files', type: 'folder' }];
@@ -2172,7 +1656,6 @@ document.addEventListener('mousemove', (e) => {
             const dx = e.clientX - WM.drag.sx;
             const dy = e.clientY - WM.drag.sy;
             
-            // Update actual position immediately to prevent teleporting
             w.style.left = (WM.drag.startLeft + dx) + 'px';
             w.style.top = Math.max(0, WM.drag.startTop + dy) + 'px';
             
@@ -2186,12 +1669,11 @@ document.addEventListener('mouseup', () => {
     if (WM.drag) {
         const w = document.getElementById(WM.drag.wid);
         if (w) {
-            // Clean up styles
+            
             w.style.transform = '';
             w.style.willChange = '';
-            w.style.transition = ''; // Restore transition for future animations
+            w.style.transition = ''; 
             
-            // Hide the shield
             dragShield.style.display = 'none';
         }
     }
@@ -2945,8 +2427,9 @@ const render = (body) => {
 body.classList.add('app-terminal-body');
 body.innerHTML = `
 <div class="flex flex-col h-full text-[#cccccc] font-mono text-[13px]">
+<div class="flex items-center gap-2 px-3 py-1 bg-[rgba(30,30,35,0.4)] border-b border-white/5 text-xs" style="backdrop-filter:blur(12px);"><span>⬛</span><span>Command Prompt</span></div>
 <div class="flex-1 overflow-y-auto p-3" id="output-${state.uid}">
-<div class="text-gray-500 mb-2">HyperZOS [Version 3.1.2026]</div>
+<div class="text-gray-500 mb-2">HyperZOS [Version 3.0.2026]</div>
 <div class="text-gray-500 mb-2">(c) 2026 HyperZTeam. Type 'help' for commands.</div>
 </div>
 <div class="flex items-center px-3 py-2 bg-[rgba(10,10,15,0.4)] border-t border-white/5" style="backdrop-filter:blur(12px);">
@@ -2975,7 +2458,7 @@ echo: () => writeLine(escapeHtml(args.join(' '))),
 cls: () => { output.innerHTML = ''; },
 whoami: () => writeLine('admin@hyperzos'),
 date: () => writeLine(new Date().toString()),
-ver: () => writeLine('HyperZOS [Version 3.1.2026]'),
+ver: () => writeLine('HyperZOS [Version 3.0.2026]'),
 tree: () => { writeLine(state.cwd); const printNode = (path, prefix) => { const items = FS.listDir(path); items.forEach((it, idx) => { const last = idx === items.length - 1; writeLine((prefix||'') + (last ? '└── ' : '├── ') + it.name); if ((it.type === 'folder' || it.type === 'drive') && (prefix||'').length < 8) { const newPath = path + (path.endsWith('/')||path.endsWith(':')?'':'/') + it.name; printNode(newPath, (prefix||'') + (last?'    ':'│   ')); } }); }; printNode(state.cwd); },
 search: () => { if (!args[0]) { writeLine('Usage: search <query>', 'text-red-400'); return; } const q = args.join(' '); writeLine(`Searching for "${q}"...`); const results = FS.search(q); writeLine(`Found ${results.length} results:`); results.slice(0, 20).forEach(r => writeLine(`  ${r.path} [${r.matchType}]`)); },
 open: () => { if (!args[0]) { writeLine('Usage: open <path>', 'text-red-400'); return; } const path = args[0].includes(':') ? args[0] : state.cwd + '/' + args[0]; Apps.openFile(path); writeLine('Opened: ' + path); },
@@ -3013,31 +2496,30 @@ openSettings() {
             <div class="flex-1 overflow-y-auto p-6" id="settings-content-${state.uid}"></div>
         </div>`;
 
-        // Dynamic HTML generation to ensure fresh state on every tab switch
         const getPageHtml = (page) => {
             if (page === 'system') {
                 return `<h2 class="text-2xl mb-4">System</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between transition-colors hover:bg-[rgba(50,50,55,0.4)]"><div><div class="font-medium">Notifications</div><div class="text-xs text-gray-400">Get tips and suggestions</div></div><div class="toggle ${Settings.data.notifications ? 'on' : ''}" data-toggle="notif"></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between transition-colors hover:bg-[rgba(50,50,55,0.4)]"><div><div class="font-medium">Focus Assist</div><div class="text-xs text-gray-400">Silence notifications</div></div><div class="toggle ${Settings.data.focusAssist ? 'on' : ''}" data-toggle="focus"></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Test Notification</div><button id="test-notif-${state.uid}" class="px-3 py-1.5 bg-white/10 rounded text-xs hover:bg-white/20 transition-colors">Send Test Toast</button></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Storage</div><div class="text-xs text-gray-400 mb-2">System (C:) — 247 GB free of 512 GB</div><div class="w-full bg-black/40 rounded-full h-2 overflow-hidden"><div class="bg-[var(--accent)] h-full" style="width:52%"></div></div><div class="text-xs text-gray-400 mt-3 mb-2">Infinite Drive (INF:) — ∞ bytes</div><div class="w-full bg-black/40 rounded-full h-2 overflow-hidden"><div class="bg-purple-500 h-full" style="width:0.1%"></div></div></div></div>`;
             } else if (page === 'display') {
-                // UPDATED: min="10" for 10% limit
+                
                 return `<h2 class="text-2xl mb-4">Display</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Brightness</div><input type="range" min="10" max="100" value="${Settings.data.brightness}" class="w-full" id="bright-${state.uid}"></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between"><div><div class="font-medium">CRT Scanlines</div><div class="text-xs text-gray-400">Retro effect</div></div><div class="toggle ${Settings.data.crt ? 'on' : ''}" data-toggle="crt"></div></div></div>`;
             } else if (page === 'personalize') {
                 return `<h2 class="text-2xl mb-4">Personalization</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Accent Color</div><div class="flex flex-wrap gap-2" id="accent-picker-${state.uid}">${['#0078d4','#107c10','#ff8c00','#e81123','#5c2d91','#00b7c3','#e3008c','#767676'].map(c => `<div class="w-10 h-10 rounded cursor-pointer hover:scale-110 transition-transform" style="background:${c};${c===Settings.data.accent?'outline:2px solid white;outline-offset:2px':''}" data-color="${c}"></div>`).join('')}</div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Wallpaper</div><p class="text-xs text-gray-400 mb-3">Upload a custom image or cycle through gradients.</p><div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all" id="upload-wallpaper-${state.uid}">Upload Image</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="cycle-wallpaper-${state.uid}">Cycle Gradient</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="default-wallpaper-${state.uid}">Default</button></div><input type="file" id="wallpaper-input-${state.uid}" accept="image/*" style="display:none"></div></div>`;
             } else if (page === 'about') {
-                return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.12.07</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div>`;
+                return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.06.12</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div>`;
             }
             return '';
         };
 
         const showPage = (page) => { 
             state.page = page; 
-            // Regenerate HTML every time to get fresh toggle states
+            
             body.querySelector(`#settings-content-${state.uid}`).innerHTML = getPageHtml(page); 
             body.querySelectorAll('[data-page]').forEach(i => i.classList.toggle('active', i.dataset.page === page)); 
             bindContentEvents(); 
         };
 
         const bindContentEvents = () => {
-            // Toggles
+            
             body.querySelectorAll('[data-toggle]').forEach(t => {
                 t.addEventListener('click', () => {
                     t.classList.toggle('on');
@@ -3059,29 +2541,26 @@ openSettings() {
                 });
             });
 
-            // Brightness - UPDATED WITH 10% HARD LIMIT
             const bright = body.querySelector(`#bright-${state.uid}`);
             if (bright) {
                 bright.addEventListener('input', () => { 
                     let val = parseInt(bright.value);
-                    if (val < 10) val = 10; // Hard limit
+                    if (val < 10) val = 10; 
                     Settings.data.brightness = val; 
                     Settings.save(); 
                 });
             }
 
-            // Accent Colors
             body.querySelectorAll(`#accent-picker-${state.uid} [data-color]`).forEach(c => {
                 c.addEventListener('click', () => {
                     Settings.data.accent = c.dataset.color;
                     Settings.save();
-                    // Re-render personalize page to update outline
+                    
                     if (state.page === 'personalize') showPage('personalize');
                     else Toast.show('Accent color updated');
                 });
             });
 
-            // --- WALLPAPER LOGIC ---
             const uploadBtn = body.querySelector(`#upload-wallpaper-${state.uid}`);
             const cycleBtn = body.querySelector(`#cycle-wallpaper-${state.uid}`);
             const defaultBtn = body.querySelector(`#default-wallpaper-${state.uid}`);
@@ -3098,7 +2577,7 @@ openSettings() {
                             wp.style.backgroundImage = `url(${evt.target.result})`;
                             wp.style.backgroundSize = 'cover';
                             wp.style.backgroundPosition = 'center';
-                            wp.style.animation = 'none'; // Stop gradient animation
+                            wp.style.animation = 'none'; 
                             Toast.show('Wallpaper updated');
                         };
                         reader.readAsDataURL(file);
@@ -3109,8 +2588,8 @@ openSettings() {
             if (cycleBtn) {
                 cycleBtn.addEventListener('click', () => {
                     const wp = document.getElementById('wallpaper');
-                    wp.style.backgroundImage = 'none'; // Clear custom image
-                    cycleWallpaper(); // Use global function
+                    wp.style.backgroundImage = 'none'; 
+                    cycleWallpaper(); 
                 });
             }
 
@@ -3125,9 +2604,7 @@ openSettings() {
                     Toast.show('Default wallpaper restored');
                 });
             }
-            // -----------------------
-
-            // Test Notification Button
+            
             const testBtn = body.querySelector(`#test-notif-${state.uid}`);
             if (testBtn) {
                 testBtn.addEventListener('click', () => {
@@ -3217,7 +2694,7 @@ body.innerHTML = `<div class="flex flex-col items-center justify-center h-full p
 <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 30% 20%, rgba(0,120,212,0.4), transparent 50%), radial-gradient(circle at 70% 80%, rgba(92,45,145,0.4), transparent 50%);"></div>
 <div class="hz-logo hz-logo-xxl mb-4 relative" style="animation: logoGlow 3s ease-in-out infinite alternate;">HZ</div>
 <h1 class="text-4xl font-light mb-2 relative">HyperZOS 3</h1>
-<div class="text-sm text-gray-400 mb-6 relative">Build 2026.12.07</div>
+<div class="text-sm text-gray-400 mb-6 relative">Build 2026.06.13</div>
 <p class="max-w-md text-sm text-gray-300 mb-6 leading-relaxed relative">A Windows-like Web OS featuring procedural infinite storage with the Random chain (AAA0→ZZZ∞), ZProxy secure browser integration, multi-format file viewers, and a complete shell environment.</p>
 <div class="grid grid-cols-2 gap-4 text-xs text-gray-400 relative"><div>Kernel: 3.0.1-INF</div><div>Shell: hz-sh 2.1</div><div>GUI: Fluent Z</div><div>Storage: ∞ bytes</div></div>
 <button onclick="Toast.show('HyperZOS 3 is up to date ✓')" class="mt-6 px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all relative">Check for Updates</button>
@@ -3304,7 +2781,7 @@ openCamera() {
                 <div id="cam-status-${state.uid}" class="text-xs text-yellow-400">Ready</div>
             </div>
             
-            <!-- Mode Switcher -->
+            
             <div class="flex justify-center gap-4 py-2 bg-black/40 backdrop-blur-md z-20 relative">
                 <button id="mode-photo-${state.uid}" class="px-4 py-1 rounded-full text-xs font-bold transition-all bg-[var(--accent)] text-white">Photo</button>
                 <button id="mode-video-${state.uid}" class="px-4 py-1 rounded-full text-xs font-bold transition-all bg-white/10 text-gray-300 hover:bg-white/20">Video</button>
@@ -3321,7 +2798,7 @@ openCamera() {
                 <video id="cam-video-${state.uid}" class="w-full h-full object-cover" autoplay playsinline muted style="display:none;"></video>
                 <div id="cam-recording-indicator-${state.uid}" class="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold hidden animate-pulse">● REC <span id="cam-timer-${state.uid}">00:00</span></div>
                 
-                <!-- Flash Effect for Photo -->
+                
                 <div id="cam-flash-${state.uid}" class="absolute inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-100"></div>
             </div>
             
@@ -3368,18 +2845,17 @@ openCamera() {
         videoBtn.addEventListener('click', () => setMode('video'));
 
         const startCamera = async () => {
-            // Reset UI
+            
             errorDiv.classList.add('hidden');
             statusDiv.textContent = 'Requesting...';
             
-            // Clean up old stream if it exists but is broken
             if (state.stream) {
                 state.stream.getTracks().forEach(track => track.stop());
                 state.stream = null;
             }
 
             try {
-                // Request fresh permissions
+                
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 
                 window.currentCameraStream = stream;
@@ -3635,1316 +3111,11 @@ initDesktop(); StartMenu.render(); bootSequence();
 }
 document.getElementById('qs-brightness-slider').addEventListener('input', (e) => { Settings.data.brightness = parseInt(e.target.value); Settings.save(); });
 document.getElementById('qs-volume-slider').addEventListener('input', (e) => { Settings.data.volume = parseInt(e.target.value); Settings.save(); });
-// Initialize IndexedDB in background
 if (typeof FS.init === 'function') {
     FS.init().then(() => {
         console.log("IndexedDB Loaded");
     });
 }
-
-/* ============================================================ */
-/* MOBILE MODE (Android-style UI) - HyperZOS Mobile             */
-/* All wrapped in body.mobile-mode; desktop experience intact.  */
-/* ============================================================ */
-const Mobile = {
-    enabled: false,
-    editMode: false,
-    notifications: [
-        { app: 'HyperZOS', icon: 'HZ', title: 'Welcome to HyperZOS Mobile', body: 'Swipe down for notifications. Swipe up from bottom for Home. Edge swipe to go back.', time: 'now' },
-        { app: 'System', icon: 'S', title: 'System update available', body: 'HyperZOS v3.1 brings Material You design and improved gestures.', time: '5m' },
-        { app: 'HyperStore', icon: 'H', title: 'New apps available', body: 'Check out Quantum Chess and Neural Notes in HyperStore.', time: '1h' }
-    ],
-    quickToggles: [
-        { id: 'wifi', label: 'Wi-Fi', icon: '📶', active: true },
-        { id: 'bt', label: 'Bluetooth', icon: '🔵', active: false },
-        { id: 'data', label: 'Data', icon: '📡', active: true },
-        { id: 'flash', label: 'Flash', icon: '🔦', active: false },
-        { id: 'rotate', label: 'Rotate', icon: '🔄', active: true },
-        { id: 'battery', label: 'Saver', icon: '🔋', active: false },
-        { id: 'airplane', label: 'Airplane', icon: '✈', active: false },
-        { id: 'dnd', label: 'DND', icon: '🌙', active: false }
-    ],
-    appsList: [
-        { id: 'explorer', name: 'Files', color: '#f59e0b', iconSvg: 'folder' },
-        { id: 'browser', name: 'Browser', color: '#06b6d4', iconSvg: 'globe' },
-        { id: 'notepad', name: 'Notepad', color: '#3b82f6', iconSvg: 'fileText' },
-        { id: 'terminal', name: 'Terminal', color: '#1f2937', iconSvg: 'terminal' },
-        { id: 'settings', name: 'Settings', color: '#6b7280', iconSvg: 'settings' },
-        { id: 'calculator', name: 'Calculator', color: '#8b5cf6', iconSvg: 'calc' },
-        { id: 'paint', name: 'Paint', color: '#ec4899', iconSvg: 'paint' },
-        { id: 'calendar', name: 'Calendar', color: '#ef4444', iconSvg: 'calendar' },
-        { id: 'camera', name: 'Camera', color: '#10b981', iconSvg: 'camera' },
-        { id: 'search', name: 'Search', color: '#0ea5e9', iconSvg: 'search' },
-        { id: 'store', name: 'Store', color: '#7c3aed', iconSvg: 'store' },
-        { id: 'about', name: 'About', color: '#f97316', iconSvg: 'info' }
-    ],
-    dockApps: ['browser', 'explorer', 'notepad', 'settings'],
-    homeScreenApps: null, // initialised in enable() to all apps minus dock
-    _longPressTriggered: false,
-    _lpSuppressed: false,
-    _lpTimer: null,
-    _homeLPTimer: null,
-    _currentHome: 0,
-    _drag: { active: false },
-    _dragMoveHandler: null,
-    _dragEndHandler: null,
-    statusClockEl: null,
-    _clockInterval: null,
-
-    detect() {
-        const ua = navigator.userAgent || '';
-        const isMobileUA = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|BlackBerry|Opera Mini/i.test(ua);
-        const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-        const isSmallScreen = Math.min(window.innerWidth, window.innerHeight) <= 600;
-        const hasCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-        const urlParams = new URLSearchParams(window.location.search);
-        const forceMobile = urlParams.get('mobile') === '1';
-        return forceMobile || isMobileUA || isSmallScreen || (isTouch && hasCoarsePointer);
-    },
-
-    enable() {
-        if (this.enabled) return;
-        this.enabled = true;
-        if (!this.homeScreenApps) {
-            this.homeScreenApps = this.appsList.map(a => a.id).filter(id => !this.dockApps.includes(id));
-        }
-        document.body.classList.add('mobile-mode');
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
-        this.buildUI();
-        this.bindGestures();
-        this.startClock();
-        this._initBattery();
-        try { Toast.show('📱 Mobile mode enabled'); } catch(e) {}
-    },
-
-    buildUI() {
-        // Status bar
-        const statusBar = document.createElement('div');
-        statusBar.id = 'mobile-status-bar';
-        statusBar.innerHTML = `
-            <div class="sb-left">
-                <span id="mobile-clock" style="font-variant-numeric:tabular-nums;">12:00</span>
-            </div>
-            <div class="sb-right">
-                <span style="font-size:11px;">📶</span>
-                <span style="font-size:11px;">📡</span>
-                <svg width="16" height="10" viewBox="0 0 24 14" fill="currentColor"><rect x="1" y="2" width="18" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="4" width="14" height="6" rx="1" fill="currentColor"/><rect x="20" y="5" width="2" height="4" rx="1" fill="currentColor"/></svg>
-                <span id="mobile-battery" style="font-size:10px;font-weight:600;">100%</span>
-            </div>`;
-        document.body.appendChild(statusBar);
-        this.statusClockEl = statusBar.querySelector('#mobile-clock');
-
-        // Home screen: At a Glance → search → grid → page dots → dock
-        const home = document.createElement('div');
-        home.id = 'mobile-home-screen';
-        home.innerHTML = `
-            <div id="mobile-at-glance">
-                <div class="at-glance-date" id="mobile-at-glance-date">Monday, January 1</div>
-                <div class="at-glance-weather">☀ 22°C  ·  Sunny</div>
-            </div>
-            <div id="mobile-home-search">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <span style="opacity:0.75;">Search HyperZOS...</span>
-            </div>
-            <div id="mobile-app-grid"></div>
-            <div id="mobile-page-dots">
-                <div class="dot active"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            <div id="mobile-dock"></div>
-        `;
-        document.body.appendChild(home);
-
-        // App drawer (swipe up)
-        const drawer = document.createElement('div');
-        drawer.id = 'mobile-app-drawer';
-        drawer.innerHTML = `<div class="drawer-title">All Apps</div><div class="drawer-grid" id="mobile-drawer-grid"></div>`;
-        document.body.appendChild(drawer);
-
-        // Notification shade (swipe down)
-        const notif = document.createElement('div');
-        notif.id = 'mobile-notification-shade';
-        notif.innerHTML = `
-            <div class="notif-header">
-                <span class="notif-date" id="mobile-notif-date">Today</span>
-                <span style="font-size:11px;opacity:0.7;" id="mobile-notif-time">12:00</span>
-            </div>
-            <div class="notif-quick-toggles" id="mobile-quick-toggles"></div>
-            <div id="mobile-notif-list"></div>
-        `;
-        document.body.appendChild(notif);
-
-        // App switcher (recents)
-        const switcher = document.createElement('div');
-        switcher.id = 'mobile-app-switcher';
-        document.body.appendChild(switcher);
-
-        // Long-press menu
-        const lpMenu = document.createElement('div');
-        lpMenu.id = 'mobile-longpress-menu';
-        document.body.appendChild(lpMenu);
-
-        // Edit mode UI
-        const editBanner = document.createElement('div');
-        editBanner.id = 'mobile-edit-banner';
-        editBanner.textContent = '✏️ Edit mode — drag icons to rearrange, tap empty space to exit';
-        document.body.appendChild(editBanner);
-
-        const removeZone = document.createElement('div');
-        removeZone.id = 'mobile-edit-remove-zone';
-        removeZone.innerHTML = '🗑️ Remove';
-        document.body.appendChild(removeZone);
-
-        // Bottom nav bar (3-button Android)
-        const navBar = document.createElement('div');
-        navBar.id = 'mobile-nav-bar';
-        navBar.innerHTML = `
-            <div class="nav-btn" id="nav-back" title="Back">
-                <svg width="16" height="16" viewBox="0 0 24 24"><path d="M20 5L8 12l12 7V5z" fill="currentColor"/></svg>
-            </div>
-            <div class="nav-btn" id="nav-home" title="Home">
-                <svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
-            </div>
-            <div class="nav-btn" id="nav-recents" title="Recent">
-                <svg width="12" height="12" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
-            </div>
-        `;
-        document.body.appendChild(navBar);
-
-        // Populate
-        this.renderHomeApps();
-        this.renderDrawerApps();
-        this.renderDock();
-        this.renderNotifications();
-        this.renderQuickToggles();
-
-        // Wire nav buttons with ripple
-        const wireNav = (sel, handler) => {
-            const btn = navBar.querySelector(sel);
-            if (!btn) return;
-            btn.addEventListener('pointerdown', (e) => this._addRipple(btn, e.clientX, e.clientY));
-            btn.addEventListener('click', (e) => { e.stopPropagation(); handler.call(this); });
-        };
-        wireNav('#nav-back', this.handleBack);
-        wireNav('#nav-home', this.handleHome);
-        wireNav('#nav-recents', this.toggleRecents);
-
-        // Home search opens Search app
-        home.querySelector('#mobile-home-search').addEventListener('click', () => this.openApp('search'));
-
-        // Tap status bar to open notifications
-        statusBar.addEventListener('click', () => this.openNotificationShade());
-
-        // Tap outside overlay content to close
-        notif.addEventListener('click', (e) => { if (e.target === notif) this.closeNotificationShade(); });
-        drawer.addEventListener('click', (e) => { if (e.target === drawer || (e.target.classList && e.target.classList.contains('drawer-title'))) this.closeAppDrawer(); });
-        switcher.addEventListener('click', (e) => { if (e.target === switcher) this.closeRecents(); });
-
-        // Long-press on home screen background → enter edit mode
-        this._bindHomeLongPress(home);
-
-        // Double-tap on empty home screen in edit mode → exit edit mode
-        let lastTap = 0;
-        home.addEventListener('click', (e) => {
-            if (!this.editMode) return;
-            if (e.target.closest('.mobile-app-icon') || e.target.closest('#mobile-dock') ||
-                e.target.closest('#mobile-home-search') || e.target.closest('#mobile-at-glance') ||
-                e.target.closest('#mobile-page-dots')) return;
-            var now = Date.now();
-            if (now - lastTap < 350) {
-                this.exitEditMode();
-                this._vibrate(10);
-            }
-            lastTap = now;
-        });
-    },
-
-    _bindHomeLongPress(home) {
-        let startX = 0, startY = 0;
-        const startLP = (x, y) => {
-            startX = x; startY = y;
-            clearTimeout(this._homeLPTimer);
-            this._homeLPTimer = setTimeout(() => {
-                if (!this.editMode && !this._drag.active) {
-                    this._lpSuppressed = true;
-                    this.enterEditMode();
-                    this._vibrate(20);
-                }
-            }, 500);
-        };
-        const cancelLP = () => { clearTimeout(this._homeLPTimer); };
-        const moveCancel = (e) => {
-            const t = e.touches ? e.touches[0] : e;
-            if (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10) cancelLP();
-        };
-        const isBackground = (target) => {
-            return !target.closest('.mobile-app-icon') &&
-                   !target.closest('#mobile-dock') &&
-                   !target.closest('#mobile-home-search') &&
-                   !target.closest('#mobile-at-glance') &&
-                   !target.closest('#mobile-page-dots');
-        };
-
-        home.addEventListener('touchstart', (e) => {
-            if (this.editMode || this._drag.active) return;
-            if (e.touches.length !== 1) return;
-            if (!isBackground(e.target)) return;
-            startLP(e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
-        home.addEventListener('touchmove', moveCancel, { passive: true });
-        home.addEventListener('touchend', cancelLP, { passive: true });
-        home.addEventListener('touchcancel', cancelLP, { passive: true });
-
-        // Mouse fallback (desktop testing)
-        home.addEventListener('mousedown', (e) => {
-            if (this.editMode || this._drag.active) return;
-            if (!isBackground(e.target)) return;
-            startLP(e.clientX, e.clientY);
-        });
-        home.addEventListener('mousemove', moveCancel);
-        home.addEventListener('mouseup', cancelLP);
-        home.addEventListener('mouseleave', cancelLP);
-    },
-
-    makeAppIcon(app, opts) {
-        // Backward-compatible: makeAppIcon(app, true) means drawer
-        if (typeof opts === 'boolean') opts = opts ? { context: 'drawer' } : {};
-        opts = opts || {};
-        const context = opts.context || 'home';
-        const icon = document.createElement('div');
-        icon.className = 'mobile-app-icon';
-        icon.dataset.appId = app.id;
-        const iconFn = Apps.icons[app.iconSvg];
-        const svg = iconFn ? iconFn(28) : Apps.icons.info(28);
-        icon.innerHTML = `
-            <div class="app-icon-bg" style="background:${app.color};color:#fff;">${svg}</div>
-            <div class="app-icon-label">${escapeHtml(app.name)}</div>
-        `;
-        icon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (this._longPressTriggered) { this._longPressTriggered = false; return; }
-            if (this.editMode) return; // in edit mode, tap does nothing (drag instead)
-            this.openApp(app.id);
-            if (context === 'drawer') this.closeAppDrawer();
-        });
-
-        const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-        const startLP = (x, y) => {
-            this._longPressTriggered = false;
-            clearTimeout(this._lpTimer);
-            this._lpTimer = setTimeout(() => {
-                this._longPressTriggered = true;
-                this._lpSuppressed = true;
-                icon.classList.add('long-pressing');
-                this._vibrate(20);
-                if (context === 'drawer') {
-                    // Long-press in drawer → start drag to home screen
-                    this._startDrag(app.id, 'drawer', icon, x, y);
-                } else if (this.editMode) {
-                    // In edit mode → start drag to reposition
-                    this._startDrag(app.id, 'home', icon, x, y);
-                } else {
-                    // Otherwise → show context menu
-                    this.showLongPressMenu(app, icon);
-                }
-            }, isTouch ? 500 : 600);
-        };
-        const cancelLP = () => {
-            clearTimeout(this._lpTimer);
-            icon.classList.remove('long-pressing');
-        };
-
-        if (isTouch) {
-            icon.addEventListener('touchstart', (e) => {
-                if (e.touches.length !== 1) return;
-                startLP(e.touches[0].clientX, e.touches[0].clientY);
-            }, { passive: true });
-            icon.addEventListener('touchmove', () => { if (this._drag.active) return; cancelLP(); }, { passive: true });
-            icon.addEventListener('touchend', cancelLP, { passive: true });
-            icon.addEventListener('touchcancel', cancelLP, { passive: true });
-        } else {
-            icon.addEventListener('mousedown', (e) => { if (e.button === 0) startLP(e.clientX, e.clientY); });
-            icon.addEventListener('mouseup', cancelLP);
-            icon.addEventListener('mouseleave', () => { if (this._drag.active) return; cancelLP(); });
-            icon.addEventListener('mousemove', () => { if (this._drag.active) return; cancelLP(); });
-        }
-        return icon;
-    },
-
-    renderHomeApps() {
-        const grid = document.getElementById('mobile-app-grid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        const ids = this.homeScreenApps || this.appsList.map(a => a.id).filter(id => !this.dockApps.includes(id));
-        ids.forEach(id => {
-            const app = this.appsList.find(a => a.id === id);
-            if (app) grid.appendChild(this.makeAppIcon(app, { context: 'home' }));
-        });
-    },
-
-    renderDrawerApps() {
-        const grid = document.getElementById('mobile-drawer-grid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        this.appsList.forEach(app => grid.appendChild(this.makeAppIcon(app, { context: 'drawer' })));
-    },
-
-    renderDock() {
-        const dock = document.getElementById('mobile-dock');
-        if (!dock) return;
-        dock.innerHTML = '';
-        this.dockApps.forEach(id => {
-            const app = this.appsList.find(a => a.id === id);
-            if (app) dock.appendChild(this.makeAppIcon(app, { context: 'dock' }));
-        });
-    },
-
-    renderQuickToggles() {
-        const container = document.getElementById('mobile-quick-toggles');
-        if (!container) return;
-        container.innerHTML = '';
-        this.quickToggles.forEach(qt => {
-            const el = document.createElement('div');
-            el.className = 'notif-qt' + (qt.active ? ' active' : '');
-            el.innerHTML = `<div style="font-size:18px;">${qt.icon}</div><div>${escapeHtml(qt.label)}</div>`;
-            el.addEventListener('click', (e) => {
-                e.stopPropagation();
-                qt.active = !qt.active;
-                el.classList.toggle('active', qt.active);
-                Toast.show(`${qt.label}: ${qt.active ? 'On' : 'Off'}`);
-                this._vibrate(10);
-            });
-            container.appendChild(el);
-        });
-    },
-
-    renderNotifications() {
-        const list = document.getElementById('mobile-notif-list');
-        if (!list) return;
-        list.innerHTML = '';
-        if (this.notifications.length === 0) {
-            list.innerHTML = '<div style="text-align:center;opacity:0.5;padding:32px;font-size:13px;">No notifications</div>';
-            return;
-        }
-        this.notifications.forEach((n, idx) => {
-            const card = document.createElement('div');
-            card.className = 'notif-card';
-            card.innerHTML = `
-                <div class="notif-icon">${escapeHtml(n.icon)}</div>
-                <div style="flex:1;">
-                    <div class="notif-title">${escapeHtml(n.title)}</div>
-                    <div class="notif-body">${escapeHtml(n.body)}</div>
-                    <div style="font-size:10px;opacity:0.6;margin-top:4px;">${escapeHtml(n.app)} · ${escapeHtml(n.time)}</div>
-                </div>
-                <div data-dismiss="${idx}" style="cursor:pointer;opacity:0.6;font-size:14px;padding:4px 8px;">✕</div>
-            `;
-            card.querySelector('[data-dismiss]').addEventListener('click', (e) => {
-                e.stopPropagation();
-                this._dismissNotification(idx);
-            });
-            // Swipe left/right to dismiss (touch + mouse)
-            var nStartX = 0, nTracking = false;
-            var nStart = function(e) {
-                var x = e.touches ? e.touches[0].clientX : e.clientX;
-                nStartX = x; nTracking = true;
-                card.style.transition = 'none';
-            };
-            var nMove = function(e) {
-                if (!nTracking) return;
-                var x = e.touches ? e.touches[0].clientX : e.clientX;
-                var dx = x - nStartX;
-                card.style.transform = 'translateX(' + dx + 'px)';
-                card.style.opacity = String(Math.max(0.3, 1 - Math.abs(dx) / 300));
-            };
-            var nEnd = function(e) {
-                if (!nTracking) return;
-                nTracking = false;
-                var x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-                var dx = x - nStartX;
-                card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-                if (Math.abs(dx) > 80) {
-                    // Dismiss
-                    card.style.transform = 'translateX(' + (dx > 0 ? '100%' : '-100%') + ')';
-                    card.style.opacity = '0';
-                    setTimeout(function() {
-                        this._dismissNotification(idx);
-                    }.bind(this), 300);
-                } else {
-                    // Snap back
-                    card.style.transform = '';
-                    card.style.opacity = '';
-                }
-            }.bind(this);
-            card.addEventListener('touchstart', nStart, {passive: true});
-            card.addEventListener('touchmove', nMove, {passive: true});
-            card.addEventListener('touchend', nEnd, {passive: true});
-            card.addEventListener('mousedown', function(e) {
-                if (e.button !== 0) return;
-                nStart(e);
-                var mm = function(ev) { nMove(ev); };
-                var mu = function(ev) { nEnd(ev); document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); };
-                document.addEventListener('mousemove', mm);
-                document.addEventListener('mouseup', mu);
-            });
-            list.appendChild(card);
-        });
-    },
-
-    _dismissNotification(idx) {
-        this.notifications.splice(idx, 1);
-        this.renderNotifications();
-        this._vibrate(10);
-    },
-
-    openApp(appId) {
-        this.closeLongPressMenu();
-        this.exitEditMode();
-        const home = document.getElementById('mobile-home-screen');
-        if (home) home.classList.add('hidden');
-        try { Apps.open(appId); } catch(e) { console.error(e); }
-        this._vibrate(8);
-    },
-
-    handleBack() {
-        // Close overlays first
-        const lpMenu = document.getElementById('mobile-longpress-menu');
-        if (lpMenu && lpMenu.classList.contains('open')) { this.closeLongPressMenu(); return; }
-        const drawer = document.getElementById('mobile-app-drawer');
-        if (drawer && drawer.classList.contains('open')) { this.closeAppDrawer(); return; }
-        const notif = document.getElementById('mobile-notification-shade');
-        if (notif && notif.classList.contains('open')) { this.closeNotificationShade(); return; }
-        const sw = document.getElementById('mobile-app-switcher');
-        if (sw && sw.classList.contains('open')) { this.closeRecents(); return; }
-        if (this.editMode) { this.exitEditMode(); return; }
-        // Minimise foreground window (don't close it) so it stays in Recents
-        if (WM.activeId && WM.windows.has(WM.activeId)) {
-            try { WM.minimize(WM.activeId); } catch(e) {}
-            const home = document.getElementById('mobile-home-screen');
-            if (home) home.classList.remove('hidden');
-            this._vibrate(8);
-        }
-    },
-
-    handleHome() {
-        this.closeAppDrawer();
-        this.closeNotificationShade();
-        this.closeRecents();
-        this.closeLongPressMenu();
-        this.exitEditMode();
-        // Minimise the current foreground window only (don't close all)
-        if (WM.activeId && WM.windows.has(WM.activeId)) {
-            try { WM.minimize(WM.activeId); } catch(e) {}
-        }
-        const home = document.getElementById('mobile-home-screen');
-        if (home) home.classList.remove('hidden');
-        this._vibrate(8);
-    },
-
-    toggleRecents() {
-        const sw = document.getElementById('mobile-app-switcher');
-        if (!sw) return;
-        if (sw.classList.contains('open')) this.closeRecents();
-        else this.openRecents();
-    },
-
-    openRecents() {
-        const sw = document.getElementById('mobile-app-switcher');
-        if (!sw) return;
-        this.closeAppDrawer();
-        this.closeNotificationShade();
-        this.closeLongPressMenu();
-        sw.innerHTML = '';
-        const entries = Array.from(WM.windows.entries());
-        if (entries.length === 0) {
-            sw.innerHTML = '<div class="recent-empty">No recent apps</div>';
-        } else {
-            entries.forEach(([wid, m]) => {
-                const card = document.createElement('div');
-                card.className = 'recent-app-card';
-                card.setAttribute('data-wid', wid);
-                const app = this.appsList.find(a => a.id === m.appId) || { name: m.title || 'App', color: '#6b7280', iconSvg: 'info' };
-                const iconFn = Apps.icons[app.iconSvg];
-                const svg = iconFn ? iconFn(14) : '';
-                card.innerHTML = `
-                    <div class="recent-app-header">
-                        <div style="width:22px;height:22px;border-radius:6px;background:${app.color};display:flex;align-items:center;justify-content:center;color:#fff;">${svg}</div>
-                        <span style="flex:1;">${escapeHtml(m.title || app.name)}</span>
-                        <span data-close="${wid}" style="cursor:pointer;opacity:0.7;font-size:14px;padding:4px 8px;">✕</span>
-                    </div>
-                    <div class="recent-app-body">${svg || '📱'}</div>
-                `;
-                card.querySelector('.recent-app-body').addEventListener('click', (e) => {
-                    // Only open if this was a tap, not a drag/scroll
-                    if (card.dataset.wasDragged === '1') {
-                        card.dataset.wasDragged = '0';
-                        return;
-                    }
-                    this.closeRecents();
-                    this._restoreApp(wid, m.minimized);
-                    const home = document.getElementById('mobile-home-screen');
-                    if (home) home.classList.add('hidden');
-                });
-                // Swipe up on card to close (touch + mouse)
-                var cardStartX = 0, cardStartY = 0, cardTracking = false;
-                var cardStart = function(e) {
-                    var x = e.touches ? e.touches[0].clientX : e.clientX;
-                    var y = e.touches ? e.touches[0].clientY : e.clientY;
-                    cardStartX = x; cardStartY = y; cardTracking = true;
-                    card.dataset.wasDragged = '0';
-                };
-                var cardEnd = function(e) {
-                    if (!cardTracking) return;
-                    cardTracking = false;
-                    var x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-                    var y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-                    var dx = x - cardStartX, dy = y - cardStartY;
-                    // Mark as dragged if moved significantly (prevents click from firing)
-                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-                        card.dataset.wasDragged = '1';
-                    }
-                    // Only close on vertical swipe up (not horizontal scroll)
-                    if (dy < -50 && Math.abs(dy) > Math.abs(dx)) {
-                        card.classList.add('closing');
-                        this._vibrate(15);
-                        setTimeout(function() {
-                            try { WM.close(wid); } catch(err) {}
-                            // Force-delete from WM.windows immediately — WM.close has an
-                            // internal 200ms delay which would cause WM.windows.size
-                            // to still be 1 when we check below, re-creating the card.
-                            WM.windows.delete(wid);
-                            // Remove just this card from the DOM (don't rebuild all)
-                            card.remove();
-                            // If no more windows, close recents and go home
-                            if (WM.windows.size === 0) {
-                                this.closeRecents();
-                                var home = document.getElementById('mobile-home-screen');
-                                if (home) home.classList.remove('hidden');
-                            } else {
-                                // If no cards left in DOM but windows exist, rebuild
-                                var remaining = document.querySelectorAll('.recent-app-card');
-                                if (remaining.length === 0) this.openRecents();
-                            }
-                        }.bind(this), 350);
-                    }
-                }.bind(this);
-                card.addEventListener('touchstart', cardStart, {passive: true});
-                card.addEventListener('touchend', cardEnd, {passive: true});
-                card.addEventListener('mousedown', function(e) {
-                    if (e.button !== 0) return;
-                    cardStart(e);
-                    var moveHandler = function(ev) {
-                        // Track but don't preventDefault
-                    };
-                    var upHandler = function(ev) {
-                        cardEnd(ev);
-                        document.removeEventListener('mouseup', upHandler);
-                        document.removeEventListener('mousemove', moveHandler);
-                    };
-                    document.addEventListener('mouseup', upHandler);
-                    document.addEventListener('mousemove', moveHandler);
-                });
-                card.querySelector('[data-close]').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    card.classList.add('closing');
-                    setTimeout(() => {
-                        try { WM.close(wid); } catch(err) {}
-                        // Force-delete from WM.windows immediately (see swipe handler for explanation)
-                        WM.windows.delete(wid);
-                        card.remove();
-                        if (WM.windows.size === 0) {
-                            this.closeRecents();
-                            var home = document.getElementById('mobile-home-screen');
-                            if (home) home.classList.remove('hidden');
-                        } else {
-                            var remaining = document.querySelectorAll('.recent-app-card');
-                            if (remaining.length === 0) this.openRecents();
-                        }
-                    }, 280);
-                });
-                sw.appendChild(card);
-            });
-        }
-        sw.classList.add('open');
-        this._vibrate(8);
-    },
-
-    _restoreApp(wid, wasMinimized) {
-        const w = document.getElementById(wid);
-        // Force animation to replay by removing & reflowing anim-open class
-        if (w) {
-            w.classList.remove('anim-open');
-            void w.offsetWidth;
-        }
-        try {
-            if (wasMinimized) WM.restore(wid); else WM.focus(wid);
-        } catch(e) {}
-    },
-
-    closeRecents() {
-        const sw = document.getElementById('mobile-app-switcher');
-        if (sw) sw.classList.remove('open');
-    },
-
-    openAppDrawer() {
-        const d = document.getElementById('mobile-app-drawer');
-        if (d) d.classList.add('open');
-        this.closeNotificationShade();
-        this.closeRecents();
-        this.closeLongPressMenu();
-        this._vibrate(8);
-    },
-
-    closeAppDrawer() {
-        const d = document.getElementById('mobile-app-drawer');
-        if (d) d.classList.remove('open');
-    },
-
-    openNotificationShade() {
-        const n = document.getElementById('mobile-notification-shade');
-        if (!n) return;
-        n.classList.add('open');
-        const now = new Date();
-        const dateEl = document.getElementById('mobile-notif-date');
-        if (dateEl) dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-        const timeEl = document.getElementById('mobile-notif-time');
-        if (timeEl) timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        this._vibrate(8);
-    },
-
-    closeNotificationShade() {
-        const n = document.getElementById('mobile-notification-shade');
-        if (n) n.classList.remove('open');
-    },
-
-    showLongPressMenu(app, iconEl) {
-        const menu = document.getElementById('mobile-longpress-menu');
-        if (!menu) return;
-        const inDock = this.dockApps.includes(app.id);
-        const inHome = this.homeScreenApps && this.homeScreenApps.includes(app.id);
-        menu.innerHTML = `
-            <div class="lp-item" data-action="open"><span style="font-size:16px;">📂</span> Open</div>
-            <div class="lp-item" data-action="dock"><span style="font-size:16px;">📌</span> ${inDock ? 'Remove from Dock' : 'Add to Dock'}</div>
-            ${inHome ? '<div class="lp-item" data-action="remove-home"><span style="font-size:16px;">🚫</span> Remove from Home</div>' : '<div class="lp-item" data-action="add-home"><span style="font-size:16px;">➕</span> Add to Home</div>'}
-            <div class="lp-item" data-action="uninstall"><span style="font-size:16px;">🗑️</span> Uninstall</div>
-            <div class="lp-item" data-action="info"><span style="font-size:16px;">ℹ️</span> App Info</div>
-        `;
-        const rect = iconEl.getBoundingClientRect();
-        let left = rect.left + rect.width/2 - 90;
-        let top = rect.bottom + 8;
-        left = Math.max(8, Math.min(window.innerWidth - 188, left));
-        if (top + 280 > window.innerHeight) top = Math.max(40, rect.top - 280 - 8);
-        menu.style.left = left + 'px';
-        menu.style.top = top + 'px';
-        menu.classList.add('open');
-        menu.querySelectorAll('.lp-item').forEach(item => {
-            item.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-                const action = item.dataset.action;
-                this.closeLongPressMenu();
-                iconEl.classList.remove('long-pressing');
-                if (action === 'open') {
-                    this.openApp(app.id);
-                } else if (action === 'dock') {
-                    if (inDock) {
-                        this.dockApps = this.dockApps.filter(id => id !== app.id);
-                        Toast.show(`${app.name} removed from dock`);
-                    } else if (this.dockApps.length < 5) {
-                        this.dockApps.push(app.id);
-                        Toast.show(`${app.name} added to dock`);
-                    } else {
-                        Toast.show('Dock is full (max 5)');
-                    }
-                    this.renderHomeApps();
-                    this.renderDock();
-                } else if (action === 'remove-home') {
-                    this.removeFromHome(app.id);
-                    this.renderHomeApps();
-                    Toast.show(`${app.name} removed from home`);
-                } else if (action === 'add-home') {
-                    if (!this.homeScreenApps.includes(app.id)) {
-                        this.homeScreenApps.push(app.id);
-                        this.renderHomeApps();
-                        Toast.show(`${app.name} added to home`);
-                    }
-                } else if (action === 'uninstall') {
-                    Toast.show(`Cannot uninstall built-in app: ${app.name}`);
-                } else if (action === 'info') {
-                    Toast.show(`<strong>${app.name}</strong><br>HyperZOS built-in app<br>Version 3.1`);
-                }
-                this._vibrate(10);
-            });
-        });
-        // Outside-click dismiss
-        setTimeout(() => {
-            const handler = (e) => {
-                if (!menu.contains(e.target)) {
-                    this.closeLongPressMenu();
-                    iconEl.classList.remove('long-pressing');
-                    document.removeEventListener('touchstart', handler, true);
-                    document.removeEventListener('mousedown', handler, true);
-                }
-            };
-            document.addEventListener('touchstart', handler, { passive: true, capture: true });
-            document.addEventListener('mousedown', handler, true);
-        }, 150);
-    },
-
-    closeLongPressMenu() {
-        const menu = document.getElementById('mobile-longpress-menu');
-        if (menu) menu.classList.remove('open');
-    },
-
-    _switchPage(dir) {
-        this._currentHome = (this._currentHome + dir + 3) % 3;
-        const dots = document.querySelectorAll('#mobile-page-dots .dot');
-        dots.forEach((d, i) => d.classList.toggle('active', i === this._currentHome));
-        const grid = document.getElementById('mobile-app-grid');
-        if (grid) {
-            const out = dir > 0 ? '-8%' : '8%';
-            const in_ = dir > 0 ? '8%' : '-8%';
-            grid.style.transition = 'transform 0.22s cubic-bezier(0.4,0,1,1), opacity 0.22s';
-            grid.style.opacity = '0.25';
-            grid.style.transform = `translateX(${out})`;
-            setTimeout(() => {
-                grid.style.transition = 'none';
-                grid.style.transform = `translateX(${in_})`;
-                requestAnimationFrame(() => {
-                    grid.style.transition = 'transform 0.28s cubic-bezier(0.16,1,0.3,1), opacity 0.28s';
-                    grid.style.transform = '';
-                    grid.style.opacity = '';
-                });
-            }, 220);
-        }
-        this._vibrate(5);
-    },
-
-    _flashEdge(side) {
-        const el = document.createElement('div');
-        el.className = 'mobile-edge-flash ' + side;
-        document.body.appendChild(el);
-        requestAnimationFrame(() => { el.style.opacity = '0'; });
-        setTimeout(() => el.remove(), 400);
-    },
-
-    bindGestures() {
-        const SWIPE_THRESHOLD = 50;
-        const EDGE = 22;
-        let startX = 0, startY = 0;
-        let startZone = null;
-        let tracking = false;
-
-        const getZones = () => {
-            const sbH = parseInt(getComputedStyle(document.body).getPropertyValue('--statusbar-h')) || 28;
-            const nbH = parseInt(getComputedStyle(document.body).getPropertyValue('--navbar-h')) || 44;
-            return { sbH, nbH };
-        };
-
-        const classifyStart = (x, y) => {
-            const { sbH, nbH } = getZones();
-            if (y < sbH) return 'top';
-            if (y > window.innerHeight - nbH) return 'bottom';
-            if (x < EDGE) return 'left';
-            if (x > window.innerWidth - EDGE) return 'right';
-            return 'middle';
-        };
-
-        const handleEnd = (endX, endY, targetEl) => {
-            if (!tracking) return;
-            tracking = false;
-            if (this._lpSuppressed || this._drag.active) {
-                this._lpSuppressed = false;
-                return;
-            }
-            const dx = endX - startX, dy = endY - startY;
-            const absDx = Math.abs(dx), absDy = Math.abs(dy);
-            const horiz = absDx > absDy;
-
-            // Use elementFromPoint to find what's actually under the end position
-            // (more reliable than e.target which might be a different element after movement)
-            var endTarget = document.elementFromPoint(endX, endY);
-
-            // Check if notification shade is open — swipe up to close it
-            const notif = document.getElementById('mobile-notification-shade');
-            if (notif && notif.classList.contains('open')) {
-                if (dy < -SWIPE_THRESHOLD && absDy > absDx) {
-                    this.closeNotificationShade(); this._vibrate(10); return;
-                }
-                return;
-            }
-
-            // Check if recents switcher is open — handle card gestures
-            const sw = document.getElementById('mobile-app-switcher');
-            if (sw && sw.classList.contains('open')) {
-                // Swipe up on a recent app card → close that app
-                if (dy < -SWIPE_THRESHOLD && absDy > absDx) {
-                    // Find the card that was under the START position (more reliable)
-                    var startEl = document.elementFromPoint(startX, startY);
-                    var cardEl = (endTarget && endTarget.closest && endTarget.closest('.recent-app-card')) ||
-                                 (startEl && startEl.closest && startEl.closest('.recent-app-card'));
-                    if (cardEl) {
-                        var wid = cardEl.getAttribute('data-wid');
-                        if (wid) {
-                            cardEl.classList.add('closing');
-                            this._vibrate(15);
-                            setTimeout(() => {
-                                try { WM.close(wid); } catch(err) {}
-                                // Force-delete from WM.windows immediately (WM.close has internal 200ms delay)
-                                WM.windows.delete(wid);
-                                cardEl.remove();
-                                if (WM.windows.size === 0) {
-                                    this.closeRecents();
-                                    var home = document.getElementById('mobile-home-screen');
-                                    if (home) home.classList.remove('hidden');
-                                } else {
-                                    var remaining = document.querySelectorAll('.recent-app-card');
-                                    if (remaining.length === 0) this.openRecents();
-                                }
-                            }, 350);
-                        }
-                    }
-                    return;
-                }
-                // Horizontal swipe in recents → let it scroll naturally
-                return;
-            }
-
-            // Pull-down from top status bar → notification shade
-            if (startZone === 'top' && dy > SWIPE_THRESHOLD && absDy > absDx) {
-                this.openNotificationShade(); this._vibrate(10); return;
-            }
-            // Pull-up from bottom nav bar → home or app drawer
-            if (startZone === 'bottom' && dy < -SWIPE_THRESHOLD && absDy > absDx) {
-                this._handleSwipeUp(); this._vibrate(10); return;
-            }
-            // Edge swipe from left → back
-            if (startZone === 'left' && dx > SWIPE_THRESHOLD && horiz) {
-                this._flashEdge('left'); this.handleBack(); this._vibrate(10); return;
-            }
-            // Edge swipe from right → back
-            if (startZone === 'right' && dx < -SWIPE_THRESHOLD && horiz) {
-                this._flashEdge('right'); this.handleBack(); this._vibrate(10); return;
-            }
-            // Horizontal swipe on home screen → page switch
-            if (startZone === 'middle' && horiz && absDx > 70) {
-                if (this.editMode) return;
-                const drawer = document.getElementById('mobile-app-drawer');
-                if (drawer && drawer.classList.contains('open')) return;
-                const home = document.getElementById('mobile-home-screen');
-                if (home && !home.classList.contains('hidden')) {
-                    if (targetEl && targetEl.closest && targetEl.closest('.mobile-app-icon')) return;
-                    this._switchPage(dx < 0 ? 1 : -1);
-                    return;
-                }
-            }
-            // Swipe up from middle of home screen → open app drawer
-            if (startZone === 'middle' && !horiz && dy < -SWIPE_THRESHOLD) {
-                if (this.editMode) return;
-                const home = document.getElementById('mobile-home-screen');
-                if (home && !home.classList.contains('hidden')) {
-                    if (targetEl && targetEl.closest && (targetEl.closest('.mobile-app-icon') || targetEl.closest('#mobile-dock') || targetEl.closest('#mobile-home-search'))) return;
-                    this.openAppDrawer();
-                    this._vibrate(10);
-                    return;
-                }
-            }
-            // Swipe DOWN from middle of home screen → open notification shade
-            if (startZone === 'middle' && !horiz && dy > SWIPE_THRESHOLD) {
-                if (this.editMode) return;
-                const drawer = document.getElementById('mobile-app-drawer');
-                if (drawer && drawer.classList.contains('open')) {
-                    // Swipe down on app drawer → close it (not open notif shade)
-                    this.closeAppDrawer(); this._vibrate(10); return;
-                }
-                const home = document.getElementById('mobile-home-screen');
-                if (home && !home.classList.contains('hidden')) {
-                    if (targetEl && targetEl.closest && (targetEl.closest('.mobile-app-icon') || targetEl.closest('#mobile-dock') || targetEl.closest('#mobile-home-search'))) return;
-                    this.openNotificationShade();
-                    this._vibrate(10);
-                    return;
-                }
-            }
-        };
-
-        const onStart = (x, y) => {
-            if (!this.enabled) return false;
-            if (this._drag.active) return false;
-            startX = x; startY = y;
-            tracking = true;
-            startZone = classifyStart(x, y);
-            return true;
-        };
-
-        // ── Touch events ──
-        document.addEventListener('touchstart', (e) => {
-            if (!this.enabled) return;
-            if (this._drag.active) return;
-            if (e.touches.length !== 1) { tracking = false; return; }
-            const t = e.touches[0];
-            onStart(t.clientX, t.clientY);
-        }, { passive: true });
-
-        document.addEventListener('touchmove', (e) => {
-            if (!this.enabled || !tracking) return;
-            if (startZone === 'middle') return;
-            const target = e.target;
-            if (target && target.closest && target.closest('#mobile-app-drawer.open, #mobile-notification-shade.open, #mobile-app-switcher.open')) {
-                return;
-            }
-            e.preventDefault();
-        }, { passive: false });
-
-        document.addEventListener('touchend', (e) => {
-            if (!this.enabled || !tracking) return;
-            const t = e.changedTouches[0];
-            handleEnd(t.clientX, t.clientY, e.target);
-        }, { passive: true });
-
-        document.addEventListener('touchcancel', () => { tracking = false; }, { passive: true });
-
-        // ── Mouse events (for desktop testing and mouse-based interaction) ──
-        let mouseTracking = false;
-        document.addEventListener('mousedown', (e) => {
-            if (!this.enabled) return;
-            if (e.button !== 0) return;
-            if (this._drag.active) return;
-            const target = e.target;
-            // Allow gesture tracking inside notification shade and recents (for swipe-to-close)
-            const inNotif = target && target.closest && target.closest('#mobile-notification-shade');
-            const inRecents = target && target.closest && target.closest('#mobile-app-switcher');
-            if (inNotif || inRecents) {
-                // Inside these overlays, allow swipe tracking but ignore clicks on buttons/links
-                if (target && target.closest && (
-                    target.closest('button') ||
-                    target.closest('input') ||
-                    target.closest('a') ||
-                    target.closest('[onclick]')
-                )) return;
-                mouseTracking = onStart(e.clientX, e.clientY);
-                return;
-            }
-            // Outside overlays: only start gesture tracking on background areas
-            if (target && target.closest && (
-                target.closest('button') ||
-                target.closest('input') ||
-                target.closest('textarea') ||
-                target.closest('a') ||
-                target.closest('.mobile-app-icon') ||
-                target.closest('.nav-btn') ||
-                target.closest('.notif-qt') ||
-                target.closest('.notif-card') ||
-                target.closest('.recent-app-card') ||
-                target.closest('[onclick]')
-            )) return;
-            mouseTracking = onStart(e.clientX, e.clientY);
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!this.enabled || !mouseTracking) return;
-            // No preventDefault for mouse — just track
-        });
-
-        document.addEventListener('mouseup', (e) => {
-            if (!this.enabled || !mouseTracking) return;
-            mouseTracking = false;
-            handleEnd(e.clientX, e.clientY, e.target);
-        });
-
-        // Cancel mouse tracking if mouse leaves the window
-        document.addEventListener('mouseleave', () => {
-            mouseTracking = false;
-            tracking = false;
-        });
-    },
-
-    _handleSwipeUp() {
-        const home = document.getElementById('mobile-home-screen');
-        const drawer = document.getElementById('mobile-app-drawer');
-        const notif = document.getElementById('mobile-notification-shade');
-        const sw = document.getElementById('mobile-app-switcher');
-        // Close overlays first
-        if (drawer && drawer.classList.contains('open')) { this.closeAppDrawer(); return; }
-        if (notif && notif.classList.contains('open')) { this.closeNotificationShade(); return; }
-        if (sw && sw.classList.contains('open')) { this.closeRecents(); return; }
-        if (this.editMode) { this.exitEditMode(); return; }
-        // If an app is in foreground, go home (minimise it to Recents)
-        if (WM.activeId && WM.windows.has(WM.activeId)) {
-            this.handleHome();
-            return;
-        }
-        // Otherwise (on home) → open app drawer
-        if (home && !home.classList.contains('hidden')) {
-            this.openAppDrawer();
-            return;
-        }
-        // Fallback: show home
-        if (home) home.classList.remove('hidden');
-    },
-
-    _vibrate(ms) {
-        if (navigator.vibrate) try { navigator.vibrate(ms); } catch(e) {}
-    },
-
-    _addRipple(el, x, y) {
-        const rect = el.getBoundingClientRect();
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple';
-        const size = Math.max(rect.width, rect.height);
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = (x - rect.left - size/2) + 'px';
-        ripple.style.top = (y - rect.top - size/2) + 'px';
-        el.appendChild(ripple);
-        setTimeout(() => { try { ripple.remove(); } catch(e) {} }, 650);
-    },
-
-    _initBattery() {
-        if (navigator.getBattery) {
-            try {
-                navigator.getBattery().then(battery => {
-                    const update = () => {
-                        const bat = document.getElementById('mobile-battery');
-                        if (bat) bat.textContent = Math.round(battery.level * 100) + '%';
-                    };
-                    update();
-                    battery.addEventListener('levelchange', update);
-                }).catch(() => {});
-            } catch(e) {}
-        }
-    },
-
-    enterEditMode() {
-        if (this.editMode) return;
-        this.editMode = true;
-        const home = document.getElementById('mobile-home-screen');
-        if (home) home.classList.add('edit-mode');
-        const banner = document.getElementById('mobile-edit-banner');
-        if (banner) banner.classList.add('visible');
-    },
-
-    exitEditMode() {
-        if (!this.editMode) return;
-        this.editMode = false;
-        const home = document.getElementById('mobile-home-screen');
-        if (home) home.classList.remove('edit-mode');
-        const banner = document.getElementById('mobile-edit-banner');
-        if (banner) banner.classList.remove('visible');
-        const rz = document.getElementById('mobile-edit-remove-zone');
-        if (rz) rz.classList.remove('visible', 'over');
-    },
-
-    _startDrag(appId, source, iconEl, x, y) {
-        if (this._drag.active) return;
-        const app = this.appsList.find(a => a.id === appId);
-        if (!app) return;
-        this._drag = { active: true, appId, source, sourceIcon: iconEl, ghost: null, startX: x, startY: y };
-        // Build floating ghost
-        const ghost = document.createElement('div');
-        ghost.className = 'mobile-app-icon drag-ghost';
-        const iconFn = Apps.icons[app.iconSvg];
-        const svg = iconFn ? iconFn(28) : '';
-        ghost.innerHTML = `
-            <div class="app-icon-bg" style="background:${app.color};color:#fff;">${svg}</div>
-            <div class="app-icon-label">${escapeHtml(app.name)}</div>
-        `;
-        ghost.style.left = (x - 28) + 'px';
-        ghost.style.top = (y - 50) + 'px';
-        document.body.appendChild(ghost);
-        this._drag.ghost = ghost;
-        iconEl.classList.add('dragging');
-
-        if (source === 'drawer') {
-            this.closeAppDrawer();
-            const home = document.getElementById('mobile-home-screen');
-            if (home) home.classList.remove('hidden');
-            this.enterEditMode();
-        }
-        if (source === 'home') {
-            const rz = document.getElementById('mobile-edit-remove-zone');
-            if (rz) rz.classList.add('visible');
-        }
-
-        this._dragMoveHandler = (e) => {
-            if (!this._drag.active) return;
-            const t = e.touches ? e.touches[0] : e;
-            if (this._drag.ghost) {
-                this._drag.ghost.style.left = (t.clientX - 28) + 'px';
-                this._drag.ghost.style.top = (t.clientY - 50) + 'px';
-            }
-            this._updateDropTarget(t.clientX, t.clientY);
-            if (e.cancelable) e.preventDefault();
-        };
-        this._dragEndHandler = (e) => {
-            if (!this._drag.active) return;
-            const t = (e && e.changedTouches) ? e.changedTouches[0] : (e || {});
-            const x = t.clientX != null ? t.clientX : this._drag.startX;
-            const y = t.clientY != null ? t.clientY : this._drag.startY;
-            this._endDrag(x, y);
-        };
-        document.addEventListener('touchmove', this._dragMoveHandler, { passive: false });
-        document.addEventListener('touchend', this._dragEndHandler, { passive: true });
-        document.addEventListener('touchcancel', this._dragEndHandler, { passive: true });
-        document.addEventListener('mousemove', this._dragMoveHandler);
-        document.addEventListener('mouseup', this._dragEndHandler);
-        this._vibrate(15);
-    },
-
-    _updateDropTarget(x, y) {
-        const el = document.elementFromPoint(x, y);
-        if (!el) return;
-        const overDock = !!el.closest('#mobile-dock');
-        const overRZ = !!el.closest('#mobile-edit-remove-zone');
-        const overGrid = !!el.closest('#mobile-app-grid');
-        const dock = document.getElementById('mobile-dock');
-        const rz = document.getElementById('mobile-edit-remove-zone');
-        const grid = document.getElementById('mobile-app-grid');
-        if (dock) dock.classList.toggle('drop-target', overDock);
-        if (rz) rz.classList.toggle('over', overRZ);
-        if (grid) grid.classList.toggle('drop-target', overGrid && this._drag.source === 'drawer');
-    },
-
-    _endDrag(x, y) {
-        if (!this._drag.active) return;
-        const { appId, source, ghost, sourceIcon } = this._drag;
-
-        if (this._dragMoveHandler) {
-            document.removeEventListener('touchmove', this._dragMoveHandler);
-            document.removeEventListener('mousemove', this._dragMoveHandler);
-        }
-        if (this._dragEndHandler) {
-            document.removeEventListener('touchend', this._dragEndHandler);
-            document.removeEventListener('touchcancel', this._dragEndHandler);
-            document.removeEventListener('mouseup', this._dragEndHandler);
-        }
-        if (ghost) ghost.remove();
-        if (sourceIcon) sourceIcon.classList.remove('dragging');
-
-        const targetEl = document.elementFromPoint(x, y);
-        if (targetEl) {
-            const removeZone = targetEl.closest('#mobile-edit-remove-zone');
-            const dock = targetEl.closest('#mobile-dock');
-            const homeGrid = targetEl.closest('#mobile-app-grid');
-            if (removeZone && source === 'home') {
-                this.removeFromHome(appId);
-                this.renderHomeApps();
-                this._vibrate(20);
-            } else if (dock) {
-                this.addToDock(appId);
-                this._vibrate(15);
-            } else if (homeGrid || source === 'drawer') {
-                if (source === 'drawer') this.addToHomeAt(appId, x, y);
-                else this.moveHomeApp(appId, x, y);
-                this._vibrate(15);
-            }
-        }
-
-        const rz = document.getElementById('mobile-edit-remove-zone');
-        if (rz) rz.classList.remove('visible', 'over');
-        const dockEl = document.getElementById('mobile-dock');
-        if (dockEl) dockEl.classList.remove('drop-target');
-        const gridEl = document.getElementById('mobile-app-grid');
-        if (gridEl) gridEl.classList.remove('drop-target');
-
-        this._drag = { active: false };
-        this._dragMoveHandler = null;
-        this._dragEndHandler = null;
-
-        this.renderHomeApps();
-        this.renderDock();
-
-        // If we entered edit mode just for this drawer drag, exit it
-        if (source === 'drawer') this.exitEditMode();
-    },
-
-    _nearestSlot(x, y) {
-        const grid = document.getElementById('mobile-app-grid');
-        if (!grid) return this.homeScreenApps.length;
-        const rect = grid.getBoundingClientRect();
-        const cols = 4;
-        const slotWidth = rect.width / cols;
-        const slotHeight = 90;
-        const relY = y - rect.top + (grid.scrollTop || 0);
-        const relX = x - rect.left;
-        let col = Math.floor(relX / slotWidth);
-        col = Math.max(0, Math.min(cols - 1, col));
-        let row = Math.floor(relY / slotHeight);
-        row = Math.max(0, row);
-        return Math.min(row * cols + col, this.homeScreenApps.length);
-    },
-
-    addToHomeAt(appId, x, y) {
-        if (this.homeScreenApps.includes(appId)) {
-            this.moveHomeApp(appId, x, y);
-            return;
-        }
-        const idx = this._nearestSlot(x, y);
-        this.homeScreenApps.splice(idx, 0, appId);
-    },
-
-    moveHomeApp(appId, x, y) {
-        const currentIndex = this.homeScreenApps.indexOf(appId);
-        if (currentIndex === -1) return;
-        let targetIndex = this._nearestSlot(x, y);
-        if (targetIndex === currentIndex) return;
-        this.homeScreenApps.splice(currentIndex, 1);
-        if (targetIndex > currentIndex) targetIndex = Math.max(0, targetIndex - 1);
-        targetIndex = Math.min(targetIndex, this.homeScreenApps.length);
-        this.homeScreenApps.splice(targetIndex, 0, appId);
-    },
-
-    removeFromHome(appId) {
-        if (this.homeScreenApps) {
-            this.homeScreenApps = this.homeScreenApps.filter(id => id !== appId);
-        }
-    },
-
-    addToDock(appId) {
-        if (this.dockApps.includes(appId)) return;
-        if (this.dockApps.length >= 5) {
-            Toast.show('Dock is full (max 5)');
-            return;
-        }
-        this.dockApps.push(appId);
-    },
-
-    startClock() {
-        if (this._clockInterval) clearInterval(this._clockInterval);
-        const update = () => {
-            const now = new Date();
-            if (this.statusClockEl) {
-                this.statusClockEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-            const agDate = document.getElementById('mobile-at-glance-date');
-            if (agDate) {
-                agDate.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-            }
-            const notifTime = document.getElementById('mobile-notif-time');
-            if (notifTime) {
-                notifTime.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-        };
-        update();
-        this._clockInterval = setInterval(update, 1000);
-    }
-};
-// Detect mobile and enable. Mobile UI sits behind the boot screen (z-index 9999)
-// and is revealed automatically when boot completes.
-function _initMobile() {
-    try {
-        if (Mobile.detect()) Mobile.enable();
-    } catch(e) { console.error('Mobile init error:', e); }
-}
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _initMobile);
-} else {
-    _initMobile();
-}
-// Auto-enable mobile mode on resize to small screen (like ZMedia's @media approach)
-window.addEventListener('resize', function() {
-    try {
-        if (!Mobile.enabled && Mobile.detect()) Mobile.enable();
-    } catch(e) {}
-});
 </script>
 </body>
 </html>
