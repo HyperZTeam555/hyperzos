@@ -3021,7 +3021,14 @@ iframe.style.cssText = 'width:100%;height:100%;border:none;';
 iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms allow-modals');
 iframe.src = 'https://cli.h2.nexus/';
 body.appendChild(iframe);
-reloadBtn.onclick = function(){ iframe.src = iframe.src; };
+const winBtn = document.createElement('button');
+winBtn.textContent = 'Windows Latest';
+winBtn.style.cssText = 'position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:10;background:#0078d4;color:#fff;border:none;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,120,212,0.4);transition:background 0.15s,opacity 0.3s;';
+winBtn.onmouseenter = function(){ winBtn.style.background = '#106ebe'; };
+winBtn.onmouseleave = function(){ winBtn.style.background = '#0078d4'; };
+winBtn.onclick = function(){ iframe.src = 'https://app.apponfly.com/trial'; winBtn.style.opacity = '0'; setTimeout(function(){ if(winBtn.parentNode) winBtn.remove(); }, 300); };
+body.appendChild(winBtn);
+reloadBtn.onclick = function(){ iframe.src = iframe.src; if(winBtn.parentNode){ winBtn.style.opacity = '0'; setTimeout(function(){ if(winBtn.parentNode) winBtn.remove(); }, 300); } };
 };
 if(!document.getElementById('hzvm-arrow-anim')){
 var style = document.createElement('style');
