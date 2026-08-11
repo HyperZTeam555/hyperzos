@@ -55,7 +55,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-se
     top: 0 !important; 
     left: 0 !important; 
     width: 100% !important; 
-    height: calc(100% - 48px) !important; 
+    height: 100% !important; 
     border-radius: 0; 
     border: none; 
 }
@@ -1563,7 +1563,7 @@ el.innerHTML = `
 <div class="hz-title">${icon||''}<span>${escapeHtml(title)}</span></div>
 <div class="hz-controls">
 <div class="hz-ctrl" data-action="min"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="0" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.2"/></svg></div>
-<div class="hz-ctrl" data-action="max"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></div>
+<div class="hz-ctrl" data-action="max" id="max-btn-${wid}"><svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></div>
 <div class="hz-ctrl close" data-action="close"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.2"/></svg></div>
 </div>
 </div>
@@ -1629,15 +1629,20 @@ this.focus(wid); Taskbar.update();
 toggleMax(wid) {
 const w = document.getElementById(wid); if (!w) return;
 const m = this.windows.get(wid);
+const maxBtn = document.getElementById('max-btn-' + wid);
+const FS_SVG = '<svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+const UNFS_SVG = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"><path d="M8 3H17V12"/><path d="M3 6H14V17H3V6Z"/></svg>';
 if (w.classList.contains('maximized')) {
 w.classList.remove('maximized');
 w.style.left = w.dataset.prevLeft; w.style.top = w.dataset.prevTop;
 w.style.width = w.dataset.prevWidth; w.style.height = w.dataset.prevHeight;
 m.maximized = false;
+if(maxBtn) maxBtn.innerHTML = FS_SVG;
 } else {
 w.dataset.prevLeft = w.style.left; w.dataset.prevTop = w.style.top;
 w.dataset.prevWidth = w.style.width; w.dataset.prevHeight = w.style.height;
 w.classList.add('maximized'); m.maximized = true;
+if(maxBtn) maxBtn.innerHTML = UNFS_SVG;
 }
 },
 focus(wid) {
@@ -1954,7 +1959,7 @@ drive: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" s
 infinity: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.33-6 4Z"/></svg>`,
 globe: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
 terminal: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><polyline points="7 9 11 12 7 15"/><line x1="13" y1="15" x2="17" y2="15"/></svg>`,
-hyperzvm: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="50" height="38" rx="5" fill="#EFF6FF"/><path d="M7 20h50"/><circle cx="15" cy="15" r="1.5" fill="#2563EB" stroke="none"/><circle cx="21" cy="15" r="1.5" fill="#60A5FA" stroke="none"/><circle cx="27" cy="15" r="1.5" fill="#93C5FD" stroke="none"/><path d="M32 27l10 5.5v11L32 49l-10-5.5v-11L32 27z" fill="#DBEAFE"/><path d="M22 32.5l10 5.5 10-5.5"/><path d="M32 38v11"/><path d="M32 49v5"/><path d="M21 55h22"/></svg>`,
+hyperzvm: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="50" height="38" rx="5"/><path d="M7 20h50"/><circle cx="15" cy="15" r="1.5" fill="#2563EB" stroke="none"/><circle cx="21" cy="15" r="1.5" fill="#60A5FA" stroke="none"/><circle cx="27" cy="15" r="1.5" fill="#93C5FD" stroke="none"/><path d="M32 27l10 5.5v11L32 49l-10-5.5v-11L32 27z"/><path d="M22 32.5l10 5.5 10-5.5"/><path d="M32 38v11"/><path d="M32 49v5"/><path d="M21 55h22"/></svg>`,
 settings: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
 calc: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>`,
 paint: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>`,
@@ -3143,7 +3148,7 @@ items.forEach((item, index) => {
 const path = desktopPath + '/' + item.name;
 createDesktopIcon(item.name, item.type, path);
 });
-createDesktopIcon('Recycle Bin', 'recycle', 'recycle', 12, window.innerHeight - 130);
+createDesktopIcon('Recycle Bin', 'recycle', 'recycle', window.innerWidth - 102, 12);
 }
 Settings.load();
 if (document.readyState === 'loading') {
