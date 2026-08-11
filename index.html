@@ -235,7 +235,7 @@ About
 <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden border border-gray-800">
 <div id="boot-bar" class="boot-bar-indeterminate h-full w-1/3"></div>
 </div>
-<div class="text-[10px] text-gray-600 text-center mt-3">HyperZOS v3.0 · Build 2026.06.13</div>
+<div class="text-[10px] text-gray-600 text-center mt-3">HyperZOS v3.0 · Build 2026.08.10</div>
 <div class="text-[9px] text-gray-700 mt-2">Press ` rapidly to enter BIOS</div>
 </div>
 </div>
@@ -287,8 +287,9 @@ this.apply();
 apply() {
 document.body.classList.toggle('no-crt', !this.data.crt);
 document.documentElement.style.setProperty('--accent', this.data.accent);
-const wp = document.getElementById('wallpaper');
-if(wp) wp.style.filter = `brightness(${this.data.brightness/100})`;
+var bo = document.getElementById('brightness-overlay');
+if(!bo){ bo = document.createElement('div'); bo.id = 'brightness-overlay'; bo.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:#000;'; document.body.appendChild(bo); }
+bo.style.opacity = String((100 - this.data.brightness) / 100);
 const qsSlider = document.getElementById('qs-brightness-slider');
 const qsVal = document.getElementById('qs-brightness-val');
 if(qsSlider) qsSlider.value = this.data.brightness;
@@ -1710,7 +1711,7 @@ const apps = [
 { id:'search', name:'Search', icon: Apps.icons.search },
 { id:'calendar', name:'Calendar', icon: Apps.icons.calendar },
 { id:'camera', name:'Camera', icon: Apps.icons.camera },
-{ id:'store', name:'Store', icon: Apps.icons.store }
+{ id:'hyperzvm', name:'HyperZVM', icon: Apps.icons.hyperzvm }
 ];
 apps.forEach(app => {
 const b = document.createElement('div');
@@ -1953,6 +1954,7 @@ drive: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" s
 infinity: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.33-6 4Z"/></svg>`,
 globe: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
 terminal: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><polyline points="7 9 11 12 7 15"/><line x1="13" y1="15" x2="17" y2="15"/></svg>`,
+hyperzvm: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="50" height="38" rx="5" fill="#EFF6FF"/><path d="M7 20h50"/><circle cx="15" cy="15" r="1.5" fill="#2563EB" stroke="none"/><circle cx="21" cy="15" r="1.5" fill="#60A5FA" stroke="none"/><circle cx="27" cy="15" r="1.5" fill="#93C5FD" stroke="none"/><path d="M32 27l10 5.5v11L32 49l-10-5.5v-11L32 27z" fill="#DBEAFE"/><path d="M22 32.5l10 5.5 10-5.5"/><path d="M32 38v11"/><path d="M32 49v5"/><path d="M21 55h22"/></svg>`,
 settings: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
 calc: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>`,
 paint: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>`,
@@ -1991,7 +1993,7 @@ about: () => this.openAbout(),
 search: () => this.openSearch(args),
 calendar: () => this.openCalendar(),
 camera: () => this.openCamera(),
-store: () => this.openStore(),
+hyperzvm: () => this.openHyperZVM(),
 ztapp: () => this.openZtApp(args)
 };
 if (handlers[appId]) handlers[appId]();
@@ -2427,7 +2429,6 @@ const render = (body) => {
 body.classList.add('app-terminal-body');
 body.innerHTML = `
 <div class="flex flex-col h-full text-[#cccccc] font-mono text-[13px]">
-<div class="flex items-center gap-2 px-3 py-1 bg-[rgba(30,30,35,0.4)] border-b border-white/5 text-xs" style="backdrop-filter:blur(12px);"><span>⬛</span><span>Command Prompt</span></div>
 <div class="flex-1 overflow-y-auto p-3" id="output-${state.uid}">
 <div class="text-gray-500 mb-2">HyperZOS [Version 3.0.2026]</div>
 <div class="text-gray-500 mb-2">(c) 2026 HyperZTeam. Type 'help' for commands.</div>
@@ -2505,7 +2506,7 @@ openSettings() {
             } else if (page === 'personalize') {
                 return `<h2 class="text-2xl mb-4">Personalization</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Accent Color</div><div class="flex flex-wrap gap-2" id="accent-picker-${state.uid}">${['#0078d4','#107c10','#ff8c00','#e81123','#5c2d91','#00b7c3','#e3008c','#767676'].map(c => `<div class="w-10 h-10 rounded cursor-pointer hover:scale-110 transition-transform" style="background:${c};${c===Settings.data.accent?'outline:2px solid white;outline-offset:2px':''}" data-color="${c}"></div>`).join('')}</div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Wallpaper</div><p class="text-xs text-gray-400 mb-3">Upload a custom image or cycle through gradients.</p><div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all" id="upload-wallpaper-${state.uid}">Upload Image</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="cycle-wallpaper-${state.uid}">Cycle Gradient</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="default-wallpaper-${state.uid}">Default</button></div><input type="file" id="wallpaper-input-${state.uid}" accept="image/*" style="display:none"></div></div>`;
             } else if (page === 'about') {
-                return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.06.12</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div>`;
+                return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.08.10</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div>`;
             }
             return '';
         };
@@ -2694,7 +2695,7 @@ body.innerHTML = `<div class="flex flex-col items-center justify-center h-full p
 <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 30% 20%, rgba(0,120,212,0.4), transparent 50%), radial-gradient(circle at 70% 80%, rgba(92,45,145,0.4), transparent 50%);"></div>
 <div class="hz-logo hz-logo-xxl mb-4 relative" style="animation: logoGlow 3s ease-in-out infinite alternate;">HZ</div>
 <h1 class="text-4xl font-light mb-2 relative">HyperZOS 3</h1>
-<div class="text-sm text-gray-400 mb-6 relative">Build 2026.06.13</div>
+<div class="text-sm text-gray-400 mb-6 relative">Build 2026.08.10</div>
 <p class="max-w-md text-sm text-gray-300 mb-6 leading-relaxed relative">A Windows-like Web OS featuring procedural infinite storage with the Random chain (AAA0→ZZZ∞), ZProxy secure browser integration, multi-format file viewers, and a complete shell environment.</p>
 <div class="grid grid-cols-2 gap-4 text-xs text-gray-400 relative"><div>Kernel: 3.0.1-INF</div><div>Shell: hz-sh 2.1</div><div>GUI: Fluent Z</div><div>Storage: ∞ bytes</div></div>
 <button onclick="Toast.show('HyperZOS 3 is up to date ✓')" class="mt-6 px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all relative">Check for Updates</button>
@@ -2776,10 +2777,7 @@ openCamera() {
         body.classList.add('app-camera-body');
         body.innerHTML = `
         <div class="flex flex-col h-full text-[#e0e0e0]">
-            <div class="flex items-center justify-between px-3 py-2 bg-[rgba(40,40,45,0.4)] border-b border-white/5" style="backdrop-filter:blur(12px);">
-                <div class="flex items-center gap-2"><span style="color:var(--accent);">📷</span><span class="text-sm font-medium">Camera</span></div>
-                <div id="cam-status-${state.uid}" class="text-xs text-yellow-400">Ready</div>
-            </div>
+            <div id="cam-status-${state.uid}" class="text-xs text-yellow-400 text-right px-3 py-1 bg-black/20">Ready</div>
             
             
             <div class="flex justify-center gap-4 py-2 bg-black/40 backdrop-blur-md z-20 relative">
@@ -2977,12 +2975,56 @@ openCamera() {
     };
     WM.create({ appId: 'camera', title: 'Camera', icon: Apps.icons.camera(14), width: 640, height: 520, content: render });
 },
-openStore() {
+openHyperZVM() {
 const render = (body) => {
-body.classList.add('app-store-body');
-body.innerHTML = `<div class="p-6 h-full text-[#e0e0e0] overflow-y-auto"><div class="flex items-center gap-3 mb-4"><div class="hz-logo hz-logo-md">HZ</div><h1 class="text-2xl">HyperStore</h1></div><div class="grid grid-cols-3 gap-3">${['Quantum Chess','Neural Notes','Star Mapper','Code Forge','Music Lab','Photo Editor'].map(n => `<div class="bg-[rgba(40,40,45,0.4)] rounded-lg p-3 cursor-pointer hover:bg-[rgba(50,50,55,0.4)] transition-colors"><div class="w-full h-20 rounded bg-gradient-to-br from-blue-500 to-purple-600 mb-2 flex items-center justify-center text-2xl">${n[0]}</div><div class="text-sm font-medium">${n}</div><div class="text-xs text-gray-400">Free · ⭐ 4.${Math.floor(Math.random()*5)+3}</div></div>`).join('')}</div></div>`;
+body.classList.add('app-hyperzvm-body');
+body.style.background = '#0a0a0a';
+body.style.padding = '0';
+body.style.position = 'relative';
+body.style.overflow = 'hidden';
+const toolbar = document.createElement('div');
+toolbar.style.cssText = 'position:absolute;top:0;right:0;z-index:10;display:flex;align-items:center;gap:6px;padding:6px 8px;';
+var _hzvmHintSeen = false;
+try { _hzvmHintSeen = !!sessionStorage.getItem('hyperzvm_hint_seen'); } catch(e) { _hzvmHintSeen = false; }
+const hintShown = !_hzvmHintSeen;
+var hintWrap = null;
+if(hintShown){
+hintWrap = document.createElement('div');
+hintWrap.style.cssText = 'display:flex;align-items:center;gap:4px;transition:opacity 0.4s ease;';
+const hintText = document.createElement('span');
+hintText.textContent = 'Use this if the VM stops working randomly.';
+hintText.style.cssText = 'font-size:11px;color:#aaa;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,0.8);';
+const arrow = document.createElement('span');
+arrow.innerHTML = '&#8594;';
+arrow.style.cssText = 'font-size:16px;color:var(--accent);animation:hzvmArrowPulse 1.5s ease-in-out infinite;text-shadow:0 0 8px rgba(0,120,212,0.5);';
+hintWrap.appendChild(hintText);
+hintWrap.appendChild(arrow);
+toolbar.appendChild(hintWrap);
+try { sessionStorage.setItem('hyperzvm_hint_seen','1'); } catch(e){}
+setTimeout(function(){ if(hintWrap){ hintWrap.style.opacity = '0'; setTimeout(function(){ if(hintWrap && hintWrap.parentNode) hintWrap.remove(); }, 400); } }, 5000);
+}
+const reloadBtn = document.createElement('button');
+reloadBtn.innerHTML = '&#8635;';
+reloadBtn.title = 'Reload VM';
+reloadBtn.style.cssText = 'width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#e0e0e0;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;';
+reloadBtn.onmouseenter = function(){ reloadBtn.style.background = 'rgba(255,255,255,0.15)'; };
+reloadBtn.onmouseleave = function(){ reloadBtn.style.background = 'rgba(255,255,255,0.08)'; };
+toolbar.appendChild(reloadBtn);
+body.appendChild(toolbar);
+const iframe = document.createElement('iframe');
+iframe.style.cssText = 'width:100%;height:100%;border:none;';
+iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms allow-modals');
+iframe.src = 'https://cli.h2.nexus/';
+body.appendChild(iframe);
+reloadBtn.onclick = function(){ iframe.src = iframe.src; };
 };
-WM.create({ appId: 'store', title: 'HyperStore', icon: Apps.icons.store(14), width: 680, height: 520, content: render });
+if(!document.getElementById('hzvm-arrow-anim')){
+var style = document.createElement('style');
+style.id = 'hzvm-arrow-anim';
+style.textContent = '@keyframes hzvmArrowPulse{0%,100%{opacity:0.5;transform:translateX(0)}50%{opacity:1;transform:translateX(3px)}}';
+document.head.appendChild(style);
+}
+WM.create({ appId: 'hyperzvm', title: 'HyperZVM', icon: Apps.icons.hyperzvm(14), width: 900, height: 600, content: render });
 }
 };
 function escapeHtml(s) { if (typeof s !== 'string') return ''; return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -3101,7 +3143,7 @@ items.forEach((item, index) => {
 const path = desktopPath + '/' + item.name;
 createDesktopIcon(item.name, item.type, path);
 });
-createDesktopIcon('Recycle Bin', 'recycle', 'recycle', 12, 12 + 8 * 90);
+createDesktopIcon('Recycle Bin', 'recycle', 'recycle', 12, window.innerHeight - 130);
 }
 Settings.load();
 if (document.readyState === 'loading') {
