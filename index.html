@@ -167,12 +167,12 @@ overflow-y: auto;
 <div id="start-menu" class="start-menu glass-panel">
 <div class="p-6 flex flex-col h-full">
 <div class="relative mb-4">
-<input id="start-search" type="text" placeholder="Type to search apps, files, and settings..." class="w-full bg-black/40 border border-white/10 rounded-full px-4 py-2 text-sm outline-none focus:border-[var(--accent)] transition-colors" autocomplete="off">
+<input id="start-search" type="text" placeholder="Type to search apps..." class="w-full bg-black/40 border border-white/10 rounded-full px-4 py-2 text-sm outline-none focus:border-[var(--accent)] transition-colors" autocomplete="off">
 </div>
 <div class="mb-2 text-xs text-gray-400">Pinned</div>
-<div id="start-pinned" class="grid grid-cols-6 gap-2 mb-4"></div>
-<div class="mb-2 text-xs text-gray-400">Recommended</div>
-<div id="start-recommended" class="flex-1 overflow-y-auto space-y-1"></div>
+<div id="start-pinned" class="grid grid-cols-6 gap-2 mb-4 overflow-y-auto" style="max-height: 260px;"></div>
+<div class="mb-2 text-xs text-gray-400">Unpinned</div>
+<div id="start-installed" class="flex-1 overflow-y-auto grid grid-cols-6 gap-2"></div>
 <div class="flex justify-between items-center pt-4 border-t border-white/10 mt-4">
 <div class="flex items-center gap-2">
 <div class="hz-logo hz-logo-md">HZ</div>
@@ -1700,42 +1700,38 @@ container.appendChild(btn);
 };
 const StartMenu = {
 open: false,
-toggle() { this.open = !this.open; document.getElementById('start-menu').classList.toggle('open', this.open); if (this.open) setTimeout(() => document.getElementById('start-search').focus(), 150); },
-close() { this.open = false; document.getElementById('start-menu').classList.remove('open'); },
+builtinApps: [
+{ id:'explorer', name:'Explorer', iconKey: 'folder' },
+{ id:'browser', name:'Browser', iconKey: 'globe' },
+{ id:'notepad', name:'Notepad', iconKey: 'fileText' },
+{ id:'terminal', name:'Terminal', iconKey: 'terminal' },
+{ id:'settings', name:'Settings', iconKey: 'settings' },
+{ id:'calculator', name:'Calculator', iconKey: 'calc' },
+{ id:'paint', name:'Paint', iconKey: 'paint' },
+{ id:'about', name:'About', iconKey: 'info' },
+{ id:'search', name:'Search', iconKey: 'search' },
+{ id:'calendar', name:'Calendar', iconKey: 'calendar' },
+{ id:'camera', name:'Camera', iconKey: 'camera' },
+{ id:'hyperzvm', name:'HyperZVM', iconKey: 'hyperzvm' },
+{ id:'appstore', name:'App Store', iconKey: 'appstore' }
+],
+getBuiltinApps() {
+return this.builtinApps.map(a => ({ id: a.id, name: a.name, icon: Apps.icons[a.iconKey] || Apps.icons.info }));
+},
+toggle() { this.open = !this.open; document.getElementById('start-menu').classList.toggle('open', this.open); if (this.open) setTimeout(() => { const inp = document.getElementById('start-search'); if (inp) { inp.focus(); } }, 150); else this._resetSearch(); },
+close() { this.open = false; document.getElementById('start-menu').classList.remove('open'); this._resetSearch(); },
+_resetSearch() {
+const inp = document.getElementById('start-search');
+if (inp) inp.value = '';
+if (typeof AppStore !== 'undefined' && AppStore) {
+AppStore._currentSearchQuery = '';
+AppStore.refreshStartMenu();
+}
+},
 render() {
-const pinned = document.getElementById('start-pinned'); pinned.innerHTML = '';
-const apps = [
-{ id:'explorer', name:'Explorer', icon: Apps.icons.folder },
-{ id:'browser', name:'Browser', icon: Apps.icons.globe },
-{ id:'notepad', name:'Notepad', icon: Apps.icons.fileText },
-{ id:'terminal', name:'Terminal', icon: Apps.icons.terminal },
-{ id:'settings', name:'Settings', icon: Apps.icons.settings },
-{ id:'calculator', name:'Calculator', icon: Apps.icons.calc },
-{ id:'paint', name:'Paint', icon: Apps.icons.paint },
-{ id:'about', name:'About', icon: Apps.icons.info },
-{ id:'search', name:'Search', icon: Apps.icons.search },
-{ id:'calendar', name:'Calendar', icon: Apps.icons.calendar },
-{ id:'camera', name:'Camera', icon: Apps.icons.camera },
-{ id:'hyperzvm', name:'HyperZVM', icon: Apps.icons.hyperzvm }
-];
-apps.forEach(app => {
-const b = document.createElement('div');
-b.className = 'pinned-app flex flex-col items-center gap-1 p-2 rounded cursor-pointer';
-b.innerHTML = `<div class="w-10 h-10 rounded flex items-center justify-center" style="color: var(--accent)">${app.icon(24)}</div><div class="text-[11px] text-center">${app.name}</div>`;
-b.onclick = () => { Apps.open(app.id); StartMenu.close(); };
-pinned.appendChild(b);
-});
-const rec = document.getElementById('start-recommended'); rec.innerHTML = '';
-[{ name: 'welcome.txt', path: 'C:/Users/Admin/Desktop/welcome.txt', time: 'Just now' },
-{ name: 'my_app.zt', path: 'C:/Users/Admin/Desktop/my_app.zt', time: 'Just now' },
-{ name: 'project_plan.txt', path: 'C:/Users/Admin/Documents/project_plan.txt', time: '2 hours ago' },
-{ name: 'system.log', path: 'C:/SYSHyperZ/Logs/system.log', time: 'Today' }].forEach(r => {
-const d = document.createElement('div');
-d.className = 'flex items-center gap-3 p-2 rounded hover:bg-white/10 cursor-pointer transition-colors';
-d.innerHTML = `<div style="color: var(--accent)">${Apps.icons.fileText(20)}</div><div class="flex-1 min-w-0"><div class="text-sm truncate">${r.name}</div><div class="text-[10px] text-gray-400 truncate">${r.path}</div></div><div class="text-[10px] text-gray-500">${r.time}</div>`;
-d.onclick = () => { Apps.openFile(r.path); StartMenu.close(); };
-rec.appendChild(d);
-});
+const pinned = document.getElementById('start-pinned'); if (pinned) pinned.innerHTML = '';
+const installed = document.getElementById('start-installed'); if (installed) installed.innerHTML = '';
+if (typeof AppStore !== 'undefined' && AppStore) AppStore.refreshStartMenu();
 }
 };
 document.getElementById('start-btn').addEventListener('click', (e) => { e.stopPropagation(); StartMenu.toggle(); });
@@ -1761,8 +1757,14 @@ const cm = document.getElementById('ctx-menu');
 if (!e.target.closest('.ctx-menu')) cm.style.display = 'none';
 $$('.notepad-dropdown.open').forEach(d => d.classList.remove('open'));
 });
+document.getElementById('start-search').addEventListener('input', (e) => {
+if (typeof AppStore !== 'undefined' && AppStore) {
+AppStore._currentSearchQuery = e.target.value || '';
+AppStore.refreshStartMenu();
+}
+});
 document.getElementById('start-search').addEventListener('keydown', (e) => {
-if (e.key === 'Enter' && e.target.value.trim()) { Apps.open('search', { query: e.target.value.trim() }); StartMenu.close(); e.target.value = ''; }
+if (e.key === 'Escape') { e.target.value = ''; if (typeof AppStore !== 'undefined' && AppStore) { AppStore._currentSearchQuery = ''; AppStore.refreshStartMenu(); } }
 });
 function showContextMenu(x, y, items) {
 const cm = document.getElementById('ctx-menu'); cm.innerHTML = '';
@@ -1960,6 +1962,7 @@ infinity: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none
 globe: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
 terminal: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><polyline points="7 9 11 12 7 15"/><line x1="13" y1="15" x2="17" y2="15"/></svg>`,
 hyperzvm: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="50" height="38" rx="5"/><path d="M7 20h50"/><circle cx="15" cy="15" r="1.5" fill="#2563EB" stroke="none"/><circle cx="21" cy="15" r="1.5" fill="#60A5FA" stroke="none"/><circle cx="27" cy="15" r="1.5" fill="#93C5FD" stroke="none"/><path d="M32 27l10 5.5v11L32 49l-10-5.5v-11L32 27z"/><path d="M22 32.5l10 5.5 10-5.5"/><path d="M32 38v11"/><path d="M32 49v5"/><path d="M21 55h22"/></svg>`,
+appstore: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="#0078d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14l-1.5 12.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 7z" fill="rgba(0,120,212,0.15)"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><path d="M5 7h14"/></svg>`,
 settings: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
 calc: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>`,
 paint: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>`,
@@ -1999,6 +2002,7 @@ search: () => this.openSearch(args),
 calendar: () => this.openCalendar(),
 camera: () => this.openCamera(),
 hyperzvm: () => this.openHyperZVM(),
+appstore: () => this.openAppStore(),
 ztapp: () => this.openZtApp(args)
 };
 if (handlers[appId]) handlers[appId]();
@@ -2511,7 +2515,7 @@ openSettings() {
             } else if (page === 'personalize') {
                 return `<h2 class="text-2xl mb-4">Personalization</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Accent Color</div><div class="flex flex-wrap gap-2" id="accent-picker-${state.uid}">${['#0078d4','#107c10','#ff8c00','#e81123','#5c2d91','#00b7c3','#e3008c','#767676'].map(c => `<div class="w-10 h-10 rounded cursor-pointer hover:scale-110 transition-transform" style="background:${c};${c===Settings.data.accent?'outline:2px solid white;outline-offset:2px':''}" data-color="${c}"></div>`).join('')}</div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Wallpaper</div><p class="text-xs text-gray-400 mb-3">Upload a custom image or cycle through gradients.</p><div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all" id="upload-wallpaper-${state.uid}">Upload Image</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="cycle-wallpaper-${state.uid}">Cycle Gradient</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="default-wallpaper-${state.uid}">Default</button></div><input type="file" id="wallpaper-input-${state.uid}" accept="image/*" style="display:none"></div></div>`;
             } else if (page === 'about') {
-                return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.08.10</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div>`;
+                return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.08.10</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-6 mt-4"><div class="font-medium mb-2">Reset</div><div class="text-xs text-gray-400 mb-3">Powerwash removes all cached data, installed apps, and settings, then restarts the system.</div><button id="powerwash-btn-${state.uid}" class="px-4 py-2 bg-[#e81123] rounded text-sm hover:brightness-110 transition-all font-medium">Powerwash</button></div>`;
             }
             return '';
         };
@@ -2615,6 +2619,20 @@ openSettings() {
             if (testBtn) {
                 testBtn.addEventListener('click', () => {
                     Toast.show('🔔 This is a test notification!');
+                });
+            }
+
+            const powerwashBtn = body.querySelector(`#powerwash-btn-${state.uid}`);
+            if (powerwashBtn) {
+                powerwashBtn.addEventListener('click', () => {
+                    Modal.confirm({
+                        title: 'Powerwash',
+                        message: 'This will remove all cached data, installed apps, and settings. Are you sure?',
+                        confirmText: 'Powerwash',
+                        cancelText: 'Cancel',
+                        danger: true,
+                        onConfirm: () => System.powerwash()
+                    });
                 });
             }
         };
@@ -3021,14 +3039,7 @@ iframe.style.cssText = 'width:100%;height:100%;border:none;';
 iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms allow-modals');
 iframe.src = 'https://cli.h2.nexus/';
 body.appendChild(iframe);
-const winBtn = document.createElement('button');
-winBtn.textContent = 'Windows Latest';
-winBtn.style.cssText = 'position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:10;background:#0078d4;color:#fff;border:none;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,120,212,0.4);transition:background 0.15s,opacity 0.3s;';
-winBtn.onmouseenter = function(){ winBtn.style.background = '#106ebe'; };
-winBtn.onmouseleave = function(){ winBtn.style.background = '#0078d4'; };
-winBtn.onclick = function(){ iframe.src = 'https://app.apponfly.com/trial'; winBtn.style.opacity = '0'; setTimeout(function(){ if(winBtn.parentNode) winBtn.remove(); }, 300); };
-body.appendChild(winBtn);
-reloadBtn.onclick = function(){ iframe.src = iframe.src; if(winBtn.parentNode){ winBtn.style.opacity = '0'; setTimeout(function(){ if(winBtn.parentNode) winBtn.remove(); }, 300); } };
+reloadBtn.onclick = function(){ iframe.src = iframe.src; };
 };
 if(!document.getElementById('hzvm-arrow-anim')){
 var style = document.createElement('style');
@@ -3037,6 +3048,737 @@ style.textContent = '@keyframes hzvmArrowPulse{0%,100%{opacity:0.5;transform:tra
 document.head.appendChild(style);
 }
 WM.create({ appId: 'hyperzvm', title: 'HyperZVM', icon: Apps.icons.hyperzvm(14), width: 900, height: 600, content: render });
+},
+openAppStore() {
+AppStore.openWindow();
+}
+};
+const Modal = {
+confirm(opts) {
+const o = Object.assign({ title: 'Confirm', message: '', confirmText: 'OK', cancelText: 'Cancel', danger: false, onConfirm: () => {} }, opts || {});
+const overlay = document.createElement('div');
+overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100000;display:flex;align-items:center;justify-content:center;';
+const modal = document.createElement('div');
+modal.style.cssText = 'background:rgba(30,30,35,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:20px;width:340px;max-width:90vw;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,0.6);';
+modal.innerHTML = `<div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#fff;">${escapeHtml(o.title)}</div><div style="font-size:12px;color:#aaa;margin-bottom:16px;white-space:pre-wrap;line-height:1.5;">${escapeHtml(o.message)}</div><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="m-cancel" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:4px;cursor:pointer;font-size:12px;">${escapeHtml(o.cancelText)}</button><button class="m-ok" style="padding:6px 14px;background:${o.danger ? '#e81123' : 'var(--accent)'};border:none;color:#fff;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">${escapeHtml(o.confirmText)}</button></div>`;
+overlay.appendChild(modal);
+document.body.appendChild(overlay);
+const close = () => overlay.remove();
+modal.querySelector('.m-cancel').onclick = close;
+modal.querySelector('.m-ok').onclick = () => { close(); o.onConfirm(); };
+overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+return { overlay, close };
+},
+prompt(opts) {
+const o = Object.assign({ title: 'Input', message: '', value: '', confirmText: 'OK', cancelText: 'Cancel', onConfirm: () => {} }, opts || {});
+const overlay = document.createElement('div');
+overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100000;display:flex;align-items:center;justify-content:center;';
+const modal = document.createElement('div');
+modal.style.cssText = 'background:rgba(30,30,35,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:20px;width:340px;max-width:90vw;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,0.6);';
+modal.innerHTML = `<div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#fff;">${escapeHtml(o.title)}</div>${o.message ? `<div style="font-size:12px;color:#aaa;margin-bottom:12px;">${escapeHtml(o.message)}</div>` : ''}<input type="text" class="m-input" value="${escapeHtml(o.value)}" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:8px;color:#fff;font-size:13px;outline:none;margin-bottom:14px;box-sizing:border-box;"><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="m-cancel" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:4px;cursor:pointer;font-size:12px;">${escapeHtml(o.cancelText)}</button><button class="m-ok" style="padding:6px 14px;background:var(--accent);border:none;color:#fff;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">${escapeHtml(o.confirmText)}</button></div>`;
+overlay.appendChild(modal);
+document.body.appendChild(overlay);
+const input = modal.querySelector('.m-input');
+input.focus();
+input.select();
+const close = () => overlay.remove();
+const submit = () => { const v = input.value.trim(); close(); o.onConfirm(v); };
+modal.querySelector('.m-cancel').onclick = close;
+modal.querySelector('.m-ok').onclick = submit;
+input.addEventListener('keydown', (e) => {
+if (e.key === 'Enter') submit();
+if (e.key === 'Escape') close();
+});
+overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+return { overlay, close };
+}
+};
+const AppStore = {
+db: null,
+dbAvailable: false,
+memoryStore: new Map(),
+installedIds: [],
+installedRecords: [],
+pinnedApps: [],
+unpinnedBuiltins: [],
+_activeGridRefresh: null,
+_activeGridWrap: null,
+_currentSearchQuery: '',
+CDNS: [
+(u, r, b, p) => `https://cdn.jsdelivr.net/gh/${u}/${r}@${b}/${p}`,
+(u, r, b, p) => `https://cdn.statically.io/gh/${u}/${r}/${b}/${p}`,
+(u, r, b, p) => `https://raw.githack.com/${u}/${r}/${b}/${p}`,
+(u, r, b, p) => `https://cdn.staticdelivr.com/gh/${u}/${r}/${b}/${p}`,
+(u, r, b, p) => `https://gh-proxy.com/https://raw.githubusercontent.com/${u}/${r}/${b}/${p}`,
+(u, r, b, p) => `https://raw.githubusercontent.com/${u}/${r}/${b}/${p}`
+],
+CDN_NAMES: ['jsDelivr', 'Statically', 'Githack', 'StaticDelivr', 'GH-Proxy', 'GitHub Raw'],
+REPO_USER: 'a456pur',
+REPO_NAME: 'seraph',
+REPO_BRANCH: 'main',
+async init() {
+try {
+this.db = await new Promise((resolve, reject) => {
+const req = indexedDB.open('HyperZOS_AppStore', 1);
+req.onupgradeneeded = (e) => {
+const database = e.target.result;
+if (!database.objectStoreNames.contains('installed_apps')) {
+database.createObjectStore('installed_apps', { keyPath: 'id' });
+}
+};
+req.onsuccess = (e) => resolve(e.target.result);
+req.onerror = (e) => reject(e.target.error);
+});
+this.dbAvailable = true;
+} catch (e) {
+this.dbAvailable = false;
+this.db = null;
+}
+await this.loadPinState();
+await this.loadInstalled();
+this.refreshStartMenu();
+},
+async loadPinState() {
+if (this.dbAvailable && this.db) {
+const result = await new Promise((resolve) => {
+try {
+const tx = this.db.transaction(['installed_apps'], 'readonly');
+const store = tx.objectStore('installed_apps');
+const reqPinned = store.get('__pinned_apps__');
+const reqUnpinned = store.get('__unpinned_builtins__');
+let pinned = null, unpinned = null, done = 0;
+const finish = () => { done++; if (done >= 2) resolve({ pinned, unpinned }); };
+reqPinned.onsuccess = () => { pinned = reqPinned.result ? reqPinned.result.value : null; finish(); };
+reqPinned.onerror = () => finish();
+reqUnpinned.onsuccess = () => { unpinned = reqUnpinned.result ? reqUnpinned.result.value : null; finish(); };
+reqUnpinned.onerror = () => finish();
+} catch (e) { resolve({}); }
+});
+this.pinnedApps = Array.isArray(result.pinned) ? result.pinned.slice() : [];
+this.unpinnedBuiltins = Array.isArray(result.unpinned) ? result.unpinned.slice() : [];
+}
+},
+async savePinnedApps() {
+if (this.dbAvailable && this.db) {
+try {
+const tx = this.db.transaction(['installed_apps'], 'readwrite');
+tx.objectStore('installed_apps').put({ id: '__pinned_apps__', value: this.pinnedApps });
+} catch (e) {}
+}
+},
+async saveUnpinnedBuiltins() {
+if (this.dbAvailable && this.db) {
+try {
+const tx = this.db.transaction(['installed_apps'], 'readwrite');
+tx.objectStore('installed_apps').put({ id: '__unpinned_builtins__', value: this.unpinnedBuiltins });
+} catch (e) {}
+}
+},
+async pinApp(appId) {
+if (this.pinnedApps.indexOf(appId) === -1) {
+this.pinnedApps.push(appId);
+await this.savePinnedApps();
+}
+this.refreshStartMenu();
+},
+async unpinApp(appId) {
+this.pinnedApps = this.pinnedApps.filter(id => id !== appId);
+await this.savePinnedApps();
+this.refreshStartMenu();
+},
+async pinBuiltin(appId) {
+this.unpinnedBuiltins = this.unpinnedBuiltins.filter(id => id !== appId);
+await this.saveUnpinnedBuiltins();
+this.refreshStartMenu();
+},
+async unpinBuiltin(appId) {
+if (this.unpinnedBuiltins.indexOf(appId) === -1) {
+this.unpinnedBuiltins.push(appId);
+await this.saveUnpinnedBuiltins();
+}
+this.refreshStartMenu();
+},
+async renameApp(appId, newName) {
+if (!newName) return;
+const record = await this.getAppRecord(appId);
+if (!record) return;
+record.name = newName;
+await this.saveAppRecord(record);
+const idx = this.installedRecords.findIndex(r => r.id === appId);
+if (idx !== -1) this.installedRecords[idx].name = newName;
+this.refreshStartMenu();
+this.refreshGrid();
+},
+refreshGrid() {
+if (typeof this._activeGridRefresh === 'function' && this._activeGridWrap && document.body.contains(this._activeGridWrap)) {
+this._activeGridRefresh();
+}
+},
+async loadInstalled() {
+let records = [];
+if (this.dbAvailable && this.db) {
+records = await new Promise((resolve) => {
+try {
+const tx = this.db.transaction(['installed_apps'], 'readonly');
+const store = tx.objectStore('installed_apps');
+const req = store.getAll();
+req.onsuccess = () => resolve(req.result || []);
+req.onerror = () => resolve([]);
+} catch (err) { resolve([]); }
+});
+} else {
+records = Array.from(this.memoryStore.values());
+}
+this.installedRecords = records;
+this.installedIds = records.map(r => r.id);
+},
+async getInstalled() {
+return [...this.installedIds];
+},
+isInstalled(appId) {
+return this.installedIds.indexOf(appId) !== -1;
+},
+async getAppRecord(appId) {
+if (this.dbAvailable && this.db) {
+return new Promise((resolve) => {
+try {
+const tx = this.db.transaction(['installed_apps'], 'readonly');
+const store = tx.objectStore('installed_apps');
+const req = store.get(appId);
+req.onsuccess = () => resolve(req.result || null);
+req.onerror = () => resolve(null);
+} catch (err) { resolve(null); }
+});
+}
+return this.memoryStore.get(appId) || null;
+},
+async saveAppRecord(record) {
+if (this.dbAvailable && this.db) {
+return new Promise((resolve, reject) => {
+try {
+const tx = this.db.transaction(['installed_apps'], 'readwrite');
+const store = tx.objectStore('installed_apps');
+const req = store.put(record);
+req.onsuccess = () => resolve();
+req.onerror = (e) => reject(e.target.error);
+} catch (err) { reject(err); }
+});
+}
+this.memoryStore.set(record.id, record);
+},
+async deleteAppRecord(appId) {
+if (this.dbAvailable && this.db) {
+return new Promise((resolve) => {
+try {
+const tx = this.db.transaction(['installed_apps'], 'readwrite');
+const store = tx.objectStore('installed_apps');
+const req = store.delete(appId);
+req.onsuccess = () => resolve();
+req.onerror = () => resolve();
+} catch (err) { resolve(); }
+});
+}
+this.memoryStore.delete(appId);
+},
+async install(app, progressCallback) {
+const fetchPromise = this.fetchFolderAssetsRecursive(app.folder, app.htmlPath);
+let pct = 0;
+const tick = setInterval(() => {
+pct = Math.min(92, pct + Math.random() * 12 + 5);
+if (progressCallback) progressCallback(pct);
+}, 200);
+let html = '';
+try { html = await fetchPromise; } catch (e) {
+html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{background:#111;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}h1{color:#e81123;}</style></head><body><h1>Failed to load app content</h1></body></html>';
+}
+clearInterval(tick);
+if (progressCallback) progressCallback(100);
+const record = {
+id: app.id,
+name: app.name,
+html: html,
+thumb: app.thumbPath || '',
+source: app.source,
+category: app.category || app.source
+};
+await this.saveAppRecord(record);
+if (this.installedIds.indexOf(record.id) === -1) this.installedIds.push(record.id);
+const existing = this.installedRecords.findIndex(r => r.id === record.id);
+if (existing === -1) this.installedRecords.push(record);
+else this.installedRecords[existing] = record;
+this.refreshStartMenu();
+},
+async uninstall(appId) {
+await this.deleteAppRecord(appId);
+this.installedIds = this.installedIds.filter(id => id !== appId);
+this.installedRecords = this.installedRecords.filter(r => r.id !== appId);
+this.pinnedApps = this.pinnedApps.filter(id => id !== appId);
+await this.savePinnedApps();
+this.refreshStartMenu();
+this.refreshGrid();
+},
+async openApp(appId) {
+const record = await this.getAppRecord(appId);
+if (!record) { Toast.show('App not found'); return; }
+const render = (body) => {
+body.style.padding = '0';
+body.style.margin = '0';
+body.style.overflow = 'hidden';
+body.style.background = '#000';
+const iframe = document.createElement('iframe');
+iframe.style.cssText = 'width:100%;height:100%;border:none;';
+iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-modals');
+var html = record.html || '<!DOCTYPE html><html><body style="background:#111;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><h1>Empty App</h1></body></html>';
+var baseUrl = this.CDNS[0](this.REPO_USER, this.REPO_NAME, this.REPO_BRANCH, record.id ? (record.source || 'apps') + '/' + record.id : '');
+baseUrl = baseUrl.replace(/\/[^\/]*$/, '/');
+if (html.indexOf('<base') === -1 && html.indexOf('<head') !== -1) {
+html = html.replace(/<head([^>]*)>/i, '<head$1><base href="' + baseUrl + '">');
+} else if (html.indexOf('<base') === -1 && html.indexOf('<head') === -1) {
+html = '<base href="' + baseUrl + '">' + html;
+}
+iframe.srcdoc = html;
+body.appendChild(iframe);
+};
+WM.create({ appId: 'appstore-app-' + appId, title: record.name, icon: Apps.icons.appstore(14), width: 800, height: 600, content: render });
+},
+refreshStartMenu() {
+const pinnedContainer = document.getElementById('start-pinned');
+const unpinnedContainer = document.getElementById('start-installed');
+if (!pinnedContainer || !unpinnedContainer) return;
+pinnedContainer.innerHTML = '';
+unpinnedContainer.innerHTML = '';
+const builtins = (typeof StartMenu !== 'undefined' && StartMenu.getBuiltinApps) ? StartMenu.getBuiltinApps() : [];
+const q = (this._currentSearchQuery || '').toLowerCase().trim();
+const matches = (name) => !q || (name || '').toLowerCase().indexOf(q) !== -1;
+let pinnedCount = 0;
+let unpinnedCount = 0;
+builtins.forEach(app => {
+if (this.unpinnedBuiltins.indexOf(app.id) !== -1) return;
+if (!matches(app.name)) return;
+pinnedContainer.appendChild(this._createBuiltinIcon(app));
+pinnedCount++;
+});
+this.installedRecords.forEach(rec => {
+if (this.pinnedApps.indexOf(rec.id) === -1) return;
+if (!matches(rec.name)) return;
+pinnedContainer.appendChild(this._createInstalledIcon(rec));
+pinnedCount++;
+});
+this.installedRecords.forEach(rec => {
+if (this.pinnedApps.indexOf(rec.id) !== -1) return;
+if (!matches(rec.name)) return;
+unpinnedContainer.appendChild(this._createInstalledIcon(rec));
+unpinnedCount++;
+});
+builtins.forEach(app => {
+if (this.unpinnedBuiltins.indexOf(app.id) === -1) return;
+if (!matches(app.name)) return;
+unpinnedContainer.appendChild(this._createBuiltinIcon(app));
+unpinnedCount++;
+});
+if (q && pinnedCount === 0 && unpinnedCount === 0) {
+pinnedContainer.innerHTML = '<div class="col-span-6 text-xs text-gray-500 py-3 text-center">No apps found</div>';
+}
+if (!q && unpinnedCount === 0) {
+unpinnedContainer.innerHTML = '<div class="col-span-6 text-xs text-gray-500 py-3 text-center">No unpinned apps</div>';
+}
+},
+_createBuiltinIcon(app) {
+const b = document.createElement('div');
+b.className = 'pinned-app flex flex-col items-center gap-1 p-2 rounded cursor-pointer relative';
+b.innerHTML = `<div class="w-10 h-10 rounded flex items-center justify-center" style="color: var(--accent)">${app.icon(24)}</div><div class="text-[11px] text-center truncate w-full">${escapeHtml(app.name)}</div>`;
+b.onclick = () => { Apps.open(app.id); StartMenu.close(); };
+b.oncontextmenu = (e) => {
+e.preventDefault();
+e.stopPropagation();
+const isUnpinned = this.unpinnedBuiltins.indexOf(app.id) !== -1;
+this._showAppContextMenu(e.clientX, e.clientY, [
+{ label: isUnpinned ? 'Pin' : 'Unpin', action: () => {
+if (isUnpinned) this.pinBuiltin(app.id); else this.unpinBuiltin(app.id);
+}}
+]);
+};
+return b;
+},
+_createInstalledIcon(rec) {
+const b = document.createElement('div');
+b.className = 'pinned-app flex flex-col items-center gap-1 p-2 rounded cursor-pointer relative';
+const thumbUrl = rec.thumb ? this.CDNS[0](this.REPO_USER, this.REPO_NAME, this.REPO_BRANCH, rec.thumb) : '';
+const fallbackInitial = escapeHtml((rec.name || '?').charAt(0) || '?');
+let thumbHtml;
+if (thumbUrl) {
+thumbHtml = `<img src="${thumbUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;background:#222;" onerror="this.style.display='none';this.parentNode.querySelector('.ia-thumb-fb').style.display='flex';"><div class="ia-thumb-fb" style="display:none;width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${fallbackInitial}</div>`;
+} else {
+thumbHtml = `<div style="width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${fallbackInitial}</div>`;
+}
+b.innerHTML = `${thumbHtml}<div class="text-[11px] text-center truncate w-full">${escapeHtml(rec.name)}</div>`;
+b.onclick = () => { this.openApp(rec.id); StartMenu.close(); };
+b.oncontextmenu = (e) => {
+e.preventDefault();
+e.stopPropagation();
+const isPinned = this.pinnedApps.indexOf(rec.id) !== -1;
+this._showAppContextMenu(e.clientX, e.clientY, [
+{ label: isPinned ? 'Unpin' : 'Pin', action: () => {
+if (isPinned) this.unpinApp(rec.id); else this.pinApp(rec.id);
+}},
+{ label: 'Rename', action: () => this._showRenameModal(rec) },
+{ label: 'Uninstall', action: () => this._showUninstallModal(rec) }
+]);
+};
+return b;
+},
+_showAppContextMenu(x, y, items) {
+const existing = document.getElementById('app-ctx-menu');
+if (existing) existing.remove();
+const cm = document.createElement('div');
+cm.id = 'app-ctx-menu';
+cm.className = 'ctx-menu';
+cm.style.display = 'block';
+items.forEach(it => {
+if (it === 'sep') {
+const s = document.createElement('div');
+s.className = 'ctx-sep';
+cm.appendChild(s);
+return;
+}
+const d = document.createElement('div');
+d.className = 'ctx-item';
+d.innerHTML = it.icon ? `${it.icon}${escapeHtml(it.label)}` : `<span style="width:16px"></span>${escapeHtml(it.label)}`;
+if (it.disabled) { d.style.opacity = '0.4'; d.style.pointerEvents = 'none'; }
+d.onclick = (e) => { e.stopPropagation(); cm.remove(); it.action(); document.removeEventListener('mousedown', onOutside, true); };
+cm.appendChild(d);
+});
+document.body.appendChild(cm);
+cm.style.left = Math.min(x, window.innerWidth - 220) + 'px';
+cm.style.top = Math.min(y, window.innerHeight - cm.offsetHeight - 60) + 'px';
+const onOutside = (e) => {
+if (!cm.contains(e.target)) {
+cm.remove();
+document.removeEventListener('mousedown', onOutside, true);
+}
+};
+setTimeout(() => document.addEventListener('mousedown', onOutside, true), 0);
+},
+_showRenameModal(rec) {
+Modal.prompt({
+title: 'Rename App',
+message: 'Enter a new name for "' + rec.name + '":',
+value: rec.name,
+confirmText: 'Rename',
+onConfirm: (newName) => {
+if (newName && newName !== rec.name) {
+this.renameApp(rec.id, newName).then(() => Toast.show('App renamed to: ' + newName));
+}
+}
+});
+},
+_showUninstallModal(rec) {
+Modal.confirm({
+title: 'Uninstall App',
+message: 'Uninstall "' + rec.name + '"? This will remove the app from your system.',
+confirmText: 'Uninstall',
+cancelText: 'Cancel',
+danger: true,
+onConfirm: () => {
+this.uninstall(rec.id).then(() => Toast.show('App uninstalled: ' + rec.name));
+}
+});
+},
+async raceCDN(path, returnType) {
+const u = this.REPO_USER, r = this.REPO_NAME, b = this.REPO_BRANCH;
+const controllers = this.CDNS.map(() => new AbortController());
+const tasks = this.CDNS.map((cdn, i) => {
+return new Promise((resolve, reject) => {
+fetch(cdn(u, r, b, path), { signal: controllers[i].signal })
+.then(res => {
+if (!res.ok) throw new Error('HTTP ' + res.status);
+if (returnType === 'json') return res.json();
+if (returnType === 'blob') return res.blob();
+return res.text();
+})
+.then(data => {
+controllers.forEach((c, j) => { if (j !== i) c.abort(); });
+resolve(data);
+})
+.catch(err => reject(err));
+});
+});
+try {
+return await Promise.any(tasks);
+} catch (e) {
+throw new Error('All CDNs failed for ' + path);
+}
+},
+async fetchGithubAPI(path) {
+try {
+const res = await fetch(`https://api.github.com/repos/${this.REPO_USER}/${this.REPO_NAME}/contents/${path}?ref=${this.REPO_BRANCH}`);
+if (res.ok) return res.json();
+} catch (e) {}
+try {
+const dlRes = await fetch(`https://data.jsdelivr.com/v1/packages/gh/${this.REPO_USER}/${this.REPO_NAME}@${this.REPO_BRANCH}/flat`);
+if (dlRes.ok) {
+const data = await dlRes.json();
+const files = (data && data.files) || [];
+const prefix = '/' + path + '/';
+return files.filter(f => f.name && f.name.indexOf(prefix) !== -1).map(f => {
+const rel = f.name.substring(f.name.indexOf(prefix) + prefix.length);
+if (rel.indexOf('/') === -1) return { name: rel, path: f.name.substring(1), type: 'file' };
+const parts = rel.split('/');
+return { name: parts[0], path: f.name.substring(1), type: 'dir' };
+}).filter((v, i, a) => a.findIndex(x => x.name === v.name) === i);
+}
+} catch (e) {}
+throw new Error('GitHub API and jsDelivr API both failed for ' + path);
+},
+async fetchFolderAssetsRecursive(folder, htmlPath) {
+let html = '';
+try {
+html = await this.raceCDN(folder + '/' + htmlPath, 'text');
+} catch (e) {
+return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{background:#111;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}h1{color:#e81123;}</style></head><body><h1>Failed to load</h1></body></html>';
+}
+let items = [];
+try {
+const listing = await this.fetchGithubAPI(folder);
+items = Array.isArray(listing) ? listing : [];
+} catch (e) {
+items = [];
+}
+const RELEVANT_EXTS = ['css','js','png','jpg','jpeg','gif','webp','svg','ico','json','mp3','wav','ogg','woff','woff2','ttf'];
+const IMAGE_EXTS = ['png','jpg','jpeg','gif','webp','svg','bmp','ico'];
+const BLOB_EXTS = ['mp3','wav','ogg','woff','woff2','ttf','json'];
+const assetItems = items.filter(item => {
+if (!item || item.type !== 'file' || !item.name) return false;
+if (item.name === htmlPath) return false;
+if (item.name === 'index.html') return false;
+const ext = (item.name.split('.').pop() || '').toLowerCase();
+return RELEVANT_EXTS.indexOf(ext) !== -1;
+});
+const fetchOne = async (item) => {
+const fname = item.name;
+const ext = (fname.split('.').pop() || '').toLowerCase();
+const url = folder + '/' + fname;
+let type = null, content = null;
+if (ext === 'css') { type = 'css'; content = await this.raceCDN(url, 'text'); }
+else if (ext === 'js') { type = 'js'; content = await this.raceCDN(url, 'text'); }
+else if (IMAGE_EXTS.indexOf(ext) !== -1) { type = 'image'; content = await this._blobToDataUrl(await this.raceCDN(url, 'blob')); }
+else if (BLOB_EXTS.indexOf(ext) !== -1) { type = 'blob'; content = await this._blobToDataUrl(await this.raceCDN(url, 'blob')); }
+return { type, fname, content };
+};
+const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+const tasks = assetItems.map(item => Promise.race([fetchOne(item), timeout(10000)]).catch(() => null));
+const results = await Promise.allSettled(tasks);
+results.forEach(r => {
+if (r.status !== 'fulfilled' || !r.value || !r.value.content) return;
+const { type, fname, content } = r.value;
+const escapedName = fname.replace(/[.\\+*?[^]$(){}|]/g, '\\$&');
+if (type === 'css') {
+const linkRe = new RegExp('<link[^>]*href=["\'][^"\']*' + escapedName + '[^"\']*["\'][^>]*>', 'gi');
+html = html.replace(linkRe, '<style>\n' + content + '\n</style>');
+} else if (type === 'js') {
+const scriptRe = new RegExp('<script[^>]*src=["\'][^"\']*' + escapedName + '[^"\']*["\'][^>]*><\\/script>', 'gi');
+html = html.replace(scriptRe, '<script>\n' + content + '\n<\/script>');
+} else if (type === 'image' || type === 'blob') {
+const srcRe = new RegExp('src=["\'][^"\']*' + escapedName + '["\']', 'gi');
+html = html.replace(srcRe, 'src="' + content + '"');
+const urlRe = new RegExp('url\\(["\']?[^"\\)\']*' + escapedName + '["\']?\\)', 'gi');
+html = html.replace(urlRe, 'url(' + content + ')');
+}
+});
+return html;
+},
+async _blobToDataUrl(blob) {
+return await new Promise((resolve) => {
+try {
+const reader = new FileReader();
+reader.onloadend = () => resolve(reader.result || '');
+reader.onerror = () => resolve('');
+reader.readAsDataURL(blob);
+} catch (e) { resolve(''); }
+});
+},
+async processListing(listing, source) {
+if (!Array.isArray(listing)) return [];
+const result = [];
+for (const item of listing) {
+if (!item || item.type !== 'dir' || !item.name) continue;
+const name = item.name;
+const displayName = name.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+let desc = source === 'apps' ? 'Web App / Tool' : 'HTML5 Game';
+let htmlPath = 'index.html';
+result.push({
+id: name,
+name: displayName,
+desc: desc,
+source: source,
+htmlPath: htmlPath,
+folder: source + '/' + name,
+category: source,
+thumbPath: ''
+});
+}
+return result;
+},
+renderAppCard(app) {
+const card = document.createElement('div');
+card.style.cssText = 'background:rgba(30,30,35,0.55);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color 0.15s,transform 0.15s;';
+card.onmouseenter = () => { card.style.borderColor = 'rgba(0,120,212,0.5)'; card.style.transform = 'translateY(-2px)'; };
+card.onmouseleave = () => { card.style.borderColor = 'rgba(255,255,255,0.08)'; card.style.transform = 'translateY(0)'; };
+const installed = this.isInstalled(app.id);
+const sourceLabel = app.source === 'games' ? 'Game' : 'App';
+const thumbUrl = app.thumbPath ? this.CDNS[0](this.REPO_USER, this.REPO_NAME, this.REPO_BRANCH, app.thumbPath) : '';
+const initial = escapeHtml((app.name || '?').charAt(0) || '?');
+let thumbHtml;
+if (thumbUrl) {
+thumbHtml = `<img src="${thumbUrl}" alt="${escapeHtml(app.name)}" style="width:100%;height:90px;object-fit:cover;border-radius:6px;background:#222;" onerror="this.style.display='none';this.parentNode.querySelector('.ac-thumb-fb').style.display='flex';"><div class="ac-thumb-fb" style="display:none;width:100%;height:90px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700;">${initial}</div>`;
+} else {
+thumbHtml = `<div style="width:100%;height:90px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700;">${initial}</div>`;
+}
+const btnColor = installed ? '#107c10' : '#0078d4';
+const btnText = installed ? 'Open' : 'Install';
+card.innerHTML = `${thumbHtml}<div style="font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(app.name)}</div><div style="font-size:11px;color:#aaa;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:28px;line-height:1.3;">${escapeHtml(app.desc || '')}</div><div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">${sourceLabel}</div><button class="ac-action" data-appid="${escapeHtml(app.id)}" style="padding:6px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;background:${btnColor};transition:opacity 0.15s;">${btnText}</button><div class="ac-progress" style="display:none;position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;"></div>`;
+const btn = card.querySelector('.ac-action');
+const prog = card.querySelector('.ac-progress');
+btn.onclick = (e) => {
+e.stopPropagation();
+if (this.isInstalled(app.id)) {
+this.openApp(app.id);
+} else {
+this.installFromCard(card, app);
+}
+};
+return card;
+},
+installFromCard(card, app) {
+const btn = card.querySelector('.ac-action');
+const prog = card.querySelector('.ac-progress');
+btn.disabled = true;
+btn.textContent = 'Installing...';
+btn.style.background = '#555';
+prog.style.display = 'flex';
+prog.textContent = '0%';
+this.install(app, (p) => {
+prog.textContent = Math.floor(p) + '%';
+}).then(() => {
+prog.textContent = '100%';
+setTimeout(() => {
+prog.style.display = 'none';
+btn.disabled = false;
+btn.textContent = 'Open';
+btn.style.background = '#107c10';
+Toast.show('App installed: ' + app.name);
+}, 350);
+}).catch(err => {
+prog.style.display = 'none';
+btn.disabled = false;
+btn.textContent = 'Install';
+btn.style.background = '#0078d4';
+Toast.show('Install failed: ' + (err && err.message ? err.message : 'unknown error'));
+});
+},
+openWindow() {
+const render = (body) => {
+body.style.padding = '0';
+body.style.overflow = 'hidden';
+body.style.display = 'flex';
+body.style.flexDirection = 'column';
+body.style.background = 'rgba(20,20,25,0.6)';
+if (!document.getElementById('appstore-spin-anim')) {
+const st = document.createElement('style');
+st.id = 'appstore-spin-anim';
+st.textContent = '@keyframes appstoreSpin{to{transform:rotate(360deg)}}';
+document.head.appendChild(st);
+}
+const header = document.createElement('div');
+header.style.cssText = 'display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(30,30,35,0.5);';
+header.innerHTML = `<div style="display:flex;align-items:center;gap:10px;color:var(--accent);font-weight:700;font-size:18px;">${Apps.icons.appstore(24)}<span>App Store</span></div><input type="text" placeholder="Search apps and games..." class="ac-search" style="flex:1;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 14px;color:#fff;font-size:13px;outline:none;">`;
+body.appendChild(header);
+const tabs = document.createElement('div');
+tabs.style.cssText = 'display:flex;gap:8px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.05);';
+['All', 'Apps', 'Games'].forEach((name, i) => {
+const tab = document.createElement('button');
+tab.textContent = name;
+tab.dataset.cat = name.toLowerCase();
+tab.className = 'ac-tab' + (i === 0 ? ' active' : '');
+tab.style.cssText = 'padding:6px 14px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:' + (i === 0 ? 'var(--accent)' : 'rgba(255,255,255,0.05)') + ';color:#fff;cursor:pointer;font-size:12px;transition:background 0.15s;';
+tabs.appendChild(tab);
+});
+body.appendChild(tabs);
+const gridWrap = document.createElement('div');
+gridWrap.style.cssText = 'flex:1;overflow-y:auto;padding:16px 18px;';
+body.appendChild(gridWrap);
+const spinner = document.createElement('div');
+spinner.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#888;gap:12px;';
+spinner.innerHTML = '<div style="width:34px;height:34px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--accent);border-radius:50%;animation:appstoreSpin 0.8s linear infinite;"></div><div style="font-size:12px;">Loading apps from repository...</div>';
+gridWrap.appendChild(spinner);
+let allApps = [];
+let currentCat = 'all';
+let currentSearch = '';
+const renderGrid = () => {
+gridWrap.innerHTML = '';
+let filtered = allApps;
+if (currentCat !== 'all') filtered = filtered.filter(a => a.source === currentCat);
+if (currentSearch) {
+const q = currentSearch.toLowerCase();
+filtered = filtered.filter(a => (a.name || '').toLowerCase().indexOf(q) !== -1 || (a.desc || '').toLowerCase().indexOf(q) !== -1);
+}
+if (filtered.length === 0) {
+gridWrap.innerHTML = '<div style="color:#888;text-align:center;padding:60px;font-size:13px;">No apps found</div>';
+return;
+}
+const grid = document.createElement('div');
+grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));gap:16px;';
+filtered.forEach(app => { grid.appendChild(this.renderAppCard(app)); });
+gridWrap.appendChild(grid);
+};
+this._activeGridWrap = gridWrap;
+this._activeGridRefresh = renderGrid;
+tabs.querySelectorAll('.ac-tab').forEach(t => {
+t.onclick = () => {
+tabs.querySelectorAll('.ac-tab').forEach(x => { x.classList.remove('active'); x.style.background = 'rgba(255,255,255,0.05)'; });
+t.classList.add('active');
+t.style.background = 'var(--accent)';
+currentCat = t.dataset.cat;
+renderGrid();
+};
+});
+header.querySelector('.ac-search').addEventListener('input', (e) => {
+currentSearch = e.target.value.trim();
+renderGrid();
+});
+(async () => {
+try {
+const [appsListing, gamesListing] = await Promise.all([
+this.fetchGithubAPI('apps').catch(() => []),
+this.fetchGithubAPI('games').catch(() => [])
+]);
+const appsList = await this.processListing(appsListing, 'apps');
+const gamesList = await this.processListing(gamesListing, 'games');
+allApps = appsList.concat(gamesList);
+const thumbMap = {};
+try {
+const thumbs = await this.fetchGithubAPI('images/thumbnails');
+if (Array.isArray(thumbs)) {
+thumbs.forEach(t => {
+if (t && t.name) {
+const baseName = t.name.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '').toLowerCase();
+thumbMap[baseName] = t.path;
+}
+});
+}
+} catch (e) {}
+allApps.forEach(a => {
+if (a.id && thumbMap[a.id.toLowerCase()]) {
+a.thumbPath = thumbMap[a.id.toLowerCase()];
+}
+});
+renderGrid();
+} catch (e) {
+gridWrap.innerHTML = '<div style="color:#888;text-align:center;padding:60px;font-size:13px;">Failed to load apps. Please try again later.<br><br><button onclick="AppStore.openWindow()" style="padding:8px 16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;border-radius:6px;cursor:pointer;">Retry</button></div>';
+}
+})();
+};
+WM.create({ appId: 'appstore', title: 'App Store', icon: Apps.icons.appstore(14), width: 900, height: 600, content: render });
 }
 };
 function escapeHtml(s) { if (typeof s !== 'string') return ''; return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -3053,6 +3795,36 @@ o.innerHTML = '<div class="hz-logo hz-logo-xxl mb-4" style="opacity:0.5">HZ</div
 document.body.appendChild(o);
 requestAnimationFrame(() => o.style.opacity = '1');
 o.onclick = () => location.reload();
+},
+powerwash() {
+Toast.show('Powerwashing...');
+const knownDbs = ['HyperZOS_AppStore', 'HyperZOS_FS'];
+const deleteAll = (names) => {
+return Promise.all(names.map(name => new Promise((resolve) => {
+try {
+const req = indexedDB.deleteDatabase(name);
+req.onsuccess = () => resolve();
+req.onerror = () => resolve();
+req.onblocked = () => resolve();
+} catch (e) { resolve(); }
+})));
+};
+const enumerate = () => {
+try {
+if (indexedDB.databases) {
+return Promise.resolve(indexedDB.databases()).then(dbs => (dbs || []).map(d => d.name).filter(Boolean));
+}
+} catch (e) {}
+return Promise.resolve([]);
+};
+enumerate().then(extra => {
+const all = knownDbs.concat(extra.filter(n => knownDbs.indexOf(n) === -1));
+deleteAll(all).then(() => {
+try { localStorage.clear(); } catch (e) {}
+try { sessionStorage.clear(); } catch (e) {}
+setTimeout(() => location.reload(), 1000);
+});
+});
 }
 };
 const wallpaperGradients = [
@@ -3159,9 +3931,9 @@ createDesktopIcon('Recycle Bin', 'recycle', 'recycle', window.innerWidth - 102, 
 }
 Settings.load();
 if (document.readyState === 'loading') {
-document.addEventListener('DOMContentLoaded', () => { initDesktop(); StartMenu.render(); bootSequence(); });
+document.addEventListener('DOMContentLoaded', () => { initDesktop(); StartMenu.render(); bootSequence(); AppStore.init(); });
 } else {
-initDesktop(); StartMenu.render(); bootSequence();
+initDesktop(); StartMenu.render(); bootSequence(); AppStore.init();
 }
 document.getElementById('qs-brightness-slider').addEventListener('input', (e) => { Settings.data.brightness = parseInt(e.target.value); Settings.save(); });
 document.getElementById('qs-volume-slider').addEventListener('input', (e) => { Settings.data.volume = parseInt(e.target.value); Settings.save(); });
