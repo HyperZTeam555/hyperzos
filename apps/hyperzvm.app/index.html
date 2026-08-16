@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HyperZVM</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; font-family: system-ui, sans-serif; overflow: hidden; width: 100vw; height: 100vh; position: relative; }
+  @keyframes hzvmArrowPulse { 0%,100% { opacity: 0.5; transform: translateX(0); } 50% { opacity: 1; transform: translateX(3px); } }
+</style>
+</head>
+<body>
+<script>
+(function() {
+  const body = document.body;
+  body.classList.add('app-hyperzvm-body');
+  body.style.background = '#0a0a0a';
+  body.style.padding = '0';
+  body.style.position = 'relative';
+  body.style.overflow = 'hidden';
+
+  const toolbar = document.createElement('div');
+  toolbar.style.cssText = 'position:absolute;top:0;right:0;z-index:10;display:flex;align-items:center;gap:6px;padding:6px 8px;';
+
+  var _hzvmHintSeen = false;
+  try { _hzvmHintSeen = !!sessionStorage.getItem('hyperzvm_hint_seen'); } catch(e) { _hzvmHintSeen = false; }
+  const hintShown = !_hzvmHintSeen;
+  var hintWrap = null;
+
+  if (hintShown) {
+    hintWrap = document.createElement('div');
+    hintWrap.style.cssText = 'display:flex;align-items:center;gap:4px;transition:opacity 0.4s ease;';
+    const hintText = document.createElement('span');
+    hintText.textContent = 'Use this if the VM stops working randomly.';
+    hintText.style.cssText = 'font-size:11px;color:#aaa;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,0.8);';
+    const arrow = document.createElement('span');
+    arrow.innerHTML = '&#8594;';
+    arrow.style.cssText = 'font-size:16px;color:#0078d4;animation:hzvmArrowPulse 1.5s ease-in-out infinite;text-shadow:0 0 8px rgba(0,120,212,0.5);';
+    hintWrap.appendChild(hintText);
+    hintWrap.appendChild(arrow);
+    toolbar.appendChild(hintWrap);
+    try { sessionStorage.setItem('hyperzvm_hint_seen', '1'); } catch(e) {}
+    setTimeout(function() {
+      if (hintWrap) {
+        hintWrap.style.opacity = '0';
+        setTimeout(function() { if (hintWrap && hintWrap.parentNode) hintWrap.remove(); }, 400);
+      }
+    }, 5000);
+  }
+
+  const reloadBtn = document.createElement('button');
+  reloadBtn.innerHTML = '&#8635;';
+  reloadBtn.title = 'Reload VM';
+  reloadBtn.style.cssText = 'width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#e0e0e0;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;';
+  reloadBtn.onmouseenter = function() { reloadBtn.style.background = 'rgba(255,255,255,0.15)'; };
+  reloadBtn.onmouseleave = function() { reloadBtn.style.background = 'rgba(255,255,255,0.08)'; };
+  toolbar.appendChild(reloadBtn);
+  body.appendChild(toolbar);
+
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'width:100%;height:100%;border:none;';
+  iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms allow-modals');
+  iframe.src = 'https://cli.h2.nexus/';
+  body.appendChild(iframe);
+
+  reloadBtn.onclick = function() { iframe.src = iframe.src; };
+})();
+</script>
+</body>
+</html>

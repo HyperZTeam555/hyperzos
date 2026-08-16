@@ -1,0 +1,12 @@
+{
+  "name": "HyperZVM",
+  "type": "auto",
+  "package": "anura.hyperzvm",
+  "index": "index.html",
+  "icon": "hyperzvm.svg",
+  "wininfo": {
+    "title": "HyperZVM",
+    "width": "1000px",
+    "height": "650px"
+  }
+}
