@@ -142,10 +142,16 @@ body.platform-tablet .aliceWMwin .title {
 	padding: 2px;
 	flex: 1;
 	background-color: var(--theme-bg);
+	position: relative;
 }
 
 .aliceWMwin .content iframe {
 	color-scheme: normal; /* quirk to preserve frame bg */
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 .aliceWMwin .title:hover {
