@@ -1,0 +1,71 @@
+name: Deploy HyperZOS 4 to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare deployment with correct MIME types
+        run: |
+          mkdir -p _deploy
+          # Copy everything except .git and .github
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' ! -name '_deploy' -exec cp -r {} _deploy/ \;
+          
+          # Create headers file for proper MIME types
+          cat > _deploy/_headers << 'EOF'
+          /*.mjs
+            Content-Type: application/javascript
+          /*.wasm
+            Content-Type: application/wasm
+          /*.css
+            Content-Type: text/css
+          /*.js
+            Content-Type: application/javascript
+          /*.json
+            Content-Type: application/json
+          /*.woff2
+            Content-Type: font/woff2
+          /*.woff
+            Content-Type: font/woff
+          /*.ttf
+            Content-Type: font/ttf
+          /*.png
+            Content-Type: image/png
+          /*.svg
+            Content-Type: image/svg+xml
+          EOF
+          
+          echo "=== Deploy structure ==="
+          find _deploy -type f | head -50
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_deploy
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
