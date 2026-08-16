@@ -1,1 +1,9 @@
-(empty)
+```
+# Build artifacts
+*.css
+bundle.css
+artifacts/
+
+# Dependencies
+node_modules/
+```
