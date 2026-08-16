@@ -1,16 +1,15 @@
 <!doctype html>
 <html>
 	<head>
-		<base href="/hyperzos/" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link rel="stylesheet" href="/assets/roboto.css" />
-		<link rel="stylesheet" href="/assets/materialsymbols.css" />
-		<link rel="stylesheet" href="/assets/matter.css" />
-		<link rel="stylesheet" href="/theme.css" />
-		<link rel="stylesheet" href="/bundle.css" />
-		<link rel="manifest" href="/manifest.json" />
+		<link rel="stylesheet" href="/hyperzos/assets/roboto.css" />
+		<link rel="stylesheet" href="/hyperzos/assets/materialsymbols.css" />
+		<link rel="stylesheet" href="/hyperzos/assets/matter.css" />
+		<link rel="stylesheet" href="/hyperzos/theme.css" />
+		<link rel="stylesheet" href="/hyperzos/bundle.css" />
+		<link rel="manifest" href="/hyperzos/manifest.json" />
 		<title>HyperZOS 4</title>
 		<meta name="title" content="HyperZOS 4" />
 		<meta
@@ -22,7 +21,7 @@
 			name="og:description"
 			content="HyperZOS 4 is a webOS that has v86 capabilities and a modular app system."
 		/>
-		<meta property="og:image" content="/icon.png" />
+		<meta property="og:image" content="/hyperzos/icon.png" />
 		<meta property="og:image:width" content="250" />
 		<meta property="og:image:height" content="217" />
 		<meta
@@ -34,106 +33,106 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 		<meta name="darkreader-lock" />
 
-		<link rel="apple-touch-icon" href="/pwa_icon.png" />
-		<link rel="apple-touch-icon-precomposed" href="/pwa_icon.png" />
-		<link rel="shortcut icon" type="image/png" href="/icon.png" />
-		<script src="/libs/idb-keyval/idb-keyval.js"></script>
-		<script type="text/javascript" src="/libs/dreamland/all.js"></script>
+		<link rel="apple-touch-icon" href="/hyperzos/pwa_icon.png" />
+		<link rel="apple-touch-icon-precomposed" href="/hyperzos/pwa_icon.png" />
+		<link rel="shortcut icon" type="image/png" href="/hyperzos/icon.png" />
+		<script src="/hyperzos/libs/idb-keyval/idb-keyval.js"></script>
+		<script type="text/javascript" src="/hyperzos/libs/dreamland/all.js"></script>
 		<!-- filesystem -->
-		<script src="/libs/filer/filer.min.js" crossorigin></script>
+		<script src="/hyperzos/libs/filer/filer.min.js" crossorigin></script>
 		<script
 			type="text/javascript"
-			src="/lib/api/filesystem/Filesystem.js"
+			src="/hyperzos/lib/api/filesystem/Filesystem.js"
 		></script>
 		<script
 			type="text/javascript"
-			src="/lib/api/filesystem/FilerFS.js"
+			src="/hyperzos/lib/api/filesystem/FilerFS.js"
 		></script>
 		<script
 			type="text/javascript"
-			src="/lib/api/filesystem/LocalFS.js"
+			src="/hyperzos/lib/api/filesystem/LocalFS.js"
 		></script>
 		<!-- networking -->
 		<script
 			type="text/javascript"
-			src="/lib/api/net/wisp-client-js/wisp.js"
+			src="/hyperzos/lib/api/net/wisp-client-js/wisp.js"
 		></script>
-		<script type="text/javascript" src="/lib/api/net/Networking.js"></script>
-		<script type="text/javascript" src="/lib/api/net/WispUtils.js"></script>
-		<script type="text/javascript" src="/lib/api/net/WispBus.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/net/Networking.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/net/WispUtils.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/net/WispBus.js"></script>
 		<!-- apis -->
-		<script type="text/javascript" src="/lib/api/ContextMenu.js"></script>
-		<script type="text/javascript" src="/lib/api/Files.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/ContextMenu.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/Files.js"></script>
 		<script
 			type="text/javascript"
-			src="/lib/api/NotificationService.js"
+			src="/hyperzos/lib/api/NotificationService.js"
 		></script>
-		<script type="text/javascript" src="/lib/api/Platform.js"></script>
-		<script type="text/javascript" src="/lib/api/Processes.js"></script>
-		<script type="text/javascript" src="/lib/api/Settings.js"></script>
-		<script type="text/javascript" src="/lib/api/Systray.js"></script>
-		<script type="text/javascript" src="/lib/api/Theme.js"></script>
-		<script type="text/javascript" src="/lib/api/UI.js"></script>
-		<script type="text/javascript" src="/lib/api/URI.js"></script>
-		<script type="text/javascript" src="/lib/libv86.js"></script>
-		<script type="text/javascript" src="/lib/api/v86.js"></script>
-		<script type="text/javascript" src="/lib/api/WM.js"></script>
-		<script type="text/javascript" src="/lib/anurad.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/Platform.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/Processes.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/Settings.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/Systray.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/Theme.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/UI.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/URI.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libv86.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/v86.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/api/WM.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/anurad.js"></script>
 		<!-- base libs -->
-		<script type="text/javascript" src="/lib/libs/Lib.js"></script>
-		<script type="text/javascript" src="/lib/libs/ExternalLib.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/Lib.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/ExternalLib.js"></script>
 		<!-- built in libs -->
-		<script type="text/javascript" src="/lib/libs/anuraGlobalsLib.js"></script>
-		<script type="text/javascript" src="/lib/libs/BrowserLib.js"></script>
-		<script type="text/javascript" src="/lib/libs/anuradHelpersLib.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/anuraGlobalsLib.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/BrowserLib.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/anuradHelpersLib.js"></script>
 		<!-- vendored libs -->
-		<script type="text/javascript" src="/lib/libs/Vendored/Comlink.js"></script>
-		<script type="text/javascript" src="/lib/libs/Vendored/Mime.js"></script>
-		<script type="text/javascript" src="/lib/libs/Vendored/Fflate.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/Vendored/Comlink.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/Vendored/Mime.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/libs/Vendored/Fflate.js"></script>
 		<!-- node polyfills -->
 		<script
 			type="text/javascript"
-			src="/lib/libs/NodePolyfills/NodeFS.js"
+			src="/hyperzos/lib/libs/NodePolyfills/NodeFS.js"
 		></script>
 		<script
 			type="text/javascript"
-			src="/lib/libs/NodePolyfills/NodePrelude.js"
+			src="/hyperzos/lib/libs/NodePolyfills/NodePrelude.js"
 		></script>
 		<!-- Base Apps -->
-		<script type="text/javascript" src="/lib/coreapps/App.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/ShortcutApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/GenericApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/ExternalApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/App.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/ShortcutApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/GenericApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/ExternalApp.js"></script>
 
-		<script type="text/javascript" src="/lib/coreapps/ExploreApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/RecoveryApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/SettingsApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/TaskManager.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/BrowserApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/Dialog.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/AboutApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/RegEdit.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/ExploreApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/RecoveryApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/SettingsApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/TaskManager.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/BrowserApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/Dialog.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/AboutApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/RegEdit.js"></script>
 		<script
 			type="text/javascript"
-			src="/lib/coreapps/WallpaperAndStyle.js"
+			src="/hyperzos/lib/coreapps/WallpaperAndStyle.js"
 		></script>
-		<script type="text/javascript" src="/lib/coreapps/x86MgrApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/XAppStub.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/XFrogApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/x86MgrApp.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/XAppStub.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/coreapps/XFrogApp.js"></script>
 		<!-- desktop things -->
-		<script type="text/javascript" src="/lib/AliceWM.js"></script>
-		<script type="text/javascript" src="/lib/Taskbar.js"></script>
-		<script type="text/javascript" src="/lib/Launcher.js"></script>
-		<script type="text/javascript" src="/lib/QuickSettings.js"></script>
-		<script type="text/javascript" src="/lib/Calendar.js"></script>
-		<script type="text/javascript" src="/lib/Bootsplash.js"></script>
-		<script type="text/javascript" src="/lib/oobe/OobeView.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/AliceWM.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/Taskbar.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/Launcher.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/QuickSettings.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/Calendar.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/Bootsplash.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/oobe/OobeView.js"></script>
 
-		<script type="text/javascript" src="/lib/Utils.js"></script>
-		<script type="text/javascript" src="/lib/AltTabView.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/Utils.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/AltTabView.js"></script>
 		<!-- entrypoint -->
-		<script type="text/javascript" src="/lib/anura.js"></script>
-		<script type="text/javascript" src="/lib/Boot.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/anura.js"></script>
+		<script type="text/javascript" src="/hyperzos/lib/Boot.js"></script>
 		<!-- <script type="text/javascript" src="/dist.js"></script> -->
 		<!-- prod only ^ -->
 	</head>
