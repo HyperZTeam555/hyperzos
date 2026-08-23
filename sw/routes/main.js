@@ -1,10 +1,7 @@
 /* global workbox, bootStrapFSReady, idbKeyval, cacheenabled, opfs, filerfs, opfssh, filersh, serveFile, corsheaders */
 
-// Add COEP and COOP headers to allow cross-origin isolation for iframes
-const coepHeaders = {
-	"Cross-Origin-Embedder-Policy": "require-corp",
-	"Cross-Origin-Opener-Policy": "same-origin",
-};
+// Remove COEP and COOP headers to allow cross-origin isolation for iframes
+const coepHeaders = {};
 
 workbox.routing.registerRoute(
 	/^(?!.*(\/config.json|\/MILESTONE|\/x86images\/|\/service\/|\/apps\/))/,
