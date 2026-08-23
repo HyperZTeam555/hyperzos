@@ -1,5 +1,11 @@
 /* global workbox, bootStrapFSReady, idbKeyval, cacheenabled, opfs, filerfs, opfssh, filersh, serveFile, corsheaders */
 
+// Add COEP and COOP headers to allow cross-origin isolation for iframes
+const coepHeaders = {
+	"Cross-Origin-Embedder-Policy": "require-corp",
+	"Cross-Origin-Opener-Policy": "same-origin",
+};
+
 workbox.routing.registerRoute(
 	/^(?!.*(\/config.json|\/MILESTONE|\/x86images\/|\/service\/|\/apps\/))/,
 	async (event) => {
@@ -26,6 +32,7 @@ workbox.routing.registerRoute(
 				headers: {
 					...Object.fromEntries(fetchResponse.headers.entries()),
 					...corsheaders,
+					...coepHeaders,
 				},
 			});
 		}
@@ -45,7 +52,13 @@ workbox.routing.registerRoute(
 		const response = await serveFile(`${basepath}${path}`, fs, sh);
 
 		if (response.ok) {
-			return response;
+			return new Response(response.body, {
+				headers: {
+					...Object.fromEntries(response.headers.entries()),
+					...corsheaders,
+					...coepHeaders,
+				},
+			});
 		} else {
 			try {
 				const fetchResponse = await fetch(event.request);
@@ -57,6 +70,7 @@ workbox.routing.registerRoute(
 							headers: {
 								...Object.fromEntries(fetchResponse.headers.entries()),
 								...corsheaders,
+								...coepHeaders,
 							},
 						},
 					);
@@ -91,6 +105,7 @@ workbox.routing.registerRoute(
 						headers: {
 							"Content-Type": "application/json",
 							...corsheaders,
+							...coepHeaders,
 						},
 					},
 				);

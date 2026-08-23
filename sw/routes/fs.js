@@ -1,5 +1,11 @@
 /* global workbox, corsheaders, Buffer */
 
+// Add COEP and COOP headers to allow cross-origin isolation for iframes
+const coepHeaders = {
+	"Cross-Origin-Embedder-Policy": "require-corp",
+	"Cross-Origin-Opener-Policy": "same-origin",
+};
+
 async function serveFile(path, fsOverride, shOverride) {
 	let fs;
 	let sh;
@@ -25,6 +31,7 @@ async function serveFile(path, fsOverride, shOverride) {
 				headers: {
 					"Content-Type": "application/json",
 					...corsheaders,
+					...coepHeaders,
 				},
 			},
 		);
@@ -43,6 +50,7 @@ async function serveFile(path, fsOverride, shOverride) {
 				headers: {
 					"Content-Type": "application/json",
 					...corsheaders,
+					...coepHeaders,
 				},
 			});
 		}
@@ -53,6 +61,7 @@ async function serveFile(path, fsOverride, shOverride) {
 				"Content-Type": type,
 				"Content-Disposition": `inline; filename="${path.split("/").pop()}"`,
 				...corsheaders,
+				...coepHeaders,
 			},
 		});
 	} catch (e) {
@@ -63,6 +72,7 @@ async function serveFile(path, fsOverride, shOverride) {
 				headers: {
 					"Content-Type": "application/json",
 					...corsheaders,
+					...coepHeaders,
 				},
 			},
 		);
