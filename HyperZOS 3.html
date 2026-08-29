@@ -5,25 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HyperZOS 3</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/segoe-ui@5.0.0/index.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.6/index.min.css" rel="stylesheet">
 <style>
-:root { --accent: #0078d4; --accent-dark: #005a9e; }
+:root { --accent: #00d4ff; --accent-dark: #00a8cc; --accent2: #7b2fff; --accent3: #00ff80; }
 * { box-sizing: border-box; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-select: none; background: #000; color: #fff; margin:0; }
-.hz-logo { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0078d4 0%, #5c2d91 50%, #00b7c3 100%); color: white; font-weight: 800; letter-spacing: -0.5px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4), inset 0 1px 0 rgba(255,255,255,0.2); position: relative; overflow: hidden; }
+body { font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-select: none; background: #000; color: #f5f5f7; margin:0; }
+.hz-logo { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #00d4ff 0%, #7b2fff 100%); color: #000; font-family: 'Orbitron', monospace; font-weight: 900; letter-spacing: 0px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 212, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.25); position: relative; overflow: hidden; }
 .hz-logo::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%); pointer-events: none; }
 .hz-logo-sm { width: 16px; height: 16px; font-size: 8px; }
 .hz-logo-md { width: 24px; height: 24px; font-size: 11px; }
 .hz-logo-lg { width: 32px; height: 32px; font-size: 14px; }
 .hz-logo-xl { width: 48px; height: 48px; font-size: 20px; }
 .hz-logo-xxl { width: 72px; height: 72px; font-size: 28px; }
-.hz-logo-boot { width: 96px; height: 96px; font-size: 38px; border-radius: 8px; box-shadow: 0 20px 60px rgba(0, 120, 212, 0.5); animation: logoGlow 2s ease-in-out infinite alternate; }
-@keyframes logoGlow { from { box-shadow: 0 20px 60px rgba(0, 120, 212, 0.4); } to { box-shadow: 0 20px 80px rgba(92, 45, 145, 0.7), 0 0 40px rgba(0, 183, 195, 0.3); } }
-#wallpaper { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, rgba(0, 120, 212, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(92, 45, 145, 0.4) 0%, transparent 50%), linear-gradient(135deg, #0a0e27 0%, #1a1b4b 50%, #2d1b69 100%); background-size: 200% 200%; animation: wallpaperShift 30s ease-in-out infinite; transition: filter 0.3s; }
+.hz-logo-boot { width: 96px; height: 96px; font-size: 38px; border-radius: 8px; box-shadow: 0 20px 60px rgba(0, 212, 255, 0.5); animation: logoGlow 2s ease-in-out infinite alternate; }
+@keyframes logoGlow { from { box-shadow: 0 20px 60px rgba(0, 212, 255, 0.4); } to { box-shadow: 0 20px 80px rgba(123, 47, 255, 0.7), 0 0 40px rgba(123, 47, 255, 0.3); } }
+#wallpaper { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, rgba(0, 212, 255, 0.22) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(123, 47, 255, 0.28) 0%, transparent 50%), linear-gradient(135deg, #000000 0%, #0a0a14 50%, #14082a 100%); background-size: 200% 200%; animation: wallpaperShift 30s ease-in-out infinite; transition: filter 0.3s; }
+#wallpaper::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.035) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
 @keyframes wallpaperShift { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
-.glass-panel { background: rgba(20, 20, 20, 0.25); backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-.taskbar { height: 48px; background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(20px) saturate(1.5); -webkit-backdrop-filter: blur(20px) saturate(1.5); border-top: 1px solid rgba(255,255,255,0.08); }
+.glass-panel { background: rgba(10,10,10,0.45); backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 18px 40px rgba(0,0,0,0.38); }
+.taskbar { height: 48px; background: rgba(10, 10, 10, 0.45); backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5); border-top: 1px solid rgba(255,255,255,0.05); box-shadow: 0 -18px 40px rgba(0,0,0,0.38); }
 .task-btn { position: relative; padding: 4px 10px; border-radius: 4px; transition: all 0.2s; cursor: pointer; min-width: 40px; display: flex; align-items: center; justify-content: center; }
 .task-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
 .task-btn.active { background: rgba(255,255,255,0.15); }
@@ -33,11 +35,11 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-se
 
 .hz-window { 
     position: absolute; 
-    background: rgba(25, 25, 30, 0.65); 
+    background: rgba(10, 10, 10, 0.45); 
     backdrop-filter: blur(20px) saturate(1.5); 
     -webkit-backdrop-filter: blur(20px) saturate(1.5); 
-    border: 1px solid rgba(255,255,255,0.12); 
-    border-radius: 8px; 
+    border: 1px solid rgba(255,255,255,0.05); 
+    border-radius: 12px; 
     box-shadow: 0 25px 60px rgba(0,0,0,0.6); 
     display: flex; 
     flex-direction: column; 
@@ -50,7 +52,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-se
                 border-radius 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                 box-shadow 0.2s; 
 }
-.hz-window.focused { box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(0, 120, 212, 0.3); z-index: 1000; }
+.hz-window.focused { box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(0, 212, 255, 0.3); z-index: 1000; }
 .hz-window.maximized { 
     top: 0 !important; 
     left: 0 !important; 
@@ -61,16 +63,16 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-se
 }
 .hz-titlebar { height: 32px; background: rgba(40, 40, 45, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: space-between; padding-left: 12px; flex-shrink: 0; }
 .hz-titlebar.inactive { background: rgba(30, 30, 30, 0.3); }
-.hz-title { font-size: 12px; color: #e0e0e0; display: flex; align-items: center; gap: 8px; pointer-events: none; }
+.hz-title { font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #e0e0e0; display: flex; align-items: center; gap: 8px; pointer-events: none; }
 .hz-controls { display: flex; height: 100%; }
 .hz-ctrl { width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; color: #e0e0e0; }
 .hz-ctrl:hover { background: rgba(255,255,255,0.1); }
 .hz-ctrl.close:hover { background: #e81123; color: white; }
 .hz-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: rgba(20, 20, 25, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border: 3px solid transparent; background-clip: content-box; border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.3); }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.25); }
 .start-menu { position: absolute; bottom: 56px; left: 10px; width: 600px; height: 640px; opacity: 0; visibility: hidden; transform: translateY(20px) scale(0.98); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; border-radius: 8px; overflow: hidden; }
 .start-menu.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
 #quick-settings { position: absolute; bottom: 56px; right: 10px; width: 280px; opacity: 0; visibility: hidden; transform: translateY(20px); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; border-radius: 8px; }
@@ -83,16 +85,16 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; user-se
 .anim-min { animation: winMin 0.3s cubic-bezier(0.4, 0, 1, 1) forwards; }
 .desktop-icon { width: 80px; padding: 6px; border-radius: 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; transition: background 0.2s; position: absolute; z-index: 10; }
 .desktop-icon:hover { background: rgba(255,255,255,0.1); }
-.desktop-icon.selected { background: rgba(0,120,212,0.25); outline: 1px solid rgba(0,120,212,0.6); }
+.desktop-icon.selected { background: rgba(0,212,255,0.25); outline: 1px solid rgba(0,212,255,0.6); }
 .desktop-icon-label { font-size: 12px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.9); word-break: break-word; line-height: 1.2; }
 .desktop-icon-label-input { font-size: 12px; color: #fff; background: rgba(0,0,0,0.6); border: 1px solid var(--accent); border-radius: 2px; padding: 1px 4px; text-align: center; width: 76px; outline: none; }
 .file-grid-item { width: 88px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; border-radius: 4px; text-align: center; border: 1px solid transparent; transition: all 0.15s; }
 .file-grid-item:hover { background: rgba(255,255,255,0.1); }
-.file-grid-item.selected { background: rgba(0,120,212,0.2); border-color: rgba(0,120,212,0.5); }
+.file-grid-item.selected { background: rgba(0,212,255,0.2); border-color: rgba(0,212,255,0.5); }
 .file-label { font-size: 11px; color: #e0e0e0; word-break: break-word; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sidebar-item { padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 8px; color: #d0d0d0; transition: all 0.15s; }
 .sidebar-item:hover { background: rgba(255,255,255,0.1); }
-.sidebar-item.active { background: rgba(0,120,212,0.2); }
+.sidebar-item.active { background: rgba(0,212,255,0.2); }
 .ctx-menu { position: fixed; background: rgba(30,30,35,0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 10000; font-size: 12px; animation: ctxIn 0.15s; transition: left 0.12s ease-out, top 0.12s ease-out; }
 @keyframes ctxIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 .ctx-item { padding: 6px 12px; cursor: pointer; border-radius: 3px; display: flex; align-items: center; gap: 8px; transition: background 0.1s; }
@@ -117,13 +119,17 @@ body.no-crt::before { display: none; }
 @keyframes toastIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 #boot-screen { transition: opacity 1s ease-out; }
 #boot-screen.hidden { opacity: 0; pointer-events: none; }
-.boot-bar-indeterminate { background: linear-gradient(90deg, var(--accent) 0%, #00b7c3 50%, var(--accent) 100%); background-size: 200% 100%; animation: bootBarProgress 1.5s linear infinite; }
+.boot-bar-indeterminate { background: linear-gradient(90deg, var(--accent) 0%, #7b2fff 50%, var(--accent) 100%); background-size: 200% 100%; animation: bootBarProgress 1.5s linear infinite; }
+.boot-bar-track { width: 100%; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+.boot-bar-fill { height: 100%; width: 0%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), #7b2fff); box-shadow: 0 0 12px rgba(0,212,255,0.5); transition: width 0.28s cubic-bezier(0.4,0,0.2,1); }
+.boot-pct { font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; letter-spacing: 2px; color: #86868b; text-align: center; margin-top: 8px; text-transform: uppercase; }
+.boot-pct span { color: var(--accent); }
 @keyframes bootBarProgress { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 input, textarea { user-select: text; }
 button { transition: all 0.15s; }
 button:active { transform: scale(0.97); }
 .dragging { opacity: 0.5; }
-#selection-box { position: absolute; border: 1px solid var(--accent); background: rgba(0, 120, 212, 0.1); pointer-events: none; z-index: 5; display: none; }
+#selection-box { position: absolute; border: 1px solid var(--accent); background: rgba(0, 212, 255, 0.1); pointer-events: none; z-index: 5; display: none; }
 #bios-screen {
 position: fixed;
 inset: 0;
@@ -221,7 +227,7 @@ About
 <button class="task-btn" title="Network"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg></button>
 <button class="task-btn" title="Volume"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
 <div id="taskbar-clock" class="px-3 py-1 text-right leading-tight hover:bg-white/5 rounded cursor-pointer transition-colors" onclick="Apps.open('calendar')">
-<div id="clock-time" class="tabular-nums">00:00</div>
+<div id="clock-time" class="tabular-nums" style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1px">00:00</div>
 <div id="clock-date" class="text-[10px] text-gray-400">1/1/2026</div>
 </div>
 </div>
@@ -232,9 +238,10 @@ About
 <div class="hz-logo hz-logo-boot mb-6">HZ</div>
 <div class="text-[var(--accent)] font-sans font-bold text-lg mb-8 tracking-wider">HyperZOS 3</div>
 <div id="boot-log" class="text-gray-400 space-y-1 h-40 w-full overflow-hidden flex flex-col-reverse leading-relaxed text-[11px] mb-4"></div>
-<div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden border border-gray-800">
-<div id="boot-bar" class="boot-bar-indeterminate h-full w-1/3"></div>
+<div class="boot-bar-track">
+<div id="boot-bar" class="boot-bar-fill"></div>
 </div>
+<div class="boot-pct" id="boot-pct">BOOTING <span>0%</span></div>
 <div class="text-[10px] text-gray-600 text-center mt-3">HyperZOS v3.0 · Build 2026.08.10</div>
 <div class="text-[9px] text-gray-700 mt-2">Press ` rapidly to enter BIOS</div>
 </div>
@@ -262,7 +269,7 @@ return h >>> 0;
 }
 const Settings = {
 data: {
-crt: true, accent: '#0078d4', brightness: 100, volume: 80, notifications: true, focusAssist: false,
+crt: true, accent: '#00d4ff', brightness: 100, volume: 80, notifications: true, focusAssist: false,
 bios: {
 cpuOverclock: 100, memoryOverclock: 2400, gpuOverclock: 100, bootMode: 'UEFI', virtualization: true,
 secureBoot: true, tpmModule: true, sataMode: 'AHCI', wakeOnLAN: false, usbLegacy: true, fastBoot: true,
@@ -1956,13 +1963,13 @@ fileAudio: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="#f4
 fileVideo: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="#ef4444" stroke="#991b1b" stroke-width="1"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
 fileBinary: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="#6b7280" stroke="#374151" stroke-width="1"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="6" y1="8" x2="18" y2="8" stroke="#fff"/><line x1="6" y1="12" x2="14" y2="12" stroke="#fff"/><line x1="6" y1="16" x2="16" y2="16" stroke="#fff"/></svg>`,
 filePdf: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="#ef4444" stroke="#991b1b" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" fill="#fff"/><text x="12" y="17" font-size="6" font-weight="bold" fill="#fff" text-anchor="middle">PDF</text></svg>`,
-fileZt: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="#00b7c3" stroke="#0078d4" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" fill="#009ab0"/><text x="12" y="17" font-size="6" font-weight="bold" fill="#fff" text-anchor="middle">ZT</text></svg>`,
+fileZt: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="#7b2fff" stroke="#00d4ff" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" fill="#7b2fff"/><text x="12" y="17" font-size="6" font-weight="bold" fill="#fff" text-anchor="middle">ZT</text></svg>`,
 drive: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="18" cy="12" r="1" fill="currentColor"/></svg>`,
 infinity: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.33-6 4Z"/></svg>`,
 globe: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
 terminal: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><polyline points="7 9 11 12 7 15"/><line x1="13" y1="15" x2="17" y2="15"/></svg>`,
 hyperzvm: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="50" height="38" rx="5"/><path d="M7 20h50"/><circle cx="15" cy="15" r="1.5" fill="#2563EB" stroke="none"/><circle cx="21" cy="15" r="1.5" fill="#60A5FA" stroke="none"/><circle cx="27" cy="15" r="1.5" fill="#93C5FD" stroke="none"/><path d="M32 27l10 5.5v11L32 49l-10-5.5v-11L32 27z"/><path d="M22 32.5l10 5.5 10-5.5"/><path d="M32 38v11"/><path d="M32 49v5"/><path d="M21 55h22"/></svg>`,
-appstore: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="#0078d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14l-1.5 12.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 7z" fill="rgba(0,120,212,0.15)"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><path d="M5 7h14"/></svg>`,
+appstore: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14l-1.5 12.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 7z" fill="rgba(0,212,255,0.15)"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><path d="M5 7h14"/></svg>`,
 settings: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
 calc: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/></svg>`,
 paint: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>`,
@@ -2513,7 +2520,7 @@ openSettings() {
                 
                 return `<h2 class="text-2xl mb-4">Display</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-2">Brightness</div><input type="range" min="10" max="100" value="${Settings.data.brightness}" class="w-full" id="bright-${state.uid}"></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4 flex items-center justify-between"><div><div class="font-medium">CRT Scanlines</div><div class="text-xs text-gray-400">Retro effect</div></div><div class="toggle ${Settings.data.crt ? 'on' : ''}" data-toggle="crt"></div></div></div>`;
             } else if (page === 'personalize') {
-                return `<h2 class="text-2xl mb-4">Personalization</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Accent Color</div><div class="flex flex-wrap gap-2" id="accent-picker-${state.uid}">${['#0078d4','#107c10','#ff8c00','#e81123','#5c2d91','#00b7c3','#e3008c','#767676'].map(c => `<div class="w-10 h-10 rounded cursor-pointer hover:scale-110 transition-transform" style="background:${c};${c===Settings.data.accent?'outline:2px solid white;outline-offset:2px':''}" data-color="${c}"></div>`).join('')}</div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Wallpaper</div><p class="text-xs text-gray-400 mb-3">Upload a custom image or cycle through gradients.</p><div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all" id="upload-wallpaper-${state.uid}">Upload Image</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="cycle-wallpaper-${state.uid}">Cycle Gradient</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="default-wallpaper-${state.uid}">Default</button></div><input type="file" id="wallpaper-input-${state.uid}" accept="image/*" style="display:none"></div></div>`;
+                return `<h2 class="text-2xl mb-4">Personalization</h2><div class="space-y-3"><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Accent Color</div><div class="flex flex-wrap gap-2" id="accent-picker-${state.uid}">${['#00d4ff','#7b2fff','#00ff80','#ff8c00','#e81123','#00a8cc','#e3008c','#767676'].map(c => `<div class="w-10 h-10 rounded cursor-pointer hover:scale-110 transition-transform" style="background:${c};${c===Settings.data.accent?'outline:2px solid white;outline-offset:2px':''}" data-color="${c}"></div>`).join('')}</div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-4"><div class="font-medium mb-3">Wallpaper</div><p class="text-xs text-gray-400 mb-3">Upload a custom image or cycle through gradients.</p><div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-[var(--accent)] rounded text-sm hover:brightness-110 transition-all" id="upload-wallpaper-${state.uid}">Upload Image</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="cycle-wallpaper-${state.uid}">Cycle Gradient</button><button class="px-4 py-2 bg-white/10 rounded text-sm hover:bg-white/20 transition-all" id="default-wallpaper-${state.uid}">Default</button></div><input type="file" id="wallpaper-input-${state.uid}" accept="image/*" style="display:none"></div></div>`;
             } else if (page === 'about') {
                 return `<h2 class="text-2xl mb-4">About</h2><div class="bg-[rgba(40,40,45,0.4)] rounded p-6"><div class="flex items-center gap-3 mb-3"><div class="hz-logo hz-logo-xl">HZ</div><div><div class="text-xl font-bold">HyperZOS 3</div><div class="text-xs text-gray-400">Created by HyperZTeam</div></div></div><div class="text-sm text-gray-400 mb-4">Build 2026.08.10</div><div class="text-sm space-y-1"><div>CPU: Quantum Core i9 @ 8.4GHz</div><div>RAM: 128 TB Unified</div><div>Storage: 512GB NVMe + ∞ Dimensional</div><div>System Folder: SYSHyperZ</div><div>Browser: ZProxy (Secure Web Proxy)</div><div>Shell: hz-sh 2.1</div></div></div><div class="bg-[rgba(40,40,45,0.4)] rounded p-6 mt-4"><div class="font-medium mb-2">Reset</div><div class="text-xs text-gray-400 mb-3">Powerwash removes all cached data, installed apps, and settings, then restarts the system.</div><button id="powerwash-btn-${state.uid}" class="px-4 py-2 bg-[#e81123] rounded text-sm hover:brightness-110 transition-all font-medium">Powerwash</button></div>`;
             }
@@ -2715,7 +2722,7 @@ openAbout() {
 const render = (body) => {
 body.classList.add('app-about-body');
 body.innerHTML = `<div class="flex flex-col items-center justify-center h-full p-8 text-center relative overflow-hidden" style="background:linear-gradient(135deg, rgba(26,26,46,0.6), rgba(22,33,62,0.6));">
-<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 30% 20%, rgba(0,120,212,0.4), transparent 50%), radial-gradient(circle at 70% 80%, rgba(92,45,145,0.4), transparent 50%);"></div>
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 30% 20%, rgba(0,212,255,0.4), transparent 50%), radial-gradient(circle at 70% 80%, rgba(92,45,145,0.4), transparent 50%);"></div>
 <div class="hz-logo hz-logo-xxl mb-4 relative" style="animation: logoGlow 3s ease-in-out infinite alternate;">HZ</div>
 <h1 class="text-4xl font-light mb-2 relative">HyperZOS 3</h1>
 <div class="text-sm text-gray-400 mb-6 relative">Build 2026.08.10</div>
@@ -3019,7 +3026,7 @@ hintText.textContent = 'Use this if the VM stops working randomly.';
 hintText.style.cssText = 'font-size:11px;color:#aaa;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,0.8);';
 const arrow = document.createElement('span');
 arrow.innerHTML = '&#8594;';
-arrow.style.cssText = 'font-size:16px;color:var(--accent);animation:hzvmArrowPulse 1.5s ease-in-out infinite;text-shadow:0 0 8px rgba(0,120,212,0.5);';
+arrow.style.cssText = 'font-size:16px;color:var(--accent);animation:hzvmArrowPulse 1.5s ease-in-out infinite;text-shadow:0 0 8px rgba(0,212,255,0.5);';
 hintWrap.appendChild(hintText);
 hintWrap.appendChild(arrow);
 toolbar.appendChild(hintWrap);
@@ -3407,9 +3414,9 @@ const thumbUrl = rec.thumb ? this.CDNS[0](this.REPO_USER, this.REPO_NAME, this.R
 const fallbackInitial = escapeHtml((rec.name || '?').charAt(0) || '?');
 let thumbHtml;
 if (thumbUrl) {
-thumbHtml = `<img src="${thumbUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;background:#222;" onerror="this.style.display='none';this.parentNode.querySelector('.ia-thumb-fb').style.display='flex';"><div class="ia-thumb-fb" style="display:none;width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${fallbackInitial}</div>`;
+thumbHtml = `<img src="${thumbUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;background:#222;" onerror="this.style.display='none';this.parentNode.querySelector('.ia-thumb-fb').style.display='flex';"><div class="ia-thumb-fb" style="display:none;width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#00d4ff,#7b2fff);align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${fallbackInitial}</div>`;
 } else {
-thumbHtml = `<div style="width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${fallbackInitial}</div>`;
+thumbHtml = `<div style="width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#00d4ff,#7b2fff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">${fallbackInitial}</div>`;
 }
 b.innerHTML = `${thumbHtml}<div class="text-[11px] text-center truncate w-full">${escapeHtml(rec.name)}</div>`;
 b.onclick = () => { this.openApp(rec.id); StartMenu.close(); };
@@ -3622,7 +3629,7 @@ return result;
 renderAppCard(app) {
 const card = document.createElement('div');
 card.style.cssText = 'background:rgba(30,30,35,0.55);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color 0.15s,transform 0.15s;';
-card.onmouseenter = () => { card.style.borderColor = 'rgba(0,120,212,0.5)'; card.style.transform = 'translateY(-2px)'; };
+card.onmouseenter = () => { card.style.borderColor = 'rgba(0,212,255,0.5)'; card.style.transform = 'translateY(-2px)'; };
 card.onmouseleave = () => { card.style.borderColor = 'rgba(255,255,255,0.08)'; card.style.transform = 'translateY(0)'; };
 const installed = this.isInstalled(app.id);
 const sourceLabel = app.source === 'games' ? 'Game' : 'App';
@@ -3630,11 +3637,11 @@ const thumbUrl = app.thumbPath ? this.CDNS[0](this.REPO_USER, this.REPO_NAME, th
 const initial = escapeHtml((app.name || '?').charAt(0) || '?');
 let thumbHtml;
 if (thumbUrl) {
-thumbHtml = `<img src="${thumbUrl}" alt="${escapeHtml(app.name)}" style="width:100%;height:90px;object-fit:cover;border-radius:6px;background:#222;" onerror="this.style.display='none';this.parentNode.querySelector('.ac-thumb-fb').style.display='flex';"><div class="ac-thumb-fb" style="display:none;width:100%;height:90px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700;">${initial}</div>`;
+thumbHtml = `<img src="${thumbUrl}" alt="${escapeHtml(app.name)}" style="width:100%;height:90px;object-fit:cover;border-radius:6px;background:#222;" onerror="this.style.display='none';this.parentNode.querySelector('.ac-thumb-fb').style.display='flex';"><div class="ac-thumb-fb" style="display:none;width:100%;height:90px;border-radius:6px;background:linear-gradient(135deg,#00d4ff,#7b2fff);align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700;">${initial}</div>`;
 } else {
-thumbHtml = `<div style="width:100%;height:90px;border-radius:6px;background:linear-gradient(135deg,#0078d4,#5c2d91);display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700;">${initial}</div>`;
+thumbHtml = `<div style="width:100%;height:90px;border-radius:6px;background:linear-gradient(135deg,#00d4ff,#7b2fff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700;">${initial}</div>`;
 }
-const btnColor = installed ? '#107c10' : '#0078d4';
+const btnColor = installed ? '#107c10' : '#00d4ff';
 const btnText = installed ? 'Open' : 'Install';
 card.innerHTML = `${thumbHtml}<div style="font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(app.name)}</div><div style="font-size:11px;color:#aaa;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:28px;line-height:1.3;">${escapeHtml(app.desc || '')}</div><div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">${sourceLabel}</div><button class="ac-action" data-appid="${escapeHtml(app.id)}" style="padding:6px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;background:${btnColor};transition:opacity 0.15s;">${btnText}</button><div class="ac-progress" style="display:none;position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;"></div>`;
 const btn = card.querySelector('.ac-action');
@@ -3672,7 +3679,7 @@ Toast.show('App installed: ' + app.name);
 prog.style.display = 'none';
 btn.disabled = false;
 btn.textContent = 'Install';
-btn.style.background = '#0078d4';
+btn.style.background = '#00d4ff';
 Toast.show('Install failed: ' + (err && err.message ? err.message : 'unknown error'));
 });
 },
@@ -3828,10 +3835,10 @@ setTimeout(() => location.reload(), 1000);
 }
 };
 const wallpaperGradients = [
-'radial-gradient(ellipse at 20% 30%, rgba(0, 120, 212, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(92, 45, 145, 0.4) 0%, transparent 50%), linear-gradient(135deg, #0a0e27 0%, #1a1b4b 50%, #2d1b69 100%)',
+'radial-gradient(ellipse at 20% 30%, rgba(0, 212, 255, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(123, 47, 255, 0.4) 0%, transparent 50%), linear-gradient(135deg, #000000 0%, #0a0a14 50%, #14082a 100%)',
 'radial-gradient(ellipse at 80% 20%, rgba(232, 17, 35, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(255, 140, 0, 0.3) 0%, transparent 50%), linear-gradient(135deg, #1a0a0a 0%, #2d1a0a 50%, #0a1a2d 100%)',
-'radial-gradient(ellipse at 30% 70%, rgba(16, 124, 16, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 30%, rgba(0, 183, 195, 0.3) 0%, transparent 50%), linear-gradient(135deg, #0a2d1a 0%, #0a1a2d 50%, #1a0a2d 100%)',
-'radial-gradient(ellipse at 50% 0%, rgba(227, 0, 140, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(0, 120, 212, 0.3) 0%, transparent 50%), linear-gradient(135deg, #1a0a2d 0%, #0a1a2d 50%, #2d1a1a 100%)'
+'radial-gradient(ellipse at 30% 70%, rgba(16, 124, 16, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 30%, rgba(123, 47, 255, 0.3) 0%, transparent 50%), linear-gradient(135deg, #0a2d1a 0%, #0a1a2d 50%, #1a0a2d 100%)',
+'radial-gradient(ellipse at 50% 0%, rgba(227, 0, 140, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(0, 212, 255, 0.3) 0%, transparent 50%), linear-gradient(135deg, #1a0a2d 0%, #0a1a2d 50%, #2d1a1a 100%)'
 ];
 let currentWallpaperIdx = 0;
 function cycleWallpaper() {
@@ -3881,21 +3888,30 @@ const bootLines = [
 '  → Actual Files cluster', 'Loading ZProxy secure browser...',
 'Starting desktop environment...', 'Welcome to HyperZOS 3'
 ];
+function bootSetProgress(frac) {
+const bar = document.getElementById('boot-bar');
+const pct = document.getElementById('boot-pct');
+const p = Math.max(0, Math.min(100, Math.round(frac * 100)));
+if (bar) bar.style.width = p + '%';
+if (pct) pct.innerHTML = (p >= 100 ? 'READY <span>100%</span>' : 'BOOTING <span>' + p + '%</span>');
+}
 function bootSequence() {
 document.getElementById('boot-log').innerHTML = '';
 bootStepIndex = 0;
+bootSetProgress(0);
 continueBootSequence();
 }
 function continueBootSequence() {
 if (bootPaused || Bios.isOpen) return;
 const log = document.getElementById('boot-log');
 if (!log) return;
-if (bootStepIndex >= bootLines.length) { setTimeout(finishBoot, 400); return; }
+if (bootStepIndex >= bootLines.length) { bootSetProgress(1); setTimeout(finishBoot, 600); return; }
 const div = document.createElement('div');
 const isLast = bootStepIndex === bootLines.length - 1;
 div.innerHTML = `<span class="${isLast ? 'text-[var(--accent)]' : 'text-green-400'}">[&nbsp;OK&nbsp;]</span> <span class="${isLast ? 'text-white font-bold' : ''}">${bootLines[bootStepIndex]}</span>`;
 log.prepend(div);
 bootStepIndex++;
+bootSetProgress(bootStepIndex / bootLines.length);
 setTimeout(continueBootSequence, 100 + Math.random() * 150);
 }
 function finishBoot() {
