@@ -1,141 +1,439 @@
-<!doctype html>
-<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link rel="stylesheet" href="/assets/roboto.css" />
-		<link rel="stylesheet" href="/assets/materialsymbols.css" />
-		<link rel="stylesheet" href="/assets/matter.css" />
-		<link rel="stylesheet" href="/theme.css" />
-		<link rel="stylesheet" href="/bundle.css" />
-		<link rel="manifest" href="/manifest.json" />
-		<title>HyperZOS 4</title>
-		<meta name="title" content="HyperZOS 4" />
-		<meta
-			name="description"
-			content="HyperZOS 4 is a webOS that has v86 capabilities and a modular app system."
-		/>
-		<meta name="og:title" content="HyperZOS 4" />
-		<meta
-			name="og:description"
-			content="HyperZOS 4 is a webOS that has v86 capabilities and a modular app system."
-		/>
-		<meta property="og:image" content="/icon.png" />
-		<meta property="og:image:width" content="250" />
-		<meta property="og:image:height" content="217" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-		/>
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-		<meta name="darkreader-lock" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperZOS 4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <style>
+        :root {
+            --theme-fg: #e8eaed;
+            --theme-secondary-fg: #9aa0a6;
+            --theme-bg: #202124;
+            --theme-secondary-bg: #3c4043;
+            --theme-dark-bg: #171717;
+            --theme-accent: #8ab4f8;
+            --theme-border: rgba(255,255,255,0.08);
+            --theme-dark-border: rgba(255,255,255,0.04);
+            --theme-font-sans: "Roboto", RobotoDraft, "Droid Sans", Arial, Helvetica, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            --m3-elevation-3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px 0 rgba(0,0,0,0.3);
+            --m3-state-hover: rgba(232,234,237,0.08);
+            --bat-warning: #fdd663;
+            --bat-critical: #f28b82;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        html { background-color: black; color-scheme: dark; }
+        body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: var(--theme-font-sans); color: var(--theme-fg); scrollbar-width: thin; }
+        .material-symbols-outlined { font-size: 24px; color: var(--theme-fg); }
 
-		<link rel="apple-touch-icon" href="/pwa_icon.png" />
-		<link rel="apple-touch-icon-precomposed" href="/pwa_icon.png" />
-		<link rel="shortcut icon" type="image/png" href="/icon.png" />
-		<script src="/libs/idb-keyval/idb-keyval.js"></script>
-		<script type="text/javascript" src="/libs/dreamland/all.js"></script>
-		<!-- filesystem -->
-		<script src="/libs/filer/filer.min.js" crossorigin></script>
-		<script
-			type="text/javascript"
-			src="/lib/api/filesystem/Filesystem.js"
-		></script>
-		<script
-			type="text/javascript"
-			src="/lib/api/filesystem/FilerFS.js"
-		></script>
-		<script
-			type="text/javascript"
-			src="/lib/api/filesystem/LocalFS.js"
-		></script>
-		<!-- networking -->
-		<script
-			type="text/javascript"
-			src="/lib/api/net/wisp-client-js/wisp.js"
-		></script>
-		<script type="text/javascript" src="/lib/api/net/Networking.js"></script>
-		<script type="text/javascript" src="/lib/api/net/WispUtils.js"></script>
-		<script type="text/javascript" src="/lib/api/net/WispBus.js"></script>
-		<!-- apis -->
-		<script type="text/javascript" src="/lib/api/ContextMenu.js"></script>
-		<script type="text/javascript" src="/lib/api/Files.js"></script>
-		<script
-			type="text/javascript"
-			src="/lib/api/NotificationService.js"
-		></script>
-		<script type="text/javascript" src="/lib/api/Platform.js"></script>
-		<script type="text/javascript" src="/lib/api/Processes.js"></script>
-		<script type="text/javascript" src="/lib/api/Settings.js"></script>
-		<script type="text/javascript" src="/lib/api/Systray.js"></script>
-		<script type="text/javascript" src="/lib/api/Theme.js"></script>
-		<script type="text/javascript" src="/lib/api/UI.js"></script>
-		<script type="text/javascript" src="/lib/api/URI.js"></script>
-		<script type="text/javascript" src="/lib/libv86.js"></script>
-		<script type="text/javascript" src="/lib/api/v86.js"></script>
-		<script type="text/javascript" src="/lib/api/WM.js"></script>
-		<script type="text/javascript" src="/lib/anurad.js"></script>
-		<!-- base libs -->
-		<script type="text/javascript" src="/lib/libs/Lib.js"></script>
-		<script type="text/javascript" src="/lib/libs/ExternalLib.js"></script>
-		<!-- built in libs -->
-		<script type="text/javascript" src="/lib/libs/AnuraGlobalsLib.js"></script>
-		<script type="text/javascript" src="/lib/libs/BrowserLib.js"></script>
-		<script type="text/javascript" src="/lib/libs/AnuradHelpersLib.js"></script>
-		<!-- vendored libs -->
-		<script type="text/javascript" src="/lib/libs/Vendored/Comlink.js"></script>
-		<script type="text/javascript" src="/lib/libs/Vendored/Mime.js"></script>
-		<script type="text/javascript" src="/lib/libs/Vendored/Fflate.js"></script>
-		<!-- node polyfills -->
-		<script
-			type="text/javascript"
-			src="/lib/libs/NodePolyfills/NodeFS.js"
-		></script>
-		<script
-			type="text/javascript"
-			src="/lib/libs/NodePolyfills/NodePrelude.js"
-		></script>
-		<!-- Base Apps -->
-		<script type="text/javascript" src="/lib/coreapps/App.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/ShortcutApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/GenericApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/ExternalApp.js"></script>
+        /* PERFORMANCE MODE */
+        body.perf-mode *, body.perf-mode *::before, body.perf-mode *::after {
+            animation-duration: 0s !important; animation-delay: 0s !important;
+            transition-duration: 0s !important; transition-delay: 0s !important;
+        }
 
-		<script type="text/javascript" src="/lib/coreapps/ExploreApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/RecoveryApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/SettingsApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/TaskManager.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/BrowserApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/Dialog.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/AboutApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/RegEdit.js"></script>
-		<script
-			type="text/javascript"
-			src="/lib/coreapps/WallpaperAndStyle.js"
-		></script>
-		<script type="text/javascript" src="/lib/coreapps/x86MgrApp.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/XAppStub.js"></script>
-		<script type="text/javascript" src="/lib/coreapps/XFrogApp.js"></script>
-		<!-- desktop things -->
-		<script type="text/javascript" src="/lib/AliceWM.js"></script>
-		<script type="text/javascript" src="/lib/Taskbar.js"></script>
-		<script type="text/javascript" src="/lib/Launcher.js"></script>
-		<script type="text/javascript" src="/lib/QuickSettings.js"></script>
-		<script type="text/javascript" src="/lib/Calendar.js"></script>
-		<script type="text/javascript" src="/lib/Bootsplash.js"></script>
-		<script type="text/javascript" src="/lib/oobe/OobeView.js"></script>
+        /* OVERLAYS */
+        #brightness-overlay { position: fixed; inset: 0; z-index: 99999998; background: black; opacity: 0; pointer-events: none; transition: opacity 0.15s ease; }
+        #nightlight-overlay { position: fixed; inset: 0; z-index: 99999997; background: #ff9800; opacity: 0; pointer-events: none; mix-blend-mode: multiply; transition: opacity 0.3s ease; }
 
-		<script type="text/javascript" src="/lib/Utils.js"></script>
-		<script type="text/javascript" src="/lib/AltTabView.js"></script>
-		<!-- entrypoint -->
-		<script type="text/javascript" src="/lib/Anura.js"></script>
-		<script type="text/javascript" src="/lib/Boot.js"></script>
-		<!-- <script type="text/javascript" src="/dist.js"></script> -->
-		<!-- prod only ^ -->
-	</head>
+        /* BOOTSCREEN */
+        .bootsplash { background-color: black; z-index: 9999999999; position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; flex-direction: column; justify-content: center; align-content: center; text-align: center; color: white; flex-wrap: wrap; transition: 0.175s; opacity: 1; transform: scale(1); }
+        .bootsplash.hide { opacity: 0; pointer-events: none; transition: 0.175s; transform: scale(1.25); }
+        .boot-text-wrapper { display: flex; flex-direction: column; align-items: flex-start; }
+        .boot-title { font-size: 72px; font-weight: 700; letter-spacing: -1px; color: #fff; line-height: 1; }
+        .boot-beta { font-size: 18px; font-weight: 400; color: #9aa0a6; letter-spacing: 0.5px; margin-top: 8px; }
+        body.booting footer, body.booting .panel, body.booting .window, body.booting .m3-dialog-overlay { visibility: hidden; }
 
-	<body></body>
+        /* PANEL BASE */
+        .panel { position: absolute; background: color-mix(in srgb, var(--theme-dark-bg) 85%, transparent); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 10px; box-shadow: 2px 2px 8px rgba(0,0,0,0.3); border: 1px solid var(--theme-dark-border); }
+
+        /* SHELF */
+        footer { position: fixed; bottom: 0; width: 100%; background-color: color-mix(in srgb, var(--theme-dark-bg) 90%, transparent); border: 1px solid var(--theme-dark-border); box-shadow: inset 0 0 0 1px var(--theme-border); border-bottom: none; border-left: none; border-right: none; backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); z-index: 30; }
+        #taskbar-bar { display: flex; justify-content: center; align-items: center; height: 48px; position: relative; }
+        #launcher-button-container { position: absolute; left: 0.3em; height: 100%; aspect-ratio: 1/1; width: auto; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #launcher-button { background: color-mix(in srgb, var(--theme-secondary-fg) 17.5%, transparent); border-radius: 50%; height: 34px; width: 34px; position: relative; transition: background 0.15s ease; }
+        #launcher-button:hover { background: color-mix(in srgb, var(--theme-secondary-fg) 28%, transparent); }
+        #launcher-button::after { content: ""; position: absolute; width: 0.7rem; height: 0.7rem; border: 0.125rem solid var(--theme-fg); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #taskbar-right { position: absolute; right: 0.3em; top: 50%; transform: translateY(-50%); height: 70%; display: flex; gap: 5px; align-items: center; }
+        #date-container, #taskinfo-container { background: color-mix(in srgb, var(--theme-secondary-fg) 17.5%, transparent); padding: 0 1em; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 500; line-height: 1rem; cursor: pointer; transition: background 0.15s ease; }
+        #date-container { border-radius: 25px 5px 5px 25px; }
+        #taskinfo-container { border-radius: 5px 25px 25px 5px; gap: 6px; }
+        #date-container:hover, #taskinfo-container:hover { background: color-mix(in srgb, var(--theme-secondary-fg) 28%, transparent); }
+        .tray-icon { font-size: 18px; }
+        .tray-icons-group { display: flex; align-items: center; gap: 6px; }
+        .shelf-bat-svg { width: 22px; height: 14px; display: block; }
+        .shelf-bat-svg .bat-body { fill: none; stroke: var(--theme-fg); stroke-width: 1.5; rx: 2; }
+        .shelf-bat-svg .bat-cap { fill: var(--theme-fg); }
+        .shelf-bat-svg .bat-fill { fill: var(--theme-fg); transition: width 2s linear, fill 0.4s ease; }
+        .shelf-bat-svg.warning .bat-fill { fill: var(--bat-warning); }
+        .shelf-bat-svg.critical .bat-fill { fill: var(--bat-critical); }
+        .shelf-bat-svg.na { display: none; }
+
+        /* ===== LAUNCHER (exact Launcher.tsx source) ===== */
+        #launcher {
+            bottom: 60px; left: 10px; width: min(70%, 35em);
+            overflow-y: hidden; z-index: -1; opacity: 0;
+            visibility: hidden;
+            height: min(30%, 20em);
+            transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+            display: flex; flex-direction: column;
+        }
+        #launcher.active {
+            opacity: 1; z-index: 9999; visibility: visible;
+            height: min(80%, 40em);
+        }
+        .appsView {
+            transition: all 0.225s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition-delay: 0.075s;
+            padding: 1em; font-size: 12px; flex-grow: 1;
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            grid-auto-rows: 8em; max-height: calc(5.9 * 8em);
+            overflow-y: auto; opacity: 0; grid-row-gap: 30px;
+        }
+        #launcher.active .appsView { opacity: 1; grid-row-gap: 0px; }
+
+        /* ===== CALENDAR (EXACT same animation as launcher - height expand from bottom) ===== */
+        #calendar {
+            bottom: 60px; right: 10px; width: 380px;
+            overflow-y: hidden; z-index: -1; opacity: 0;
+            visibility: hidden;
+            height: 0;
+            transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+        }
+        #calendar.active {
+            opacity: 1; z-index: 9998; visibility: visible;
+            height: 380px;
+        }
+
+        /* ===== QUICK SETTINGS (slide from offscreen right, 0.2s) ===== */
+        #quickSettings {
+            bottom: 60px; right: 10px; width: 360px; max-height: 70%;
+            z-index: -1; opacity: 0;
+            visibility: hidden;
+            transform: translateX(calc(100% + 10px));
+            transition: opacity 0.2s cubic-bezier(0.445, 0.05, 0.55, 0.95),
+                        transform 0.2s cubic-bezier(0.445, 0.05, 0.55, 0.95),
+                        visibility 0s 0.2s;
+            display: flex; flex-direction: column;
+        }
+        #quickSettings.active {
+            opacity: 1; z-index: 9998; visibility: visible;
+            transform: translateX(0);
+            transition: opacity 0.2s cubic-bezier(0.445, 0.05, 0.55, 0.95),
+                        transform 0.2s cubic-bezier(0.445, 0.05, 0.55, 0.95),
+                        visibility 0s 0s;
+        }
+
+        /* LAUNCHER CONTENT */
+        .topSearchBar { display: flex; padding: 1em; align-items: center; }
+        .topSearchBar .material-symbols-outlined { margin-right: 1em; font-size: 20px; color: var(--theme-secondary-fg); }
+        .topSearchBar input { font-family: var(--theme-font-sans); flex-grow: 1; background: transparent; border: none; outline: none; color: var(--theme-fg); font-size: 14px; }
+        .topSearchBar input::placeholder { color: var(--theme-secondary-fg); }
+        .appsView .app { display: flex; flex-direction: column; align-items: center; color: var(--theme-fg); cursor: pointer; border-radius: 8px; padding: 8px; transition: background 0.075s ease; }
+        .appsView .app:hover { background: var(--m3-state-hover); }
+        .app-icon-wrap { width: 40px; height: 40px; margin-bottom: 0.5em; border-radius: 8px; background: color-mix(in srgb, var(--theme-secondary-bg) 55%, transparent); display: flex; align-items: center; justify-content: center; }
+        .app-icon-wrap .material-symbols-outlined { font-size: 24px; }
+        .app-shortcut-name { text-align: center; font-size: 12px; }
+        ::-webkit-scrollbar { width: 20px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: var(--theme-bg); border-radius: 20px; border: 6px solid transparent; background-clip: content-box; }
+
+        /* CALENDAR CONTENT */
+        .calContent { height: 100%; width: 100%; border-radius: 1em; overflow: hidden; }
+        .calendar-container header { display: flex; align-items: center; padding: 25px 30px 10px; justify-content: space-between; }
+        header #calendar-date { font-weight: 500; font-size: 1.45rem; color: var(--theme-secondary-fg); display: flex; gap: 10px; }
+        header .calendar-navigation span { height: 38px; width: 38px; margin: 0 1px; cursor: pointer; text-align: center; line-height: 38px; border-radius: 50%; color: var(--theme-secondary-fg); font-size: 1.9rem; transition: background 0.15s ease; display: inline-block; }
+        header .calendar-navigation span:hover { background: var(--theme-secondary-bg); }
+        .calendar-body { padding: 20px; }
+        .calendar-body ul { list-style: none; flex-wrap: wrap; display: flex; text-align: center; }
+        .calendar-body li { width: calc(100% / 7); font-size: 1.07rem; color: var(--theme-secondary-fg); }
+        .calendar-weekdays li { cursor: default; font-weight: 500; }
+        .calendar-dates li { margin-top: 25px; position: relative; z-index: 1; cursor: pointer; }
+        .calendar-dates li.inactive { opacity: 0.5; }
+        .calendar-dates li.active { color: var(--theme-fg); }
+        .calendar-dates li::before { position: absolute; content: ""; z-index: -1; top: 50%; left: 50%; width: 40px; height: 40px; border-radius: 50%; transform: translate(-50%, -50%); }
+        .calendar-dates li.active::before { background: var(--theme-accent); }
+        .calendar-dates li:not(.active):hover::before { background: var(--theme-secondary-bg); }
+
+        /* QS CONTENT */
+        .quickSettingsContent { display: flex; flex-direction: column; gap: 1em; padding: 1em; overflow-y: auto; }
+        .quickSettingsContent::-webkit-scrollbar { display: none; }
+        .topButtons { display: flex; flex-direction: row; gap: 1em; }
+        .symbolButton { border-radius: 28px; border: none; cursor: pointer; background-color: color-mix(in srgb, var(--theme-secondary-bg) 55%, transparent); display: flex; justify-content: center; align-items: center; width: 28px; height: 28px; padding: 0; transition: background-color 0.15s ease; }
+        .symbolButton:hover { background-color: color-mix(in srgb, var(--theme-secondary-bg) 75%, transparent); }
+        .symbolButton span { font-size: 18px; }
+        .quickSettingsPinned { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .pinnedSetting { display: flex; flex-direction: column; align-items: center; gap: 1em; padding: 0.5em; cursor: pointer; }
+        .settingsIcon { display: flex; justify-content: center; align-items: center; width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer; background-color: color-mix(in srgb, var(--theme-secondary-bg) 55%, transparent); transition: background-color 0.15s ease; }
+        .settingsIcon span { color: var(--theme-fg); transition: color 0.15s; font-size: 24px; }
+        .settingsIcon.enabled { background-color: color-mix(in srgb, var(--theme-accent) 65%, var(--theme-fg)); }
+        .settingsIcon.enabled span { color: var(--theme-bg); }
+        .settingTitle { font-size: 12px; color: var(--theme-fg); text-align: center; }
+        .sliderContainer { display: flex; flex-direction: row; gap: 1em; align-items: center; }
+        .sliderContainer .material-symbols-outlined { font-size: 20px; color: var(--theme-secondary-fg); }
+        .slider-label { font-size: 12px; color: var(--theme-secondary-fg); min-width: 70px; }
+        input[type=range] { flex: 1; -webkit-appearance: none; height: 4px; background: color-mix(in srgb, var(--theme-secondary-fg) 30%, transparent); border-radius: 2px; outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--theme-accent); cursor: pointer; }
+        .qs-date-bottom { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--theme-dark-border); font-size: 12px; color: var(--theme-fg); }
+        .warmness-row { display: none; }
+        .warmness-row.visible { display: flex; }
+        .battery-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--theme-secondary-bg) 40%, transparent); }
+        .battery-card.hidden { display: none; }
+        .battery-card svg { width: 28px; height: 18px; flex-shrink: 0; }
+        .battery-card .bat-body { fill: none; stroke: var(--theme-fg); stroke-width: 1.5; rx: 2; }
+        .battery-card .bat-cap { fill: var(--theme-fg); }
+        .battery-card .bat-fill { fill: var(--theme-fg); transition: width 2s linear, fill 0.4s ease; }
+        .battery-card.warning .bat-fill { fill: var(--bat-warning); }
+        .battery-card.critical .bat-fill { fill: var(--bat-critical); }
+        .bat-pct { font-weight: 700; font-size: 16px; color: var(--theme-accent); }
+        .bat-status { color: var(--theme-secondary-fg); font-size: 12px; }
+
+        /* M3 DIALOG */
+        .m3-dialog-overlay { position: fixed; inset: 0; z-index: 99999999; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 300ms cubic-bezier(0.2,0,0,1); }
+        .m3-dialog-overlay.open { opacity: 1; pointer-events: auto; }
+        .m3-dialog { width: 320px; background: var(--theme-bg); border-radius: 28px; padding: 24px; box-shadow: var(--m3-elevation-3); transform: scale(0.9); opacity: 0; transition: transform 300ms cubic-bezier(0.2,0,0,1), opacity 300ms cubic-bezier(0.2,0,0,1); }
+        .m3-dialog-overlay.open .m3-dialog { transform: scale(1); opacity: 1; }
+        .m3-dialog-icon { display: flex; justify-content: center; margin-bottom: 16px; }
+        .m3-dialog-icon .material-symbols-outlined { font-size: 32px; color: var(--bat-warning); }
+        .m3-dialog-title { font-size: 20px; font-weight: 500; text-align: center; margin-bottom: 8px; }
+        .m3-dialog-body { font-size: 14px; color: var(--theme-secondary-fg); text-align: center; margin-bottom: 24px; line-height: 1.5; }
+        .m3-dialog-actions { display: flex; justify-content: flex-end; }
+        .m3-dialog-btn { padding: 0 24px; height: 40px; border: none; border-radius: 20px; background: var(--theme-accent); color: var(--theme-bg); font-family: var(--theme-font-sans); font-weight: 500; font-size: 14px; cursor: pointer; }
+        .m3-dialog-btn:hover { opacity: 0.88; }
+
+        /* M3 WINDOW */
+        .window { position: absolute; top: 80px; left: 120px; width: 580px; height: 420px; background: var(--theme-bg); border-radius: 16px; box-shadow: var(--m3-elevation-3); border: 1px solid var(--theme-dark-border); display: flex; flex-direction: column; opacity: 0; pointer-events: none; z-index: 5; }
+        .window.anim-opening { animation: winOpen 300ms cubic-bezier(0.2,0,0,1) forwards; }
+        .window.anim-closing { animation: winClose 200ms cubic-bezier(0.2,0,0,1) forwards; }
+        .window.open { opacity: 1; pointer-events: auto; }
+        .window.dragging { animation: none !important; transform: none !important; }
+        @keyframes winOpen { from { opacity: 0; transform: scale(0.92) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes winClose { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.92) translateY(12px); } }
+        .win-titlebar { height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 16px; cursor: grab; border-bottom: 1px solid var(--theme-dark-border); border-radius: 16px 16px 0 0; }
+        .win-titlebar:active { cursor: grabbing; }
+        .win-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; }
+        .win-title .material-symbols-outlined { font-size: 20px; color: var(--theme-accent); }
+        .win-close { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: background 200ms; }
+        .win-close:hover { background: var(--m3-state-hover); }
+        .win-close .material-symbols-outlined { font-size: 18px; }
+        .win-body { flex: 1; padding: 24px; overflow: auto; font-size: 14px; line-height: 1.6; }
+        .win-body p { margin-bottom: 16px; color: var(--theme-secondary-fg); }
+        .btn-filled { display: inline-flex; align-items: center; gap: 8px; padding: 0 24px; height: 40px; border: none; border-radius: 20px; background: var(--theme-accent); color: var(--theme-bg); font-family: var(--theme-font-sans); font-weight: 500; font-size: 14px; cursor: pointer; }
+        .btn-outlined { display: inline-flex; align-items: center; gap: 8px; padding: 0 24px; height: 40px; border: 1px solid var(--theme-border); border-radius: 20px; background: transparent; color: var(--theme-accent); font-family: var(--theme-font-sans); font-weight: 500; font-size: 14px; cursor: pointer; transition: background 200ms; }
+        .btn-outlined:hover { background: var(--m3-state-hover); }
+        .btn-text { display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; height: 40px; border: none; border-radius: 20px; background: transparent; color: var(--theme-accent); font-family: var(--theme-font-sans); font-weight: 500; font-size: 14px; cursor: pointer; transition: background 200ms; }
+        .btn-text:hover { background: var(--m3-state-hover); }
+        .output-area { margin-top: 20px; padding: 16px; border-radius: 12px; background: color-mix(in srgb, var(--theme-secondary-bg) 40%, transparent); font-size: 13px; color: var(--theme-accent); font-weight: 500; min-height: 48px; display: flex; align-items: center; }
+        .toast { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%) translateY(10px); background: color-mix(in srgb, var(--theme-dark-bg) 85%, transparent); backdrop-filter: blur(20px); border: 1px solid var(--theme-dark-border); padding: 10px 24px; border-radius: 10px; font-size: 13px; opacity: 0; pointer-events: none; white-space: nowrap; box-shadow: 2px 2px 8px rgba(0,0,0,0.3); transition: all 0.15s cubic-bezier(0.445, 0.05, 0.55, 0.95); z-index: 10000; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body class="booting">
+    <div id="brightness-overlay"></div>
+    <div id="nightlight-overlay"></div>
+
+    <div class="bootsplash" id="bootsplash"><div class="boot-text-wrapper"><div class="boot-title">HyperZOS 4</div><div class="boot-beta">Dev Beta</div></div></div>
+
+    <div class="m3-dialog-overlay" id="lowBatDialog"><div class="m3-dialog"><div class="m3-dialog-icon"><span class="material-symbols-outlined">battery_alert</span></div><div class="m3-dialog-title">Low Battery</div><div class="m3-dialog-body">You may want to charge your device.</div><div class="m3-dialog-actions"><button class="m3-dialog-btn" id="lowBatOk">OK</button></div></div></div>
+
+    <div class="window" id="testAppWindow">
+        <div class="win-titlebar" id="testAppTitlebar"><span class="win-title"><span class="material-symbols-outlined">bolt</span>Test App</span><div class="win-close" id="testAppClose"><span class="material-symbols-outlined">close</span></div></div>
+        <div class="win-body">
+            <p>wsp gng dis is da only functional app in HyperZOS 4.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+                <button class="btn-filled" id="testAppBtn"><span class="material-symbols-outlined">check</span>Click Me</button>
+                <button class="btn-outlined" id="resetBtn"><span class="material-symbols-outlined">refresh</span>Reset</button>
+                <button class="btn-text" id="infoBtn"><span class="material-symbols-outlined">info</span>Info</button>
+            </div>
+            <div class="output-area" id="testAppOutput">ready</div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="panel" id="launcher">
+        <div class="topSearchBar"><span class="material-symbols-outlined">search</span><input type="text" id="appSearch" placeholder="Search your tabs, files, apps, and more..."></div>
+        <div class="appsView" id="appsView"></div>
+    </div>
+
+    <div class="panel" id="calendar">
+        <div class="calContent"><div class="calendar-container">
+            <header><div id="calendar-date"><span class="calendar-current-month"></span><span class="calendar-current-year"></span></div><div class="calendar-navigation"><span id="cal-prev" class="material-symbols-outlined">chevron_left</span><span id="cal-next" class="material-symbols-outlined">chevron_right</span></div></header>
+            <div class="calendar-body"><ul class="calendar-weekdays"><li>Sun</li><li>Mon</li><li>Tue</li><li>Wed</li><li>Thu</li><li>Fri</li><li>Sat</li></ul><ul class="calendar-dates"></ul></div>
+        </div></div>
+    </div>
+
+    <div class="panel" id="quickSettings">
+        <div class="quickSettingsContent">
+            <div class="topButtons">
+                <button class="symbolButton" title="settings"><span class="material-symbols-outlined">settings</span></button>
+                <button class="symbolButton" title="fullscreen" id="fsBtn"><span class="material-symbols-outlined">fullscreen</span></button>
+            </div>
+            <div class="battery-card hidden" id="qsBatCard">
+                <svg viewBox="0 0 28 18"><rect class="bat-body" x="1" y="3" width="22" height="12" rx="2"/><rect class="bat-cap" x="23" y="6" width="3" height="6" rx="1"/><rect class="bat-fill" id="qsBatFill" x="3" y="5" width="18" height="8" rx="1"/></svg>
+                <div><div class="bat-pct" id="qsBatPct">--%</div><div class="bat-status" id="qsBatStatus">checking...</div></div>
+            </div>
+            <div class="quickSettingsPinned" id="qsGrid"></div>
+            <div class="sliderContainer"><span class="material-symbols-outlined">brightness_6</span><span class="slider-label">Brightness</span><input type="range" min="0" max="100" value="100" id="brightnessSlider"></div>
+            <div class="sliderContainer warmness-row" id="warmnessRow"><span class="material-symbols-outlined">thermostat</span><span class="slider-label">Warmness</span><input type="range" min="0" max="100" value="50" id="warmnessSlider"></div>
+            <div class="qs-date-bottom" id="qsDateBottom"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div id="taskbar-bar">
+            <div id="launcher-button-container"><div id="launcher-button"></div></div>
+            <div id="taskbar-right">
+                <div id="date-container"><span id="shelfDate"></span></div>
+                <div id="taskinfo-container"><div class="tray-icons-group">
+                    <span id="shelfTime" style="font-size:1rem;font-weight:500;"></span>
+                    <span class="material-symbols-outlined tray-icon" id="wifiIcon">signal_wifi_off</span>
+                    <svg class="shelf-bat-svg na" id="shelfBatSvg" viewBox="0 0 28 18"><rect class="bat-body" x="1" y="3" width="22" height="12" rx="2"/><rect class="bat-cap" x="23" y="6" width="3" height="6" rx="1"/><rect class="bat-fill" id="shelfBatFill" x="3" y="5" width="18" height="8" rx="1"/></svg>
+                </div></div>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    let perfMode = false, launcherKeybind = true, nightLightEnabled = false;
+
+    // BOOT
+    window.addEventListener('load', () => { setTimeout(() => { document.getElementById('bootsplash').classList.add('hide'); document.body.classList.remove('booting'); setTimeout(() => document.getElementById('bootsplash')?.remove(), 550); }, 1500); });
+
+    // TOAST
+    let toastTimer;
+    function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200); }
+
+    // CLOCK
+    const dateformat = new Intl.DateTimeFormat(navigator.language, { month: 'short', day: 'numeric' });
+    const qsDateformat = new Intl.DateTimeFormat(navigator.language, { weekday: 'short', month: 'short', day: 'numeric' });
+    const timeformat = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric', minute: '2-digit', hour12: true });
+    function updateClock() { const now = Date.now(); let time = timeformat.format(now); if (timeformat.resolvedOptions().hour12) time = time.slice(0, -3); document.getElementById('shelfTime').textContent = time; document.getElementById('shelfDate').textContent = dateformat.format(now); document.getElementById('qsDateBottom').textContent = qsDateformat.format(now); }
+    setInterval(updateClock, 1000); updateClock();
+
+    // WIFI
+    function updateWifi() { document.getElementById('wifiIcon').textContent = navigator.onLine ? 'signal_wifi_4_bar' : 'signal_wifi_off'; document.getElementById('wifiIcon').style.opacity = navigator.onLine ? '1' : '0.35'; }
+    updateWifi(); window.addEventListener('online', updateWifi); window.addEventListener('offline', updateWifi);
+
+    // BRIGHTNESS
+    const brightnessOverlay = document.getElementById('brightness-overlay');
+    document.getElementById('brightnessSlider').addEventListener('input', e => { brightnessOverlay.style.opacity = Math.max(0, (100 - parseInt(e.target.value)) / 100 * 0.85); });
+
+    // NIGHT LIGHT
+    const nightlightOverlay = document.getElementById('nightlight-overlay');
+    const warmnessRow = document.getElementById('warmnessRow');
+    const warmnessSlider = document.getElementById('warmnessSlider');
+    function updateNightLight() { if (!nightLightEnabled) { nightlightOverlay.style.opacity = 0; warmnessRow.classList.remove('visible'); return; } warmnessRow.classList.add('visible'); nightlightOverlay.style.opacity = 0.1 + (parseInt(warmnessSlider.value) / 100) * 0.35; }
+    warmnessSlider.addEventListener('input', updateNightLight);
+
+    // PERF MODE
+    function applyPerfMode() { document.body.classList.toggle('perf-mode', perfMode); }
+
+    // QS TILES
+    const qsTiles = [
+        { id: 'nightlight', label: 'Night Light', icon: 'nightlight', active: false },
+        { id: 'perfmode', label: 'Performance', icon: 'speed', active: false },
+        { id: 'keybind', label: 'Drawer Keybind', icon: 'keyboard_command_key', active: true },
+    ];
+    function renderQS() {
+        const grid = document.getElementById('qsGrid'); grid.innerHTML = '';
+        qsTiles.forEach(tile => {
+            const el = document.createElement('div'); el.className = 'pinnedSetting';
+            el.innerHTML = `<button class="settingsIcon ${tile.active ? 'enabled' : ''}"><span class="material-symbols-outlined">${tile.icon}</span></button><div class="settingTitle"><span>${tile.label}</span></div>`;
+            el.addEventListener('click', e => {
+                e.stopPropagation(); tile.active = !tile.active;
+                if (tile.id === 'nightlight') { nightLightEnabled = tile.active; updateNightLight(); }
+                if (tile.id === 'perfmode') { perfMode = tile.active; applyPerfMode(); }
+                if (tile.id === 'keybind') { launcherKeybind = tile.active; }
+                renderQS(); showToast(`${tile.label} ${tile.active ? 'on' : 'off'}`);
+            });
+            grid.appendChild(el);
+        });
+    }
+    renderQS();
+    document.getElementById('fsBtn').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(()=>{}); });
+
+    // BATTERY
+    let batLevel = null, batCharging = false, lowBatDialogShown = false;
+    const shelfBatSvg = document.getElementById('shelfBatSvg'), shelfBatFill = document.getElementById('shelfBatFill');
+    const qsBatCard = document.getElementById('qsBatCard'), qsBatFill = document.getElementById('qsBatFill');
+    const qsBatPct = document.getElementById('qsBatPct'), qsBatStatus = document.getElementById('qsBatStatus');
+    const lowBatDialog = document.getElementById('lowBatDialog');
+    document.getElementById('lowBatOk').addEventListener('click', () => { lowBatDialog.classList.remove('open'); });
+    function updateBatteryUI() {
+        if (batLevel === null) { shelfBatSvg.classList.add('na'); qsBatCard.classList.add('hidden'); return; }
+        shelfBatSvg.classList.remove('na'); qsBatCard.classList.remove('hidden');
+        const pct = Math.round(batLevel), fw = Math.max(0, Math.min(18, (pct/100)*18));
+        shelfBatFill.setAttribute('width', fw); qsBatFill.setAttribute('width', fw);
+        const w = pct <= 10 && pct > 5, c = pct <= 5;
+        shelfBatSvg.classList.toggle('warning', w); shelfBatSvg.classList.toggle('critical', c);
+        qsBatCard.classList.toggle('warning', w); qsBatCard.classList.toggle('critical', c);
+        qsBatPct.textContent = `${pct}%`; qsBatStatus.textContent = batCharging ? 'Charging' : `${pct}% remaining`;
+        if (c && !lowBatDialogShown && !batCharging) { lowBatDialogShown = true; lowBatDialog.classList.add('open'); }
+    }
+    async function initBattery() {
+        try {
+            if (!('getBattery' in navigator)) { batLevel = null; updateBatteryUI(); return; }
+            const bat = await navigator.getBattery();
+            if (bat.charging) { batLevel = null; updateBatteryUI(); return; }
+            batLevel = bat.level; batCharging = bat.charging; updateBatteryUI();
+            bat.addEventListener('levelchange', () => { batLevel = bat.level; updateBatteryUI(); });
+            bat.addEventListener('chargingchange', () => { batCharging = bat.charging; batLevel = bat.charging ? null : bat.level; updateBatteryUI(); });
+            let sim = bat.level * 100;
+            setInterval(() => { if (batLevel === null) return; sim = Math.max(0, sim - 0.33); batLevel = sim / 100; updateBatteryUI(); }, 1000);
+        } catch { batLevel = null; updateBatteryUI(); }
+    }
+    initBattery();
+
+    // CALENDAR
+    let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    function renderCalendar() {
+        const today = new Date(), d1 = new Date(calYear, calMonth, 1).getDay(), ld = new Date(calYear, calMonth+1, 0).getDate(), de = new Date(calYear, calMonth, ld).getDay(), mld = new Date(calYear, calMonth, 0).getDate();
+        let lit = '';
+        for (let i = d1; i > 0; i--) lit += `<li class="inactive">${mld-i+1}</li>`;
+        for (let i = 1; i <= ld; i++) lit += `<li class="${(i===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear())?'active':''}">${i}</li>`;
+        for (let i = de; i < 6; i++) lit += `<li class="inactive">${i-de+1}</li>`;
+        document.querySelector('.calendar-dates').innerHTML = lit;
+        document.querySelector('.calendar-current-month').textContent = months[calMonth];
+        document.querySelector('.calendar-current-year').textContent = calYear;
+    }
+    renderCalendar();
+    document.getElementById('cal-prev').addEventListener('click', e => { e.stopPropagation(); calMonth--; if (calMonth<0){calMonth=11;calYear--;} renderCalendar(); });
+    document.getElementById('cal-next').addEventListener('click', e => { e.stopPropagation(); calMonth++; if (calMonth>11){calMonth=0;calYear++;} renderCalendar(); });
+
+    // TEST APP
+    const apps = [{ name: 'test app', icon: 'bolt' }];
+    const appsView = document.getElementById('appsView'), appSearch = document.getElementById('appSearch');
+    function renderApps(f='') { appsView.innerHTML=''; const filtered=apps.filter(a=>a.name.includes(f.toLowerCase())); if(!filtered.length){appsView.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--theme-secondary-fg)">no apps found</div>';return;} filtered.forEach(app=>{const el=document.createElement('div');el.className='app';el.innerHTML=`<div class="app-icon-wrap"><span class="material-symbols-outlined">${app.icon}</span></div><div class="app-shortcut-name">${app.name}</div>`;el.addEventListener('click',e=>{e.stopPropagation();openTestApp();closeAllPanels();});appsView.appendChild(el);}); }
+    renderApps(); appSearch.addEventListener('input', e => renderApps(e.target.value));
+    const testWin = document.getElementById('testAppWindow');
+    let clickCount = 0, zIndexCounter = 5;
+    function openTestApp() { testWin.style.zIndex=++zIndexCounter; testWin.classList.remove('anim-closing'); testWin.classList.add('open','anim-opening'); setTimeout(()=>testWin.classList.remove('anim-opening'),300); }
+    function closeTestApp() { testWin.classList.add('anim-closing'); testWin.classList.remove('anim-opening'); setTimeout(()=>testWin.classList.remove('open','anim-closing'),200); }
+    document.getElementById('testAppClose').addEventListener('click', e=>{e.stopPropagation();closeTestApp();});
+    document.getElementById('testAppBtn').addEventListener('click', e=>{e.stopPropagation();clickCount++;document.getElementById('testAppOutput').textContent=`clicked ${clickCount} time${clickCount!==1?'s':''}`;showToast(`button pressed: ${clickCount}`);});
+    document.getElementById('resetBtn').addEventListener('click', e=>{e.stopPropagation();clickCount=0;document.getElementById('testAppOutput').textContent='ready';showToast('counter reset');});
+    document.getElementById('infoBtn').addEventListener('click', e=>{e.stopPropagation();showToast('HyperZOS 4 Dev Beta • M3 Design');});
+    let isDragging=false,dragOffX=0,dragOffY=0;
+    const titlebar=document.getElementById('testAppTitlebar');
+    titlebar.addEventListener('mousedown',e=>{isDragging=true;testWin.classList.add('dragging');testWin.classList.remove('anim-opening','anim-closing');dragOffX=e.clientX-testWin.offsetLeft;dragOffY=e.clientY-testWin.offsetTop;testWin.style.zIndex=++zIndexCounter;e.preventDefault();});
+    document.addEventListener('mousemove',e=>{if(!isDragging)return;testWin.style.left=Math.max(0,Math.min(e.clientX-dragOffX,window.innerWidth-testWin.offsetWidth))+'px';testWin.style.top=Math.max(0,Math.min(e.clientY-dragOffY,window.innerHeight-48-testWin.offsetHeight))+'px';});
+    document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;testWin.classList.remove('dragging');}});
+    testWin.addEventListener('mousedown',()=>{testWin.style.zIndex=++zIndexCounter;});
+
+    // PANEL TOGGLES
+    const launcherBtn=document.getElementById('launcher-button-container'),launcher=document.getElementById('launcher');
+    const dateContainer=document.getElementById('date-container'),taskinfoContainer=document.getElementById('taskinfo-container');
+    const calPanel=document.getElementById('calendar'),qsPanel=document.getElementById('quickSettings');
+    function closeAllPanels(){launcher.classList.remove('active');calPanel.classList.remove('active');qsPanel.classList.remove('active');}
+    function toggleLauncher(){if(launcher.classList.contains('active')){launcher.classList.remove('active');}else{calPanel.classList.remove('active');qsPanel.classList.remove('active');launcher.classList.add('active');setTimeout(()=>appSearch.focus(),perfMode?0:150);}}
+    launcherBtn.addEventListener('click',e=>{e.stopPropagation();toggleLauncher();});
+    dateContainer.addEventListener('click',e=>{e.stopPropagation();if(calPanel.classList.contains('active')){calPanel.classList.remove('active');}else{launcher.classList.remove('active');qsPanel.classList.remove('active');calPanel.classList.add('active');}});
+    taskinfoContainer.addEventListener('click',e=>{e.stopPropagation();if(qsPanel.classList.contains('active')){qsPanel.classList.remove('active');}else{launcher.classList.remove('active');calPanel.classList.remove('active');qsPanel.classList.add('active');}});
+    document.addEventListener('click',e=>{if(!launcher.contains(e.target)&&!calPanel.contains(e.target)&&!qsPanel.contains(e.target)&&!e.target.closest('footer')&&!e.target.closest('.window')&&!e.target.closest('.m3-dialog'))closeAllPanels();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAllPanels();lowBatDialog.classList.remove('open');return;}if(e.key==='`'&&launcherKeybind){if(document.activeElement===appSearch)return;e.preventDefault();toggleLauncher();}});
+</script>
+</body>
 </html>
