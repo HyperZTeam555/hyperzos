@@ -128,6 +128,8 @@
         .app-icon-wrap { width: 40px; height: 40px; margin-bottom: 0.5em; border-radius: 8px; background: color-mix(in srgb, var(--theme-secondary-bg) 55%, transparent); display: flex; align-items: center; justify-content: center; }
         .app-icon-wrap .material-symbols-outlined { font-size: 24px; }
         .app-icon-wrap img { width: 28px; height: 28px; border-radius: 7px; display: block; }
+        .app-icon-wrap.imgic { background: transparent; }
+        .app-icon-wrap.imgic img { width: 40px; height: 40px; border-radius: 10px; }
         .app-shortcut-name { text-align: center; font-size: 12px; }
         ::-webkit-scrollbar { width: 20px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -320,23 +322,32 @@ body.theme-macos #hz-menubar { display: flex; }
 
 body.theme-macos footer { display: none; }
 #hz-dock { display: none; }
-body.theme-macos #hz-dock { display: block; position: fixed; left: 0; right: 0; bottom: 4px; margin: 0 auto; width: max-content; max-width: calc(100vw - 8px); z-index: 8500; }
-body.theme-macos #hz-dock ul { display: flex; align-items: stretch; list-style: none; margin: 0; padding: 0 8px; height: 65px; background: rgba(255,255,255,0.2); border: 1px solid rgba(156,163,175,0.4); border-radius: 12px; backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.17); }
+body.theme-macos #hz-dock { display: block; position: fixed; left: 0; right: 0; bottom: 4px; margin: 0 auto; width: max-content; max-width: calc(100vw - 8px); z-index: 9999; }
+body.theme-macos #hz-dock ul { display: flex; align-items: stretch; list-style: none; margin: 0; padding: 0 8px; height: 65px; background: rgba(40,40,44,0.5); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5); box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.25); }
 body.theme-macos #hz-dock li { position: relative; display: flex; flex-direction: column; justify-content: flex-end; margin: 0 0 0 8px; padding: 0; }
 body.theme-macos #hz-dock li:first-child { margin-left: 0; }
 body.theme-macos #hz-dock li img { display: block; width: 50px; height: auto; user-select: none; -webkit-user-drag: none; will-change: width; }
 body.theme-macos #hz-dock li a { display: block; line-height: 0; color: inherit; text-decoration: none; }
-body.theme-macos #hz-dock .hz-dock-dot { width: 4px; height: 4px; border-radius: 9999px; background: #1f2937; margin: 0 auto; visibility: hidden; }
+body.theme-macos #hz-dock .hz-dock-dot { width: 4px; height: 4px; border-radius: 9999px; background: rgba(255,255,255,0.85); margin: 0 auto; visibility: hidden; }
 body.theme-macos #hz-dock li.open .hz-dock-dot { visibility: visible; }
-body.theme-macos #hz-dock .hz-dock-tip { display: none; position: absolute; left: 0; right: 0; margin: 0 auto; width: max-content; top: calc(-100% - 10px); border-radius: 6px; background: rgba(209,213,219,0.8); color: #000000; padding: 4px 12px; font-size: 14px; line-height: 20px; pointer-events: none; }
+body.theme-macos #hz-dock .hz-dock-tip { display: none; position: absolute; left: 0; right: 0; margin: 0 auto; width: max-content; top: auto; bottom: calc(100% + 10px); border-radius: 6px; background: rgba(58,58,62,0.85); color: #ffffff; padding: 4px 12px; font-size: 14px; line-height: 20px; pointer-events: none; }
 body.theme-macos #hz-dock li:hover .hz-dock-tip { display: block; box-shadow: hsla(0,0%,0%,0.2) 0px 1px 5px 2px, 0 0 0 0 white; }
 
-body.theme-macos #launcher { inset: 0; left: 0; bottom: 0; width: 100vw; height: 100vh; max-height: none; border-radius: 0; z-index: 0; background: rgba(12,10,16,0.55); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); transition: opacity 0.3s ease 0.05s, visibility 0s linear 0.4s; }
+body.theme-macos #launcher { inset: 0; left: 0; bottom: 0; width: 100vw; height: 100vh; max-height: none; border-radius: 0; z-index: 0; background: rgba(18,16,22,0.45); backdrop-filter: blur(50px) saturate(1.5); -webkit-backdrop-filter: blur(50px) saturate(1.5); transition: opacity 0.3s ease 0.05s, visibility 0s linear 0.4s; }
 body.theme-macos #launcher.active { z-index: 9998; transition: opacity 0.2s ease, visibility 0s linear 0s; }
-body.theme-macos #launcher .topSearchBar { justify-content: center; }
-body.theme-macos #launcher .topSearchBar input { max-width: 320px; text-align: center; }
-body.theme-macos #launcher .appsView { max-width: 760px; margin: 0 auto; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); transform-origin: 50% 0; transform: scale(0.05); opacity: 0; transition: transform 0.34s cubic-bezier(0.32, 0.72, 0.25, 1), opacity 0.24s ease; }
+body.theme-macos #launcher .topSearchBar { justify-content: center; padding: 46px 20px 6px; }
+body.theme-macos #launcher .topSearchBar input { max-width: 300px; height: 36px; border-radius: 18px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.14); padding: 0 18px; text-align: center; color: #fff; font-size: 13px; outline: none; }
+body.theme-macos #launcher .topSearchBar input::placeholder { color: rgba(255,255,255,0.65); }
+body.theme-macos #launcher .appsView { max-width: 980px; margin: 0 auto; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 26px 8px; padding: 36px 48px; transform-origin: 50% 100%; transform: scale(0.05); opacity: 0; transition: transform 0.34s cubic-bezier(0.32, 0.72, 0.25, 1), opacity 0.24s ease; }
 body.theme-macos #launcher.active .appsView { transform: scale(1); opacity: 1; }
+body.theme-macos #launcher .app { padding: 6px; border-radius: 14px; }
+body.theme-macos #launcher .app:hover { background: rgba(255,255,255,0.12); }
+body.theme-macos #launcher .app-icon-wrap { width: 86px; height: 86px; border-radius: 22px; background: rgba(255,255,255,0.14); box-shadow: 0 8px 22px rgba(0,0,0,0.35); margin-bottom: 10px; }
+body.theme-macos #launcher .app-icon-wrap .material-symbols-outlined { font-size: 44px; color: #fff; }
+body.theme-macos #launcher .app-icon-wrap img { width: 58px; height: 58px; border-radius: 15px; }
+body.theme-macos #launcher .app-icon-wrap.imgic { background: transparent; box-shadow: none; }
+body.theme-macos #launcher .app-icon-wrap.imgic img { width: 86px; height: 86px; border-radius: 19px; }
+body.theme-macos #launcher .app-shortcut-name { font-size: 13px; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.65); }
 
 body.theme-macos #quickSettings { top: 34px; bottom: auto; }
 
@@ -388,6 +399,9 @@ body.theme-windows #hz-widgetbtn { position: absolute; left: 8px; top: 50%; tran
 #hz-wpapp { display: none; }
 body.wp-win-open.theme-windows #hz-wpapp { display: flex; }
 body.wp-win-open #hz-wpapp::after { width: 12px; background: #4cc2ff; }
+#hz-npapp { display: none; }
+body.np-win-open.theme-windows #hz-npapp { display: flex; }
+body.np-win-open #hz-npapp::after { width: 12px; background: #4cc2ff; }
 @keyframes hzPopIntro { 0% { transform: scale(0); } 40% { transform: scale(1.125); } 70% { transform: scale(0.725); } 100% { transform: scale(1); } }
 
 body.theme-windows #taskbar-right { gap: 0; }
@@ -571,27 +585,7 @@ body.theme-chromeos .win-title .wp-logo { width: 19.2px; height: 19.2px; border-
 body.theme-chromeos .win-btn { width: 26.4px; height: 26.4px; }
 body.theme-chromeos .win-btn .material-symbols-outlined { font-size: 16.8px; }
 body.theme-macos .window.wp-max .win-titlebar { display: flex; }
-body.theme-macos #calendar, body.theme-macos #quickSettings { background: rgba(28,28,30,0.55); border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 12px 40px rgba(0,0,0,0.5); backdrop-filter: blur(40px) saturate(1.6); -webkit-backdrop-filter: blur(40px) saturate(1.6); font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
-body.theme-macos .calContent { border-radius: 14px; }
-body.theme-macos .calendar-container header { padding: 18px 22px 8px; }
-body.theme-macos header #calendar-date { font-size: 15px; color: rgba(255,255,255,0.85); }
-body.theme-macos header .calendar-navigation span { height: 28px; width: 28px; line-height: 28px; font-size: 18px; border-radius: 6px; }
-body.theme-macos header .calendar-navigation span:hover { background: rgba(255,255,255,0.14); }
-body.theme-macos .calendar-body { padding: 10px 14px 16px; }
-body.theme-macos .calendar-body li { color: rgba(255,255,255,0.72); }
-body.theme-macos .calendar-weekdays li { font-weight: 600; font-size: 11px; }
-body.theme-macos .calendar-dates li { margin-top: 14px; }
-body.theme-macos .calendar-dates li.active { color: #1c1c1e; }
-body.theme-macos .calendar-dates li.active::before { background: rgba(255,255,255,0.92); }
-body.theme-macos .calendar-dates li:not(.active):hover::before { background: rgba(255,255,255,0.16); }
-body.theme-macos .quickSettingsContent { padding: 14px; gap: 12px; }
-body.theme-macos .symbolButton { width: 26px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.14); }
-body.theme-macos .symbolButton:hover { background: rgba(255,255,255,0.24); }
-body.theme-macos .settingsIcon { border-radius: 10px; background: rgba(255,255,255,0.14); }
-body.theme-macos .settingsIcon.enabled { background: rgba(255,255,255,0.92); }
-body.theme-macos .settingsIcon.enabled span { color: #1c1c1e; }
-body.theme-macos .battery-card { background: rgba(255,255,255,0.1); border-radius: 10px; }
-body.theme-macos .qs-date-bottom { color: rgba(255,255,255,0.6); }
+body.theme-macos #calendar, body.theme-macos #quickSettings { display: none !important; }
 body.theme-macos .wp-chip { background: rgba(255,255,255,0.1); }
 body.theme-macos .wp-chip:hover { background: rgba(255,255,255,0.2); }
 body.theme-macos .wp-chip.on { background: rgba(255,255,255,0.92); color: #1c1c1e; }
@@ -599,12 +593,127 @@ body.theme-macos #calendar, body.theme-macos #quickSettings { z-index: 0; }
 body.theme-macos #calendar.active, body.theme-macos #quickSettings.active { z-index: 9998; }
 body.theme-windows #calendar, body.theme-windows #quickSettings { z-index: 0; }
 body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { z-index: 9998; }
+
+#hz-apple-menu { position: fixed; top: 32px; left: 8px; width: 264px; display: none; background: rgba(40,40,42,0.86); backdrop-filter: blur(30px) saturate(1.4); -webkit-backdrop-filter: blur(30px) saturate(1.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; box-shadow: 0 14px 44px rgba(0,0,0,0.5); padding: 5px; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; z-index: 0; opacity: 0; visibility: hidden; transform: scale(0.97) translateY(-6px); transform-origin: top left; transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s; }
+body.theme-macos #hz-apple-menu { display: block; }
+#hz-apple-menu.active { z-index: 9600; opacity: 1; visibility: visible; transform: none; transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0s; }
+.hz-am-item { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 0 12px; border-radius: 6px; font-size: 13px; color: #fff; cursor: default; }
+.hz-am-item .k { font-size: 12px; opacity: 0.55; }
+.hz-am-item:hover { background: rgba(10,132,255,0.85); }
+.hz-am-item:hover .k { opacity: 0.85; }
+.hz-am-sep { height: 1px; margin: 5px 12px; background: rgba(255,255,255,0.14); }
+
+#hz-maccal, #hz-cc { position: fixed; top: 34px; right: 10px; border-radius: 16px; background: rgba(28,28,30,0.55); backdrop-filter: blur(40px) saturate(1.6); -webkit-backdrop-filter: blur(40px) saturate(1.6); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 12px 40px rgba(0,0,0,0.5); color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; z-index: 0; opacity: 0; visibility: hidden; transform: translateY(-10px) scale(0.97); transform-origin: top right; transition: opacity 0.2s cubic-bezier(0.32,0.72,0.25,1), transform 0.2s cubic-bezier(0.32,0.72,0.25,1), visibility 0s linear 0.2s; max-width: calc(100vw - 20px); }
+#hz-maccal { width: 340px; padding: 16px 16px 10px; display: none; }
+#hz-cc { width: 320px; display: none; }
+body.theme-macos #hz-maccal, body.theme-macos #hz-cc { display: block; }
+#hz-maccal.active, #hz-cc.active { z-index: 9998; opacity: 1; visibility: visible; transform: none; transition: opacity 0.24s cubic-bezier(0.32,0.72,0.25,1), transform 0.24s cubic-bezier(0.32,0.72,0.25,1), visibility 0s linear 0s; }
+@keyframes hzCcOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-14px) scale(0.94); } }
+@keyframes hzMenuOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-8px) scale(0.96); } }
+@keyframes hzSlOut { from { opacity: 1; transform: translateX(-50%) scale(1); } to { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); } }
+#hz-maccal.out, #hz-cc.out { z-index: 9998; visibility: visible; pointer-events: none; transition: none; animation: hzCcOut 0.26s cubic-bezier(0.55,0.06,0.68,0.19) forwards; }
+#hz-apple-menu.out { z-index: 9600; visibility: visible; pointer-events: none; transition: none; animation: hzMenuOut 0.18s cubic-bezier(0.55,0.06,0.68,0.19) forwards; }
+#hz-spotlight.out { z-index: 9650; visibility: visible; pointer-events: none; transition: none; animation: hzSlOut 0.22s cubic-bezier(0.55,0.06,0.68,0.19) forwards; }
+#hz-about.out { z-index: 9700; visibility: visible; pointer-events: none; transition: none; animation: hzSlOut 0.22s cubic-bezier(0.55,0.06,0.68,0.19) forwards; }
+.hz-mc-head { display: flex; align-items: flex-start; justify-content: space-between; }
+.hz-mc-dow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #ff453a; }
+.hz-mc-big { font-size: 22px; font-weight: 700; color: #fff; margin-top: 2px; }
+.hz-mc-nav { display: flex; gap: 2px; }
+.hz-mc-nav .material-symbols-outlined { font-size: 18px; color: rgba(255,255,255,0.6); cursor: pointer; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; }
+.hz-mc-nav .material-symbols-outlined:hover { background: rgba(255,255,255,0.14); color: #fff; }
+.hz-mc-month { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.6); margin: 10px 0 4px; }
+.hz-mc-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; text-align: center; }
+.hz-mc-wd { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.45); padding: 4px 0; }
+.hz-mc-day { position: relative; font-size: 12.5px; color: rgba(255,255,255,0.88); height: 30px; display: grid; place-items: center; cursor: default; }
+.hz-mc-day.out { color: rgba(255,255,255,0.25); }
+.hz-mc-day::before { content: ""; position: absolute; top: 50%; left: 50%; width: 26px; height: 26px; border-radius: 50%; transform: translate(-50%, -50%); }
+.hz-mc-day:not(.today):hover::before { background: rgba(255,255,255,0.14); }
+.hz-mc-day.today { color: #fff; font-weight: 700; }
+.hz-mc-day.today::before { background: #ff453a; }
+.hz-mc-day i { position: relative; z-index: 1; font-style: normal; }
+.hz-mc-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 4px 4px; border-top: 1px solid rgba(255,255,255,0.10); font-size: 12px; color: rgba(255,255,255,0.55); }
+.hz-mc-foot .material-symbols-outlined { font-size: 16px; }
+.hz-cc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 14px; }
+.hz-cc-sq { grid-column: span 2; min-height: 56px; background: rgba(255,255,255,0.10); border-radius: 14px; padding: 8px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.15s ease; }
+.hz-cc-sq:hover { background: rgba(255,255,255,0.18); }
+.hz-cc-ico { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.22); display: grid; place-items: center; flex-shrink: 0; transition: background 0.15s ease; }
+.hz-cc-ico .material-symbols-outlined { font-size: 17px; color: #fff; }
+.hz-cc-sq.on .hz-cc-ico { background: #0a84ff; }
+.hz-cc-txt { display: flex; flex-direction: column; min-width: 0; }
+.hz-cc-txt .t { font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; }
+.hz-cc-txt .s, .hz-cc-sq .s { font-size: 10.5px; color: rgba(255,255,255,0.55); white-space: nowrap; }
+.hz-cc-sq .t { font-size: 12.5px; font-weight: 600; color: #fff; }
+.hz-cc-slider { grid-column: span 4; height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 14px; background: rgba(255,255,255,0.10); border-radius: 14px; }
+.hz-cc-slider .material-symbols-outlined { font-size: 20px; color: rgba(255,255,255,0.85); flex-shrink: 0; }
+#hz-cc input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; height: 26px; border-radius: 13px; outline: none; background: rgba(255,255,255,0.22); }
+#hz-cc input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.35); cursor: pointer; border: none; }
+.hz-cc-txt .t, .hz-cc-txt .s, .hz-cc-sq .t, .hz-cc-sq .s { overflow: hidden; }
+.hz-mq { display: inline-flex; white-space: nowrap; }
+.hz-mq > span { flex-shrink: 0; padding-right: 28px; }
+.hz-cc-sq .t.marq .hz-mq, .hz-cc-sq .s.marq .hz-mq { animation: hzmqscroll var(--hzmq-d, 9s) linear infinite; }
+@keyframes hzmqscroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+#hz-spotlight { position: fixed; top: 21vh; left: 50%; width: min(680px, 92vw); display: none; transform: translateX(-50%) scale(0.96); background: rgba(28,28,30,0.62); backdrop-filter: blur(40px) saturate(1.6); -webkit-backdrop-filter: blur(40px) saturate(1.6); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; box-shadow: 0 18px 60px rgba(0,0,0,0.55); overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; z-index: 0; opacity: 0; visibility: hidden; transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s; }
+body.theme-macos #hz-spotlight { display: block; }
+#hz-spotlight.active { z-index: 9650; opacity: 1; visibility: visible; transform: translateX(-50%) scale(1); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0s; }
+.hz-sl-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; }
+.hz-sl-row > .material-symbols-outlined { font-size: 24px; color: rgba(255,255,255,0.55); }
+#hz-sl-q { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #fff; font-size: 20px; font-weight: 300; font-family: inherit; }
+#hz-sl-q::placeholder { color: rgba(255,255,255,0.4); }
+#hz-sl-esc { font-size: 18px; color: rgba(255,255,255,0.4); cursor: pointer; }
+#hz-sl-esc:hover { color: #fff; }
+.hz-sl-results { display: none; border-top: 1px solid rgba(255,255,255,0.10); padding: 6px; max-height: 320px; overflow-y: auto; }
+.hz-sl-results.show { display: block; }
+.hz-sl-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer; }
+.hz-sl-item .hz-sl-ic { width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.12); display: grid; place-items: center; flex-shrink: 0; }
+.hz-sl-item .hz-sl-ic img { width: 20px; height: 20px; border-radius: 5px; display: block; }
+.hz-sl-item .hz-sl-ic.imgic { background: transparent; }
+.hz-sl-item .hz-sl-ic.imgic img { width: 28px; height: 28px; border-radius: 7px; }
+.hz-sl-item .hz-sl-ic .material-symbols-outlined { font-size: 17px; color: #fff; }
+.hz-sl-item .hz-sl-kind { margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.45); }
+.hz-sl-item.sel, .hz-sl-item:hover { background: rgba(10,132,255,0.75); }
+.hz-sl-none { padding: 16px; text-align: center; font-size: 13px; color: rgba(255,255,255,0.5); }
+
+#hz-about { position: fixed; top: 38vh; left: 50%; width: 280px; display: none; transform: translateX(-50%) scale(0.96); background: rgba(40,40,42,0.88); backdrop-filter: blur(30px) saturate(1.4); -webkit-backdrop-filter: blur(30px) saturate(1.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; box-shadow: 0 18px 60px rgba(0,0,0,0.55); padding: 22px 20px 16px; text-align: center; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; z-index: 0; opacity: 0; visibility: hidden; transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s; }
+body.theme-macos #hz-about { display: block; }
+#hz-about.active { z-index: 9700; opacity: 1; visibility: visible; transform: translateX(-50%) scale(1); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0s; }
+.hz-ab-logo { width: 56px; height: 56px; border-radius: 14px; background: #4a4a4a; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; }
+.hz-ab-name { font-size: 18px; font-weight: 700; }
+.hz-ab-beta { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+.hz-ab-sep { height: 1px; background: rgba(255,255,255,0.12); margin: 12px 0 10px; }
+.hz-ab-row { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 6px; }
+.hz-ab-row span:last-child { color: #fff; }
+.hz-ab-ok { margin-top: 8px; width: 100%; height: 30px; border: none; border-radius: 8px; background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-family: inherit; cursor: pointer; }
+.hz-ab-ok:hover { background: rgba(255,255,255,0.2); }
+
+#hz-sleep { position: fixed; inset: 0; background: #000; z-index: 99999985; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.35); font-size: 14px; cursor: pointer; }
+#hz-sleep.on { opacity: 1; pointer-events: auto; }
+
+#notepadWindow { top: 120px; left: 200px; width: 560px; height: 420px; }
+#npText { flex: 1; min-height: 0; width: 100%; border: none; outline: none; resize: none; background: transparent; color: var(--theme-fg); font-family: var(--theme-font-sans); font-size: 14px; line-height: 1.65; padding: 14px 18px; caret-color: var(--theme-accent); user-select: text; -webkit-user-select: text; }
+#npText::placeholder { color: var(--theme-secondary-fg); }
+#notepadWindow .win-title img.np-tb-ico { width: 14px; height: 14px; object-fit: contain; border-radius: 3px; flex: 0 0 auto; }
+body.theme-windows #notepadWindow .win-title .np-tb-ico-yellow { display: none; }
+body:not(.theme-windows) #notepadWindow .win-title .np-tb-ico-win { display: none; }
+.np-menubar { display: none; flex-shrink: 0; }
+.np-status { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 5px 14px; font-size: 11.5px; color: var(--theme-secondary-fg); border-top: 1px solid var(--theme-dark-border); }
+.np-right { display: inline-flex; align-items: center; gap: 12px; }
+#npSaved { opacity: 0; transition: opacity 0.35s ease; color: var(--theme-fg); }
+#npSaved.show { opacity: 1; }
+body.theme-macos #notepadWindow { background: #28282c; }
+body.theme-macos #npText { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+body.theme-windows #notepadWindow { background: #202020; }
+body.theme-windows .np-menubar { display: flex; align-items: center; gap: 2px; height: 28px; padding: 0 6px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: #fff; }
+body.theme-windows .np-menubar span { padding: 3px 9px; border-radius: 4px; cursor: default; }
+body.theme-windows .np-menubar span:hover { background: rgba(255,255,255,0.12); }
+body.theme-windows #npText { caret-color: #4cc2ff; }
+@media (max-width: 560px) { #notepadWindow { left: 8px; top: 40px; width: calc(100vw - 16px); } }
     </style>
 </head>
 <body class="booting">
     <div id="brightness-overlay"></div>
     <div id="nightlight-overlay"></div>
-    <div id="hz-menubar"><div class="hz-mb-left"><span class="hz-mb-item hz-mb-apple" title="Change Style"><div class="hz-mb-logo">HZ</div></span><span id="hz-mb-app" class="hz-mb-item hz-strong">Finder</span></div><div class="hz-mb-right"><span class="hz-mb-item"><svg class="hz-mb-bat-svg" id="hz-mb-bat" viewBox="0 0 28 18"><rect class="bat-body" x="1" y="3" width="22" height="12" rx="2"/><rect class="bat-cap" x="23" y="6" width="3" height="6" rx="1"/><rect class="bat-fill" id="hz-mb-bat-fill" x="3" y="5" width="18" height="8" rx="1"/></svg></span><span class="material-symbols-outlined hz-mb-item" id="hz-mb-wifi" style="font-size:16px;">signal_wifi_4_bar</span><span class="material-symbols-outlined hz-mb-item" id="hz-mb-spotlight" style="font-size:17px;" role="button" aria-label="Spotlight" title="Spotlight">search</span><span class="hz-mb-item" id="hz-mb-cc" role="button" aria-label="Control Center" title="Control Center"><svg viewBox="0 0 29 29" width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M7.5,13h14a5.5,5.5,0,0,0,0-11H7.5a5.5,5.5,0,0,0,0,11Zm0-9h14a3.5,3.5,0,0,1,0,7H7.5a3.5,3.5,0,0,1,0-7Zm0,6A2.5,2.5,0,1,0,5,7.5,2.5,2.5,0,0,0,7.5,10Zm14,6H7.5a5.5,5.5,0,0,0,0,11h14a5.5,5.5,0,0,0,0-11Zm1.43439,8a2.5,2.5,0,1,1,2.5-2.5A2.5,2.5,0,0,1,22.93439,24Z"/></svg></span><span class="hz-mb-item" id="hz-mb-clock" role="button" aria-label="Date and time"><span id="hz-mb-date">Mon Sep 28</span><span id="hz-mb-time">1:08 PM</span></span></div></div>
+    <div id="hz-menubar"><div class="hz-mb-left"><span class="hz-mb-item hz-mb-apple" role="button" aria-label="System menu" title="Menu"><div class="hz-mb-logo">HZ</div></span><span id="hz-mb-app" class="hz-mb-item hz-strong">Finder</span></div><div class="hz-mb-right"><span class="hz-mb-item"><svg class="hz-mb-bat-svg" id="hz-mb-bat" viewBox="0 0 28 18"><rect class="bat-body" x="1" y="3" width="22" height="12" rx="2"/><rect class="bat-cap" x="23" y="6" width="3" height="6" rx="1"/><rect class="bat-fill" id="hz-mb-bat-fill" x="3" y="5" width="18" height="8" rx="1"/></svg></span><span class="material-symbols-outlined hz-mb-item" id="hz-mb-wifi" style="font-size:16px;">signal_wifi_4_bar</span><span class="material-symbols-outlined hz-mb-item" id="hz-mb-spotlight" style="font-size:17px;" role="button" aria-label="Spotlight" title="Spotlight">search</span><span class="hz-mb-item" id="hz-mb-cc" role="button" aria-label="Control Center" title="Control Center"><svg viewBox="0 0 29 29" width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M7.5,13h14a5.5,5.5,0,0,0,0-11H7.5a5.5,5.5,0,0,0,0,11Zm0-9h14a3.5,3.5,0,0,1,0,7H7.5a3.5,3.5,0,0,1,0-7Zm0,6A2.5,2.5,0,1,0,5,7.5,2.5,2.5,0,0,0,7.5,10Zm14,6H7.5a5.5,5.5,0,0,0,0,11h14a5.5,5.5,0,0,0,0-11Zm1.43439,8a2.5,2.5,0,1,1,2.5-2.5A2.5,2.5,0,0,1,22.93439,24Z"/></svg></span><span class="hz-mb-item" id="hz-mb-clock" role="button" aria-label="Date and time"><span id="hz-mb-date">Mon Sep 28</span><span id="hz-mb-time">1:08 PM</span></span></div></div>
 
     <div id="setup-screen">
         <div class="setup-wrap">
@@ -637,7 +746,7 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
     <div class="m3-dialog-overlay" id="lowBatDialog"><div class="m3-dialog"><div class="m3-dialog-icon"><span class="material-symbols-outlined">battery_alert</span></div><div class="m3-dialog-title">Low Battery</div><div class="m3-dialog-body">You may want to charge your device.</div><div class="m3-dialog-actions"><button class="m3-dialog-btn" id="lowBatOk">OK</button></div></div></div>
 
     <div class="window" id="wallpapersWindow">
-        <div class="win-titlebar" id="wpTitlebar"><span class="win-title"><img class="wp-logo" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20rx%3D%2210%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2222%22%20fill%3D%22%23e9eef2%22%2F%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2080%20L38%2042%20L66%2080%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M40%2080%20L62%2054%20L86%2080%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="">Wallpapers</span><div class="win-controls"><div class="win-btn win-close" id="wpClose" title="Close"><span class="material-symbols-outlined">close</span></div><div class="win-btn win-min" id="wpMin" title="Minimize"><span class="material-symbols-outlined">remove</span></div><div class="win-btn win-max" id="wpMax" title="Maximize"><span class="material-symbols-outlined">crop_square</span></div></div></div>
+        <div class="win-titlebar" id="wpTitlebar"><span class="win-title"><img class="wp-logo" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2230%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2086%20L38%2046%20L66%2086%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M42%2086%20L64%2058%20L88%2086%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="">Wallpapers</span><div class="win-controls"><div class="win-btn win-close" id="wpClose" title="Close"><span class="material-symbols-outlined">close</span></div><div class="win-btn win-min" id="wpMin" title="Minimize"><span class="material-symbols-outlined">remove</span></div><div class="win-btn win-max" id="wpMax" title="Maximize"><span class="material-symbols-outlined">crop_square</span></div></div></div>
         <div class="win-body">
             <div class="wp-toolbar"><div class="wp-repo"><button type="button" class="m3-btn m3-btn-tonal" id="wpRepoBtn" title="Wallpaper repository" aria-haspopup="menu"><span class="material-symbols-outlined">photo_library</span><span class="lbl" id="wpRepoLbl">Repository</span><span class="material-symbols-outlined caret">expand_more</span></button><div class="m3-menu" id="wpRepoMenu" role="menu"></div></div><div class="wp-search"><span class="material-symbols-outlined">search</span><input type="text" id="wpSearch" placeholder="Search wallpapers" autocomplete="off" spellcheck="false" aria-label="Search wallpapers"></div><button type="button" class="m3-btn m3-btn-tonal" id="wpUploadBtn" title="Upload your own wallpaper"><span class="material-symbols-outlined">upload</span>Upload</button><input type="file" id="wpUploadFile" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif,image/svg+xml,video/mp4,video/webm,video/quicktime,video/x-m4v,video/x-matroska" hidden></div>
             <div class="wp-cats" id="wpCats"></div>
@@ -649,6 +758,63 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <div class="window" id="notepadWindow">
+        <div class="win-titlebar" id="npTitlebar"><span class="win-title"><img class="np-tb-ico np-tb-ico-yellow" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%20fill%3D%22%23ffd60a%22%2F%3E%3Cpath%20d%3D%22M24%2032%20h48%20M24%2046%20h48%20M24%2060%20h30%22%20stroke%3D%22%23946a00%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.5%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M60%2086%20h26%20v-26%20Z%22%20fill%3D%22%23d9b103%22%2F%3E%3C%2Fsvg%3E" alt="Notepad" draggable="false"><img class="np-tb-ico np-tb-ico-win" src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/notepad.png" alt="Notepad" draggable="false">Notepad</span><div class="win-controls"><div class="win-btn win-close" id="npClose" title="Close"><span class="material-symbols-outlined">close</span></div><div class="win-btn win-min" id="npMin" title="Minimize"><span class="material-symbols-outlined">remove</span></div><div class="win-btn win-max" id="npMax" title="Maximize"><span class="material-symbols-outlined">crop_square</span></div></div></div>
+        <div class="np-menubar" id="npMenubar"><span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span></div>
+        <textarea id="npText" spellcheck="false" aria-label="Notepad text area" placeholder="Start typing..."></textarea>
+        <div class="np-status"><span id="npPos">Ln 1, Col 1</span><span class="np-right"><span id="npSaved">Saved</span><span id="npInfo">0 words · 0 chars</span></span></div>
+    </div>
+
+    <div id="hz-apple-menu" role="menu" aria-label="System menu">
+        <div class="hz-am-item" data-act="about" role="menuitem">About This Mac</div>
+        <div class="hz-am-sep"></div>
+        <div class="hz-am-item" data-act="sleep" role="menuitem">Sleep</div>
+        <div class="hz-am-item" data-act="restart" role="menuitem">Restart&hellip;</div>
+        <div class="hz-am-item" data-act="shutdown" role="menuitem">Shut Down&hellip;</div>
+    </div>
+
+    <div id="hz-about" role="dialog" aria-label="About This Mac">
+        <div class="hz-ab-logo">HZ</div>
+        <div class="hz-ab-name">HyperZOS 4</div>
+        <div class="hz-ab-beta">Beta</div>
+        <div class="hz-ab-sep"></div>
+        <div class="hz-ab-row"><span>Version</span><span>4.0 (Beta)</span></div>
+        <div class="hz-ab-row"><span>Style</span><span id="hz-ab-style">ChromeOS</span></div>
+        <button type="button" class="hz-ab-ok" id="hz-ab-ok">OK</button>
+    </div>
+
+    <div id="hz-sleep"><span class="hz-slp-text"></span></div>
+
+    <div id="hz-spotlight" role="dialog" aria-label="Spotlight Search">
+        <div class="hz-sl-row"><span class="material-symbols-outlined">search</span><input type="text" id="hz-sl-q" placeholder="Spotlight Search" autocomplete="off" spellcheck="false"><span class="material-symbols-outlined" id="hz-sl-esc" role="button" aria-label="Close Spotlight">close</span></div>
+        <div class="hz-sl-results" id="hz-sl-results"></div>
+    </div>
+
+    <div id="hz-cc" aria-label="Control Center">
+        <div class="hz-cc-grid">
+            <div class="hz-cc-sq" id="ccNL"><span class="hz-cc-ico"><span class="material-symbols-outlined">nightlight</span></span><span class="hz-cc-txt"><span class="t">Night Shift</span><span class="s">Off</span></span></div>
+            <div class="hz-cc-sq" id="ccPerf"><span class="hz-cc-ico"><span class="material-symbols-outlined">speed</span></span><span class="hz-cc-txt"><span class="t">Performance Mode</span><span class="s">Off</span></span></div>
+            <div class="hz-cc-sq" id="ccKey"><span class="hz-cc-ico"><span class="material-symbols-outlined">keyboard_command_key</span></span><span class="hz-cc-txt"><span class="t">Drawer Keybind</span><span class="s">On</span></span></div>
+            <div class="hz-cc-sq" id="ccStyle"><span class="hz-cc-ico"><span class="material-symbols-outlined">palette</span></span><span class="hz-cc-txt"><span class="t">Change Style</span><span class="s" id="ccStyleName">ChromeOS</span></span></div>
+            <div class="hz-cc-slider"><span class="material-symbols-outlined">brightness_6</span><input type="range" min="0" max="100" value="100" id="cc-bright" aria-label="Display"></div>
+            <div class="hz-cc-slider"><span class="material-symbols-outlined">thermostat</span><input type="range" min="0" max="100" value="50" id="cc-warm" aria-label="Night Shift Warmness"></div>
+        </div>
+    </div>
+
+    <div id="hz-maccal" aria-label="Calendar">
+        <div class="hz-mc-head">
+            <div>
+                <div class="hz-mc-dow" id="mcDow">&nbsp;</div>
+                <div class="hz-mc-big" id="mcBig">&nbsp;</div>
+            </div>
+            <div class="hz-mc-nav"><span class="material-symbols-outlined" id="mcPrev" role="button" aria-label="Previous month">chevron_left</span><span class="material-symbols-outlined" id="mcNext" role="button" aria-label="Next month">chevron_right</span></div>
+        </div>
+        <div class="hz-mc-month" id="mcMonth">&nbsp;</div>
+        <div class="hz-mc-grid" id="mcGrid"></div>
+        <div class="hz-mc-foot"><span class="material-symbols-outlined">event_busy</span>No Events Today</div>
+    </div>
+
 
     <div id="hz-widgetpane">
         <div class="hz-wcard hz-wweather"><div><div class="hz-wtemp">24&deg;</div><div class="hz-wcity">Chicago</div><div class="hz-wcond">Partly sunny &middot; H:27&deg; L:19&deg;</div></div><span class="material-symbols-outlined">partly_cloudy_day</span></div>
@@ -671,7 +837,7 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
         <div class="hz-ws-body">
             <div class="hz-ws-head"><span>Pinned</span><button type="button" id="hz-ws-allapps">All apps <span class="material-symbols-outlined">chevron_right</span></button></div>
             <div class="hz-ws-grid" id="hz-ws-grid">
-                <div class="hz-wtile" data-name="wallpapers" data-open="1" title="Wallpapers"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20rx%3D%2210%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2222%22%20fill%3D%22%23e9eef2%22%2F%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2080%20L38%2042%20L66%2080%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M40%2080%20L62%2054%20L86%2080%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt=""><div class="hz-wtilename">Wallpapers</div></div>
+                <div class="hz-wtile" data-name="wallpapers" data-open="1" title="Wallpapers"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2230%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2086%20L38%2046%20L66%2086%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M42%2086%20L64%2058%20L88%2086%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt=""><div class="hz-wtilename">Wallpapers</div></div>
                 <div class="hz-wtile" data-name="file explorer" title="File Explorer"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/explorer.png" alt=""><div class="hz-wtilename">File Explorer</div></div>
                 <div class="hz-wtile" data-name="microsoft edge" title="Microsoft Edge"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/edge.png" alt=""><div class="hz-wtilename">Microsoft Edge</div></div>
                 <div class="hz-wtile" data-name="microsoft store" title="Microsoft Store"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/store.png" alt=""><div class="hz-wtilename">Microsoft Store</div></div>
@@ -680,7 +846,7 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
             </div>
             <div class="hz-ws-head" style="margin-top:10px;"><span>Recommended</span><button type="button" id="hz-ws-more">More <span class="material-symbols-outlined">chevron_right</span></button></div>
             <div class="hz-ws-recgrid">
-                <div class="hz-wrec" data-rec="wallpapers" data-name="wallpapers" title="Wallpapers"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20rx%3D%2210%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2222%22%20fill%3D%22%23e9eef2%22%2F%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2080%20L38%2042%20L66%2080%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M40%2080%20L62%2054%20L86%2080%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt=""><div class="hz-wrecinfo"><div class="hz-wrecname">Wallpapers</div><div class="hz-wrectime">Recently used</div></div></div>
+                <div class="hz-wrec" data-rec="wallpapers" data-name="wallpapers" title="Wallpapers"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2230%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2086%20L38%2046%20L66%2086%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M42%2086%20L64%2058%20L88%2086%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt=""><div class="hz-wrecinfo"><div class="hz-wrecname">Wallpapers</div><div class="hz-wrectime">Recently used</div></div></div>
                 <div class="hz-wrec" data-rec="bin" data-name="recycle bin" title="Recycle Bin"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/bin1.png" alt=""><div class="hz-wrecinfo"><div class="hz-wrecname">Recycle Bin</div><div class="hz-wrectime">Yesterday</div></div></div>
             </div>
             <div class="hz-ws-empty" id="hz-ws-empty">No results found</div>
@@ -720,7 +886,7 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
         <div id="taskbar-bar">
             <div class="hz-wts" id="hz-widgetbtn" title="Widgets"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/widget.png" alt="Widgets"></div>
             <div id="launcher-button-container"><div id="launcher-button"></div></div>
-            <div id="hz-wcenter"><div class="hz-wts hz-wsearch" id="hz-wsearch" title="Search"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/search.png" alt="Search"></div><div class="hz-wts hz-wpin" data-app="File Explorer" title="File Explorer"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/explorer.png" alt="File Explorer"></div><div class="hz-wts hz-wpin" data-app="Microsoft Edge" title="Microsoft Edge"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/edge.png" alt="Microsoft Edge"></div><div class="hz-wts hz-wpin" data-app="Microsoft Store" title="Microsoft Store"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/store.png" alt="Microsoft Store"></div><div class="hz-wts hz-wpin" data-app="Settings" title="Settings"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/settings.png" alt="Settings"></div><div class="hz-wts" id="hz-wpapp" title="Wallpapers"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20rx%3D%2210%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2222%22%20fill%3D%22%23e9eef2%22%2F%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2080%20L38%2042%20L66%2080%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M40%2080%20L62%2054%20L86%2080%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Wallpapers"></div></div>
+            <div id="hz-wcenter"><div class="hz-wts hz-wsearch" id="hz-wsearch" title="Search"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/search.png" alt="Search"></div><div class="hz-wts hz-wpin" data-app="File Explorer" title="File Explorer"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/explorer.png" alt="File Explorer"></div><div class="hz-wts hz-wpin" data-app="Microsoft Edge" title="Microsoft Edge"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/edge.png" alt="Microsoft Edge"></div><div class="hz-wts hz-wpin" data-app="Microsoft Store" title="Microsoft Store"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/store.png" alt="Microsoft Store"></div><div class="hz-wts hz-wpin" data-app="Settings" title="Settings"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/settings.png" alt="Settings"></div><div class="hz-wts" id="hz-wpapp" title="Wallpapers"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2230%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2086%20L38%2046%20L66%2086%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M42%2086%20L64%2058%20L88%2086%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Wallpapers"></div><div class="hz-wts" id="hz-npapp" title="Notepad"><img src="https://cdn.jsdelivr.net/gh/blueedgetechno/win11React@master/public/img/icon/notepad.png" alt="Notepad" draggable="false"></div></div>
             <div id="taskbar-right">
                 <div id="hz-wchev" title="Hidden icons"><span class="material-symbols-outlined">keyboard_arrow_up</span></div>
                 <div id="date-container"><span id="hz-wtime"></span><span id="hz-wdate"></span><span id="shelfDate"></span></div>
@@ -735,7 +901,9 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
     </footer>
 
     <div id="hz-dock" role="navigation" aria-label="Dock"><ul>
-        <li class="hz-dock-item" data-id="wallpapers" data-title="Wallpapers"><p class="hz-dock-tip">Wallpapers</p><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20rx%3D%2210%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2222%22%20fill%3D%22%23e9eef2%22%2F%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2080%20L38%2042%20L66%2080%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M40%2080%20L62%2054%20L86%2080%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Wallpapers" draggable="false"><div class="hz-dock-dot"></div></li>
+        <li class="hz-dock-item" data-id="launchpad" data-title="Launchpad"><p class="hz-dock-tip">Launchpad</p><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cimage%20x%3D%226.4274%22%20y%3D%225.453%22%20width%3D%2283.1453%22%20height%3D%2283.1453%22%20href%3D%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAMAAABrrFhUAAAC%2FVBMVEUAAAAAAAAAAAABAQEDAwMCAgIEBAQAAAACAwMBAQEAAAAPDw8BAQEGBgYHCAgAAAAGBwfY6OzV5Og7Oztia2uQkI%2FG09ixvsG1wsZUVlfj8%2Fh9fX2Ol5qirrGVlZSIiIeXmZnf8PZQUE%2Fq%2BP10dXRmcHTr%2Bv7L1tmPkJCGiIman6BsbGtmZWR%2Fg4OYnqF1envX5Ojo9%2FutsrPH0dOkp6i1u73p%2BPyts7S9yc1kZWVBRUbU4ufd7vTd7fPa6u%2FS4OXBy867xcistLW%2FyMrk8PWcnZzd7%2FTM2NvN299eY2S2u7zc6%2FF%2BgIDs%2B%2F%2FF191FSUt9fn57fHuDhoaAgoK9zdI%2FQ0XI2%2BKChIVBRUdDSEqGioq%2Fz9RITU9GS025yc7C09mIjY56enm2xcq%2F0daFiIjO4%2BnK3uVHTE6ZoKPM4OaUmpyXn6GBg4O7y9Cbo6azwsauu7%2B1w8iHi4yos7ewvcHN4eecpaiSmZq4x8yPk5U%2BQUPG2d9KT1HJ3eOVnJ5QVliRl5mruLyYmJeWnZ%2BaoqRSWVuqtrpRV1rD1ttMUVOlsLSQlpeptbk6PT%2BLkJDH2uCep6ro%2Bv%2BNkpOKjo%2Bxv8M8P0E4OzyywMROVFemsrWMkZLv%2FP%2FC1Nqfqaykr7KjrrCPlZadnJxNU1Xj9fvl9%2F2en56tur6hq66irLChoqKbm5qsubyZmZigqq1UW13l%2Bf%2Fg8fbh8%2Fje7vOkpaXd7PCpq6s2OTrb6e2mqKisrq%2BKj5HS3uGwtLUaGxwUFBWusbLZ5uq2u7zV4uXO2dwgIiPM1tm7wcK4vr8sLS7I0dTGz9HByMq9xMUODQ7U4OSytrfQ294nKCleY2UzNTbX5OgwMTLEzM5jZ2hnbG60ubltcXK%2FxsdbXl%2FK09ZxdndXWFcHBQZebXzCysxxeX1QXmzQ5etncnpGWG1XZnVOTUtwfIRFQkBfaW%2FW6e9kdoc%2FUWV8h41GVWZtgJFZYGR2gYgoHR83TGIfEhSGkpdOYHSpsrR4jZ2yvL1UbISiqajS1IHsAAAATHRSTlMACA0SFxwiKyc3MWVCUks8XKCKfh3qZFCMd87FYjrz3dvGkui0KvPz1LeysKeel3932O%2Fp6ePi2KWXO%2Bq46N%2FX076476n17dHDWvn4WgZvTQAALilJREFUeNrsmLtuo0AUhjde5wFAFpaQKCwU6rhxlTLajpS0W6yw5AdwhejTWdTejumNrX0lSt5h%2Fzkz5uBrbh5fIj5mAF%2Fx98%2BZYbM%2FWlpaWlpaWlpaWlpaWlrOwZ2is4F%2B8se3Rmv%2FrCH17We%2BZw6QWnv2POfRtp4Gw5EfBHMQBP7IHTxb9qPj9dY5fKcUannPsZ9dfx6G80OEoe8%2B2473jUKAPA27Yw%2BCkJiHgGT5IYWCJrt8GAxsp0cp3HQGcuhJ3hqGGjbeDUD3%2BtWhRSHcbCGQfcez3XCLwwHguIVre52brANl37f88Mv4Vv%2FWMlCV71mjY17by98xRpZ3Q%2BsB6fceh0fc2Z5R8%2F8gw8febURA%2Bv3n4APm76yF4Ll%2F%2FRHc3aFUHXefesiG%2BbJY%2FauqqqzBg3%2BrYinC40G4Dr7%2Bem8K%2BGWy9vfN%2FFp9Be0YlCWaPkOP16eIYrXUb983I0ZyJlxpAqRv%2B4fk4Q7L91FWq%2FxQHQR27yqrAHMfo%2B8fkof7RykPheA%2F9q5uLaClD%2Fr7%2FIsq%2FjRVoTPcjuDKlkPod%2FvDffpLtv90BnsSyIb97s%2FOtSSAyd%2F1njICv43t8yqe8jadxji8F%2FpMrD5T5RwBXULy5HWvYzWkyW8LKY9NIf2zVTndJP4A2x9d0S2Bvnt9JWH3rqEIMPyofvXDaI8N5NXn5TmEuoEqDyXanvqwf%2FEioOG3muNC%2BsXm4G%2FNARzXD7SfPuzOAGIyVZQFJQDqCKzLFQEP%2FygjdH2iVFfxpMH0C8RSv0FcyATWm2yjCxUBL%2F72uu5p7KFfxF%2B0j%2FWOH%2BxEQOgI7IvdDuDf9dxsTUhLH%2FQP2n%2BlGJoRzOdcAcD1umdOgMvfCbIaOfx5OR7jN6rOTCefYfdTY%2BrjMp%2BjCpjAOe804PK3FplCHsN5Vo1rJgYY11QZiqCBdfZpcIfyf3AXgPwXcvxXE9Y3BF8ASwEFry%2FvPpx5GsC%2F79OlAe1E2dCnWqUG9FG%2F0pgeYy1EB%2F0Kjvxegr9IvZJiA6WgBOji6H7%2FTAnw9M8b9Y%2FhH6dpOqadYVLacJ1VqEZfkZ9lIWB%2Fe6HQN4BSqsMdzThpGkVRCkpB8aMTtvkE2N%2FCBTmCgvSBWf%2B0LoAoQsOuCGFfY5lOgP2fRDOAKq2hJDgN9DoYOuy%2BpJ%2FnN0GQv%2B0QkaaqAxDoT0YTYP%2FeoOmfTyNNahQa9rV6ncBUZAtm0DOdAPy7DwPKW4HyP64fHXviuLBqb5AW%2BDWcwEPXVALs7wqxEOjkX0UXY6apsgVn4BpMgP311bAIl9EsMs5sQxo7bPQgSZJZMpuV%2BNeAGhPsjCYAf8x%2FDfzFdKaIjCBdj5MoaCEQmkHPWAJY%2F%2B7hr8HyN9nwx%2FHY2KG9LUz7piGfoCljnNCedi%2BJZJJzAGJwb2glpPtf0z9NFLPTkxzmBe0FTam%2FKKKcAxBm7oY0%2FpaoyfLIiP4R8z3sT8AyUgPwt0XNYjlT109ODUl9jFf0ZJmJGhsJnNy%2Fc%2B%2FkPP7wJy6nzvx93UnAue%2FcnVZf%2Fv27FCLf9Nc1gM4OaorWZUsdu7rxEegPvTnAaPqc%2BQtxqY5GEST1LMjz5cn%2FOsb%2Ff%2FzKJTKDLIe%2FcdiXlZnfEnkiQ6AokEAGeTTw6wEJnPgGmK8RZ%2FHfVH%2FV0swfAieUwG%2BZREKjr6Cb4Sn9LfYXEcoOmyldBlJszuLEf1rN57VpMIzjeBle9aKIf4ngvIkg1MurCJG8kqCiEmvBYmEtUTSmirKLPypUD%2B0OgliSUrwUQQRheBCt05Y5HcW6jlLt5n6DB5%2F3ffvmXWK2mSZ%2BlqVvuxnz%2BT7PmzdEJUnFsZFM8vso5s2RPQYBcOhSEOUFUPhnspTo3GM%2B6g5ecwnAI%2FCI%2FRiWL914cuG8lsHs12B%2Fel0C5EIY3fN%2FS%2FgnaT%2FSHiD0BcCEh%2BLkQ3%2Fm%2FJz%2FDntLP%2FB2OVfHwt2tjiScSVZx%2FNb51V8%2Fm7NrrfZ87xeO8QRwPikCsMS%2FF4SfAHuE%2F8s8JRsJedAWCGufqiMkZc%2B%2BxZcurHaaa%2B15oNXqdruNxfSjDBb8EAnsEZMg9B2QmABl5%2FrLi5Z3pirdZ%2FnG%2FJgn93UVmgF1Y9ZksKE8UjOv8G1wbxHz7sxMo16bKk0bplm7%2F2xUVTEAO6AsEojkfmgbXAB22UWCDf52lvuHhjn7orrkNQ0nq%2FFrndk2uDdnJutTJVM3TcMoAVML9x7GpHUJ5G0nAXsXXAaieASw37b5BBjBHDAgNWMbq5%2FzKcBeuSafouIXNxIXhef2avLd01VS%2BRbUvWboummUBDXj3sWsBAmoPLcRos4C2E8fDoRfAW0GBJCElP8TqqDvTuxRpnpxtdnuzTeJPHcXGPX00QQmAYgEzo4ReUoEayGZAE4AFZUSiS9WfZHW2Wv5t%2FJlsG%2FNfK2XeOXdmI3jR5CKSAKCH%2BDPCD0JYAIMDTv%2BRcz9Va%2BNGIk3pJ%2B92uxj7GcOG4PJy9qxd7c6rV67%2Ba0%2BndOFvCeAOwVVQhKgOmDbCWB4KNwkgCvgTjEBRtX%2FhOSACGCfQtU355rzvdlvjekC2G%2BEPvlhISshkYBEGBlzEtgZpgW2kVugsk2wIIAJCYhGWJgLe7Cg8kRfqipzLdL6U4WcAfr0m0x5PiB7MjYbHydjSBMJSJSJIjllQjnM7RBcAYcO2RQL7qzYwUO7w5cPiELsif6DxTYpvl4wjc0p1cfnspqGWAICq2j1T%2FzQ0ODXQXILYPEGGItJFHH%2BXhF1wzfM2h%2FkoFF9BVXvduZ7zW%2B1QsHYkoXS%2BGWs%2FZ3AaNEOcx0UDTBsATZsYxP0VjxiEEMUX9GqiUWiP3VTN7bGrJ0Yf6zKLAHkTCU2CUjt4OyHRQsEb4DdVp%2BirSIgenFRe6KfGv00J%2FS3Ru%2FeeR6XWAAMfnDVLlp9dkMLDLoE7rcY9tgxRHAENm8G5BmJ0ni8hT3RT%2BDXV9rLQn9r9Mb4EYTk9QnwvyQDLcDYz5fCwEvAkNMAY2UUORqF24O%2B9u7J7PIs6OeMf8XsLtVUDQIgIDcV0QJD8H%2FrwzVAMf8f7UEf%2FJWY8m15rVMPoG%2BYpYWlRVVO%2BSYQc7dAqAYoTtBzjsxdwPXj6PWV%2Bd7PycJN0zTMf6aWXjovpSAAWWOsn1wv7TAtAA2w%2FSBvAFvVCFF4C%2FF1xU8kYr%2BbMPmn07oZhFz3%2BfhVpJAE3BnQgWrbZSZwcDu0wAANUKZAA7zSIkJme06K6itx7ctqr92ppXNmMPTG%2B%2BOyJgLw8ApagDkEbwG4B9g%2BXGbYFl1o5LDyXlL96sdxHMr%2FFbo%2FKEbtRR3J%2FQBcIdCxZIM%2FZZi0QOAHwWWGZSdlgtO5LAtXJp74ZV9nYQ5fzB7848rr86T8J3KB%2FfWFwspJpEAA5IgOmrM7ZfEEyCPioDeBB5wGQK6DhyTVR2H6d9GnDiu%2FruseP13nL2xAN%2FZNx7n6%2FaXHWgISIPicIXJa4EDA20FogL3lPtarsM6i7F79%2BF38u9Xr1KH8enBy3aV7CTmhQAIU%2BS8mLG6xF1ogWAPs4P6WROs2uLnArQ%2Flj3%2B5vrxGLv4DYdRW6rLCAvDNICU5AewI1AKwBu47zAOY6B%2BZH57v4QM%2B4KJ8nGKf%2BpszedB%2FcFd5M7fcnEzfHMw%2Ft3BmZVWGIymEVB9xEoSXPIHD%2B%2BC5QKA1sFKpwJ%2BrWBZOhYfWSED04w8uyZ9nln%2FWz%2BT0wSh0x98%2FlOMiAR8wCwBk6EoYYA08UGFYFXJsZQBn%2Fipwl%2F8i%2Bt1qd6ZP%2FFXY%2FgNAg4w2pbaSTigsAIGn3SogTzmwHeZAgEtghVEuj%2FaPyw5OXsV79zhFts1IEFj1%2F5BuNr9JBGEcjkbjx1%2Fgwbs3z0YPxpN6IlEbwYIxXkz8YnU3aAyxEnXNIiY9VIEDq9lDISEQY4w9NBiCqKixCoJgJSJiANEgClpaP%2BI7MzsOi1sW9ekWUGA7z2%2FeeWdpFPxHr36cryjOMR%2BIAnBL7qPtqE9yOpUL6IEPAqFPsDuM0pbmGifhZOSk%2B%2FW5A9NPQG1w%2BBa4QfW%2Ffn3vACMDYY08swf%2FCYEbPfe1PvtO8vURLTqvpJLpNBy5kbF2VPEthvIh92X8pBdONyiAvddpAhtQGxz6Y8AmWgFZA7HhvLX6yP%2Fhxa%2FlwgFlTOs0llFysVgyncrlUulkLHnpfNG3GLACzBP7SQAE3QHM0ArYNOzV4BJ1BUxNoRUw2nvqY3o%2FoddWx5qKq%2FperC883Aftz6b0zemFjDkWS10x%2BaLtdlQaeZaOpa3FMUW%2FAKLSXAV2Uq%2FXfoxEgCDDOQYHHcfo9ZtEZoqtAeMWuAHeggO4SW3%2BCzuB6CP%2F562vzaLN94f%2FlVj68vnZVvfEobMnup2C9CyZtCySgJRJfXHsn0ABII4txn7sj9cAbYPGK2AFrADCNBr%2Bvwoz7159YVJ40wH%2FA%2F3%2Bvsyl2DOlciLg5j0A7x7vFswoAXiKvYqtljkTd0ygASyewtObagSbVtA1YLwHTAG4Ao6QE9ux1J%2BiPff2RfFSsD43yb1pfG2UDvgULVLm%2Fe1b7W6IF10qon%2B8pSSTzqik%2FIHUfv%2B4Y58QoASA%2FgjUB3bErhugj6FrwHgPWEMDuGn%2FT7y99qr%2Fo8ZH8P%2FDKFqay%2BXP%2BkUM2CM87q4SS52%2FoBNA%2Fks6aBcEKAGEfQCw%2FAlryD5gHMCKrTSAO6AwvCu6ocpMG5l7sTzSD08%2B6nyk868tgGfJzCFU%2FKCPET2Av2uOnYoqOnE9jnJeTsAloIbg1R%2FXHVoBW1cMFcDSZRvjagA3dhELI3VdwJohYH3wdz1qgb9Nz%2BiLrQsrn%2FiH4RsKgOc97k4qfV4nrtxc1ytwqAQAL6CXgRexi1ZAfCNeA8afA9ZO0QqgbgZM4KlmzsybyFP9SZfn5b6v1F%2BDM%2FM%2B3XCDMQmAlgDv9wSiuaJP6vMfK85d9ns5GgCAR6CLnVZAfC35PGC8Ccbxy6duTk8g9J3ZI30EDRwwGQb%2Fa1%2BbJZMiKVI%2FmZz5kMevDUCEAPx8632%2B6JQ0OKEFVmA%2F4QTEBIWNSjO4aRoA2QiNN8HNcQRUwKiumrFxvzvRD4v8%2FrMfm0ULs2f4oqm87IcNkAUg4gDc%2FOnSbMEmaVAyc6nxiUk4raAyMYAHEABW2ow2QuPLwI1ZGsAxATDQ1jPnmDrVh%2BkXee%2FPj828RdLBeWHsWcfvduMKEHsDkN3jhVcFk%2FbV0XevP7iESZIAZdFp2X8T%2FBFZ3ASMW0AcwAkIfwvXzyQhjHR4bqH2owD%2BugEol7ogCwGgBKg%2FCkAOVBqzfe%2FKfEmeFmBH4TCCEfEpMqekCRi2gDXU%2Fyl2MnSGQwfVHKAdXfxe%2F%2FHK7NQPQMooZ9yy208SAIg%2FBBAKdFqz5v4CiPKcK4xKYJgM7kzFCWtQEzC8CtiWBVAAo%2Bq5QZEEwTFtJq911qoTeQCp3K%2FON0xaf%2BZkepXvyiEZAiCXAmCP%2Fd1yKIID0BZArMuFXWGWAICHyYbWW5OjEEA2DlLbVhgGsBQ%2BCGQREMAxzhgmT6HiCJGZyPdbtc47m6SP0%2FKq0HKHSAlQ4F1QAMFI4zNaOM7eAvDJnOiCEkBwhpycAnsEfByAJmDUAxNZIAEJCEN4c0Qaa09q1ak7aLjdIe5E7XPJIjkXwTxbfcWHUAKkCHievFEORgKNzyWbk4EKYB%2F0VNEVRgyRgUADSKAuuMSoByayiQSEMDUzIF9W6XD8hpgTdeYA%2BrLM%2F6w182bkr4%2Bp%2BLkajARlNyQAEVB9WACBE82OycpeaY2aXvtCk7hVkgAAg9KciROnBO6CRj0wgYA1cBf7DYBqM6g8Hj6IiNyE8F1cuBoI%2FKz%2FmB1xDmCk%2B3mPHAjJJAKA%2BsuNZqX3nVJxLrbPJdLrBVIFBtyNgzwCd0GDHriFBBCP7yLnDtOJxnfkli70XvveiYdpFwXv9%2BDBfZ1GtVwu1%2BtvfzRMB5wDMBe%2BVeXxSBBHQAD%2FYGD8aFmzAqzR96%2BjEVfPBVNYDUGNgsUR%2Fj1PozSALagLGvTArTSA%2Fa4wAz1W4yaPNOIaebDn7E8OtSrov3RQ6h%2FegcUArO9bzZ28IxCERkC4GoL171ioNiunel6mFOeSXdFDd0s1gwGgZ0%2FG4wnMVtQFB%2F%2FT0NWbEsBMIh4XXEaIf8hj%2B%2FvBfVVwr4H1h0yxpEhWAOZ%2FMJbSt%2FkzfkcgEgyGCDD9joUd853e6KztZ68zQRE1SpEmYIw3np1JINatNgpg%2BaqZxAwA2yY2HKzuAXUE61que1dbZSQP7mNWi8VistkOHLACMHp8g%2B%2BZEPvTqfznTyd4x3ggEIkEI5FIIOBwLLQ%2BdUpm9U3otb7S69w1%2FPM8iOEyEMNoBWCvVWgbGLgJbJ%2FBJLLTcGY46IWpeir4UtWJe%2B%2Fcy27hxbXqPMx8IaOYzBab9e%2BABGqHF0KOcYLjqHy1WmsUR8Cd4ix%2BeTwb8vhZAGoE%2BCBfLvaXv0c9DfaY7WgbGPjrsLXTagB3RX36zH%2FbX%2BXvX%2B3Ua7V6tfjub%2BSZHEpg%2FsM%2BeSGI%2FIMLkd1v653SiJVxADqg%2BbSH7pQejDgEd9UApteiX4sN3AXXT%2BMEEomHvcroIOjIo40%2BxN8fr7ytzVfz2P4fOVXqlOvlyvGLp09fa1Xr9WbjHcw%2FQyk9jnVknlwtsQTIpTP%2BVr%2FIgNmgHyRAHrF%2BpUEAK9ZMIyCBN55F4Bl%2Bpn%2Buiia%2FZDaD%2Fb9jNucb5bpKuZE5ZdE8XUy9bp%2Fj3TQAGoIxz2kAa9A%2BOHAX3EACSCROgikcffIeqk7cAdiu5PuO6qdauSCNWKz%2FiW3EXCoUPrTbHwqFsRGz9rlfvJ3rT1tlAMY1XuaMus%2F%2BBSZL5hLNMj96%2BaRZ0sFywmlDky4hgXQLajWQnpCuEaZBLCFdWrUJ0PgFooFva2KhNdgC5dJJ25R2HXSVLihi5kTnImzG573x0ss4tEwfzrWcnnN%2Bv%2Fd26BAvGwqBIC4JAx%2Fga68BupRbWGCWWfj%2B%2Bwma1%2FYdB8ko%2BIaoAe9%2BUCWSXuKP3t8uEvwNxdD8CNJqVFWjwWBUVENr6Td6b4bD%2BUH0tRBA88GB874Q8AYZB%2Fd9DHh9gleBD6uiszaPL4I%2FBPyxz67f%2BUngt%2FKIDblb%2BXIz2wdkyRFsy2ymO6VZSRQ%2BseKi7Gm5Jgmff3%2BNcb1OBDyuK2AJw8Z7gOXEtMzZJuWnYc9qw%2Fcdt377eb1XM7T%2BxzFf1gqpO8NDwxDA8iVXUG4B%2B8KNOOTD768tHUzA0VeXSNAGvvmyNBJd4g9%2B%2FF3xt7%2FXb2rG1v86%2BCg9Hsp1DI0OD3MB0oF%2Bvrl2bYnm1aP7C3hqV8DEZ%2FIiqPJYSXRCj7Y%2FNnq%2F7%2Fefbic3lYMA6L1s3v%2FtzePRwnjn0CgRgOx1wGa%2B4hvyu3Tn42sTQsBTOgJeWkIiS9cm8LaKDHF64KP4tyeLfz1Y30DtN%2F%2F3GU8VNNMoCQRQB1KDfj6Y4AJe0hcQQZaqCuD0DH9s8JueW%2FiUX1P%2FD3zDJWMhUexgAkhqEoBMTERIwUb0BURIUAOWhkoCeiIe7Bx%2F5LoNrX9DM%2F8fMfR%2BFQ9nHKMj%2BEmR3gKTsH9wzzIQgNQgYKJMgCx7ij8w9N36Xw8ym%2BpDb%2FmR8jdfDhV6g2Mj4kdlyq8voUIAcmABkeHKjFJ8%2BjHFP7d%2Bun3TYzQbELEANFZsB5OI3K54iR8vzyHfK7cwX44VPE0DY8iuAMy1BNWfZlpPwDF2WKSaAEpPir%2FjY8fvf68bNAn23%2BYTbyGd7xmjHxQgoyy18A8JAQfoBKcRCFiiIw6ZAM5bvuCf7P%2Ftwa%2Bbyv%2FEb%2FxCLUSz1kEEAngzILO4MyGDLFnt4CkRME2jK%2BAYF7AUYaeRofRj4B%2BYbPrrQdKjGnhkU%2F1PYvyqNR5acQ%2FgwjBAMsIyWkM%2BFQL0nwNeZQcuRYZGSsLw0fwHtov4N36XEeR4jq%2F4bLPV%2FIj5u7rC8a9sHQMIBGCSEvQzytefLkVqFvBpJT8uPzD4Xf63270ec3NXb5dZcaXSsUQiSpNIxNJezdAMC%2BZHx9%2FcG4obLrYPMAHIGM9ILflSCHhLV8Dr08jqdCSyPVaeQcL%2FbQ78am%2BrkkpEQ2GSEA%2FfiyZSmhkOjCwGOvMAiG%2FIbfmaWBnELuMvaA1tHQgEcAmwUGM%2BiERWqYDXdQW8sYoQAZ%2BNDYKZkeOL8Q8M33lwe8MTSIQYbCwV8CiqkRSVqmjeVJpZCSUCBrNqPHxav4oWvHlHBxVAMyhD74nM%2FP7IHt%2Fke5hZPo5MM643dAW8icPmVlcjkY8HKzMwMmb%2BwhUOx8Ge9hh6x5OZbL5YbDh79myxmM9lkyv4KNyVpnpizYZHwh%2FIdbZLAdxCrflmehpQyJs6Ap58FgLm5uZQX%2B5X4uOj2k83C6CPaV0rmfwZm89pdXRfoOnudlid%2FqDpz3x2pVf1xsKXk9oh8dXW3mghle1r72iHApK6DdzfFaD7gcjLcySoLPcHqmRwuBiLGcaz5IPbC209Pe1709PTdqHb0em3XMwnNww7vdoj4E9n3PQiHdxAnZmZRrGSvHxAAagCMwOVwT%2FbWHPZJn83v6k98MCnaWu74HD6fZkf%2F0wdkr%2B5i%2FAH29qlgLo1LK4eVMCRk3PcwA0KjAlXFFsIQMndEGYES4ov6IGP1uCwtiW3kt6qWPtD7%2BVvjsZTyeAFnJYIkAr4%2FWAhVIgNscdfwiQOX%2BP88yePSAFV%2F9cxz7w9zw6dXpbXK9PP6MmCFb4UIPgd%2FT9ubaqqalTrTrMxBH4L4RcNraP%2BzAsBbz%2FzxP4Cnn5unmZuda7aiVASMpW1Xwi4kLtdTJXTG2vwYezSwoS%2Fu61H9DSHsrA6N8%2Fy3NMQ8Nh%2BAo69xQWsjlThl0XO0bGU%2FAj4iYBft1Zcat0BP8Zabwb8iKxsdSsYEQLeOra%2FAPztuGOn2KGrq9vgxVQlPWWR%2BLwFWH7ccin18xuaU%2FGwKxt04IzEAE17vQHD9urcMqU6dewpnX8bxJOQaAPfPIxdFjkmusJitwHQFrBVTNXPbzbH4iEF%2FDgdFcAl1K%2FhPlo%2FzZtHdQSQcXAZsjDNzVJejlzS3Dl%2BZRi%2FtXt9Z9xbN3%2BrMRqPGnJu8CP8zD0ie7veKsUjN%2Fm90xdn5oBEIkbBfcfBZZa5BfLmyrRVjSh%2FKsCyteNS6ubXQvFEb5Hwd0sBXEN9aV8APg1GQT0Bz7wgBMxRfH5dsajGLdONWK2Ohp1f0qqiKComzDJkV92zJ1Zy29iaCofTnzT4rTgVFYC51EGpBuFldyWb5%2B5u%2B9z8GmVae%2BEZJmDfcfAteujy%2FNxIJawev2gBmZRSTyAoEQ95V875rQ4HNcDSVn%2BIg%2BH5%2BTVq4C02Cu4nAMPA6TUS9ALbetCSHOyYCD8EONfvNLvqE9CajkeVTCP4ESKASTikh8n55TWa0xgEiID9h4Hja8gCjM1yWMykKkr4cnwR4BMBpjt3Alp9AsyxUHPO5reiHVkhgGWPAExkQTf5ioa%2BJjbZtjgAmV0G0AKojvNBQKcXXCCBgTVxMqQaNpkxyYAeaWv45A%2BXWqeARKxo8XdaEdIIhAC6rCP89teWF1hO8kFApxekx95YWJvvuPBQ%2BhJuEStNjykUThsN9Qm463X3OTupAQeNrAd1Z2AZ5U%2BZ0AfqCkAveEpUge0K2FJwoGMuoe%2Fs7Ozu64rGw16zWpeATUen07krAAt6HSGBL8Q9lW3JVYm1bSHgFPpAIkCvFzwOVzeIgdmHsnNsSS7oEWtnTouF4wnVWDO%2FBgHdTloFRBw83fVnFvw0x3kfqNMLPnsS%2FAh6jQulrNgsL3KsJDyC4nP2WfLjWjQe8hgUDV9kQUMRZRSxUvgKa8PdDSpAGBDXkBpK7qV0R3xbhtUClCfLyWdZH6jbCSyy49eW%2F3E8LNbSUHTAgx7xBxuzXelwOAADNUVR713q7utzCgPSQb2Bm7E1LmCRdgH6Ap5%2B7jQ3tjC5y0u%2B2JpuIpUlD3IRt6VhxRsKp2o0oGzeSzqoAJZSBVhgolt04gt2a7yqiLWYkB%2FAT4v09HNPMwF6ncDRlxdpbiwssstUDdAlP%2BidwLe7O7%2B2%2Bu12TMGmrBqKp401GVAD93JWPwRIA5jrD5W2eGOR5eWjrAvQ7QSOvLgoDLRbH0ovi16Uvt3X93Xu1h23z%2B122%2B0%2BU84cDddmwJi%2Be7bTzwxgErEeJh0LQsCLR1gXoN8GXjglDExKWiuZykLQOT1K39fd%2BMnfO96k1U3js%2BS7ouGUsQYBhrt3bU4IIAaIhIrgFvSDG8aXEDcp%2BE%2B9IFuAzpPAseMzM3gHmR96Qadgx0T5ff6Psr89uLNZyFp9Pm7gPAwEVM3j8Wgamz10jYilmOl3zHfT7j47qwIynYeJlYEgx4%2FxpwD9TuDZF2dYFm%2B0c1y%2BotxYCHwa0NvdwU7LOP7LuHQh1ugOEgM%2BxHK%2BORTyqJ7SYMDzVI%2Fhnur0uyGApMwBW4hbEa%2BwSYYfI1tQx8Iih3nxWdkF6A6Ep7iAxR84dmVwgxLfHbSe%2Bf3B%2BmYgUfjCFgwGAc8M5NVwSFVK8FXV49Kq8iuue0mn3Y0qIBRgrj9U0KTgPyUHQV0BpA1wAwtWZ0Vk0SMU3xf86Dx%2BZTQdUOLRvMVyJdhP6PthwpYLxGNGSa%2BoSiCKJ4SqdcCYuFf0owOFAeYAOaQCB%2FhZ0AKYgBrawCwMXN0DjJWEZ%2Fx2zp%2F%2FaetSzKWmwoZGi40a6O%2FvDyKmbCIeUHfpvYlQPB4KJ9TqLSDRAgHcQB8mcd19gqrI1%2FJAKe4qBNTQAvhAiDZwenZ2ZhbzzGy1i%2Fp52VN88DvBv5H2eNR0NGOz2UgdCAKfpvFmOKRpjD4WIr9UkNIS5JWKaFrc47P7IIDEz9J3uICAYZxGC5CDoG4bOHpiFqFvbePIdMaSFTyr%2B7T4fcG%2BBsoPAYn0eZsJBqAACZI52OCJBoyqJ5Wg9GmX8Wa2K5yu0gbUVHzcjvMRAYgQQKoCX4i7IBE3JC2xA0q8tQGf5cRR3gIO1gaOPP%2BOMPCDuKYM2HnpU377xZ%2B2emMEwRUyN5paiAEeIsCSjYUTUfp7I6D%2FIplraMpFo5UCXIZoOG8n3Sdi342%2F9khBk4L%2FneePlLQA%2FZ8Hjs8iU1NTszMOxlwRNwl6uv7%2BW1srMY%2FL5VLSoRVTY4vJBAU01EB%2FSzOafTSR8hguZXIN55oabU2psOJxlUeNx0zu%2Fn4IQOz1R3rrngECmWaPy58D9AWwbnCK8mP5bXV0lD0mFLA9eXs9RgmUWCLX0tTYAgUtppYW2xVeB%2FJazKt2jWfyZ5samRtz2FUhQAkUeoM4Ic7LHBxew7cUgTigXaAQoN8GaDeINzIDzir8CB3pwJ9%2FsJUKeJiAVLHxYlMjSVPjlYZM0GcjBkzZm8nc%2BTNNLSYLYjOZLMlQWisXgBaQwwnpEOouNVCnCCf4WUgXyFvAgbvBk1PCwFWJLdkBj7tFL9fy885GjPJ71bTScO7MuYtNF8%2B1mM6P%2F72zct5HRgRL4znAExdXwE8E5KMJpYzfo8RjTf2kyaAV8LjriRR3dUrkJO0CaxBAusFXhICpPncZPUIb%2FxWLzZ3ZWk8wBO9mwngGvzB2prHlbPaPn3%2FcycbzdgvDBlcwiDUTYLsYi5YLUGKFSxYmQBqQCsRWmZX9HPXNTl1nCK%2BQLlAKOODT4Imp6zSoAgJcsCMc6ErDjzuBFGfw3r3cdO7s%2BVzmV%2FzRhPVMoJAw9QOZ0KOt8NhgwGbyhrRyAeFQHqrQZVAFVEM9kd6uTlECLE6Ip8AaqwATAIt9jFvQUwG4U%2BD0%2F7qTSXhEDVCVP34l8PjDARupVDg%2BbhOjIbIrwIQ2YAiVdYJaoOBtpL0mqwRBaYCt5LZMhaN%2BRBzjBD9LDRVAPg1iJDxxXRi4ilNLdFr8rD1bGm7vpAKcIaAUbyF%2F%2FHHZkIqllHQhnUdxSwE8VMClkLesAkTjSSGLXuEwoXf77fXrP%2FxA7%2F8ExkD6FFhzFfiXdvNpcRoIwzgIgrv%2BK3jqrQcP7r0Xv0Oh3QSJ5tRCQJCcehGLoFeReNiSHLwpeBDES9nQSttFyCGXULohtJbSFjzVil9AEJ%2FMTPI27dZ1E33cJO2YTOf3zDNvomwHXJ8%2FP2K2RnMPieXcHP0cD2MI23habliBG9iW0TC8%2FqlWhyJwWgGqVp327GQJNBZuhR6fmHby%2FckfXkPx8%2Bgz%2BJkuFgC6EyICg8iBE5ZK9rFNJsEi%2F%2Fhp%2BIRh%2B7ZtWQyo4Xj3K2fwQ6qmVUeOnwzAcPFMw9%2BSAexR%2BhVzATtxwLrDAe1sPNF8oIlO%2FCQGegJ%2BLgSA7oEXKIMUge6Xz%2B9exfAEo9YnP78hABaEXXRAA4C8YKJC9e35Dw2YOAGwrUimGf47OmlXM61C%2FOa7L4MuBYCXwBQR6DL%2BbvdL9zXvN7mW699%2FfnStLYHf9ZypwgxgqopdZEB9NnQNi4QALJV6aNdOC%2F7ekDAARxgyBBNEAGBAmggUu1yDLy2KPk2l9P2raZ%2FN33tRUWMDSCrjl9SkAabhOTwvUDW9yLU2%2BLmKKQIgyiCeBfLd2IHHsQGcBEtZrY3G7g7%2B8kwjA5L8zAB33YB7zmKpJ87OaMBjLACh%2FM0oAGkicKMQO3AiZp9IUMrmczKA1rPj9R5MJBgUS1wR8UtawgDTXjgTTSXHyISdTtT%2FaMJJzF%2B4QQFIUQX28iesG%2BwH78kAMZOf5quH%2Fub0N%2Bxe%2BFtukgap29JiA%2BiaBr4XKqt0OuKVRpSc9wOMmA88v5ciAPQscOXaATrhGrzk%2BERSXdoNe3P6Xc8bPp0oGjdAO5NfWTfANv2FO9s8PYsBLwfhmLF1uwfXrlxOwU%2BPg%2FvXi4IfHTb57McLWV6tLJscsC3D9Hte35%2FPwB8pAc%2F5YcDEDeLMmH1vrtPZpLqIA3Z8w569FK8ip3gjPw9qdsDOVby%2BTw%2BBKSOQ51114MCvxPxL9dly6duxQGI7nuc0Tg8lTdo0QFvn19Xx0LfEZeZwYc%2FQHJ2NLY0oNq0uBsuVTx8AqoMHnB8afIjpmQHj5TKI6Q3Dd%2Fpez386LkmQtkMSN2A0tIUBhu31TpXkFenwRQYedTsd4cBBugqYvBXu5Yrgh8Jej2j%2BNak6Wq18m6fYsNl%2F%2BgYPTmsy42e7bXjOr6tTNw5AzysfSlyZHYCOMFox3GKOKmCmRdARQtd1lWCao6BhmKZh%2BS77tqAT3J9OKgpn2WmAoii6rM6jFWC6C3eCVn5BCqlJ16od8AtlWgBUB7EIOrEF7TWUV6Oe4zjhV0Y9TL5rlYEvg2SnyABlvvLjBTAtoVEipfCBUtPuxMICoAqYZRHs5wqiy%2BPOyRsyoHroLMS3ZQOjPB%2FNYnxlnSYBz%2FnlynwV8NLR8x7UFIh5cL4B0kakNlvfEX8ht08LIOMiuHXM%2BY9xfKkR2ls38G3jXvnFdDQ7LIX4CteOyeeSS%2FJMGGAMF8FYp2vSi%2FM%2FZ4Nko23fogWQwQCxCO6yfnnfR4IeQLPpFF%2BencxqFdBjEklhCMSsKnzm2Vs%2B%2FyVltGQGGIHnTEtK5AD%2FSSORgSfgj3RXLIDMDlziZSDuuHPc5J%2BpSJhLJlkn%2BvOk67hImi7DGmD5%2Ff7Tmq4LAzIHoXlMQgGgBZB5EeBeWFhzQOWBlpNg0Pn04IcB2txmj5A9z5ygZftSUTC4NhsSOWHR4qpjaJEKuANmXgD0OIQycLVIDrRVFlhZ50wk5RwJ%2FpJc9hEAw%2FGCcUmWyYCU4vxqm%2Ba%2FeBUFIPEIlHkRXMtH%2FbfhgMY%2FWN8lJcFELsk6%2BCvyxLQCFEBvOK2gIoYiC1OIpUBrYWjREPPXthZA9jJwl3UNIQMtSZCdKwV%2FiB%2BCAdLUbviW6znzGt4Sf5YkgL%2FNhUHe3SoA2csAHLjdjnUMBwTStnTiSbAzfGbA0jasoN9bzkpQ2KiLK1NIhAD8sW6DP1EAshrAy8D%2BjYOEAwS2KbSejQ968Jdq5ZWNG8D9SUlIFkrNr71vt1ptoYMb%2B7wAwIB%2FFwE4sJe70%2BZqhQ5owPqTdL5LnMVw8RRQdvt9c1wh%2FnXzsPGDeC12UVt8JMO0Vjgm4cCd3B74KQD%2FrgxcuSkcgNstOKCuk8nnirNiU1%2FYdt%2BzOD9JvrgEvwp4KOK%2FeWVXAch%2BK8gVQC%2FUblflCykirS4XXt8egT%2BLARSYJvhjFXJ0A%2FgfDlwttFrkwNF6BHg9w5G%2F44e4FbtI2qjnMf5KZcMAuhxiFybyxfuhjeuovc5%2FNQV%2FBgdexvwXkF5bmqeHxJ9OstBvZsxgN1EoCsPJJJMWFTExrEg0ISxM7Av4AO5YgF00cTUmLlm5Y8vWxMX4BHfBQsIT9Wnm5x4ux2ubpl7KyF8KUrXc7z%2F%2FOdhmjK%2Fx%2F3QC6GaoOXDBd5Goit%2Bh6P1915a%2FvmoibvnpBgj8n4%2BAcmBR80PY78O7FUHY06GV9pdmIdBC4%2B%2FOgckC16yFK59DE0XE386BM%2BhZi4nO36ED3uXagZLzDyJsqsgcc42Uyk%2BiV8kNO34lft74gwOd1w%2BbJig1fq9rfnbAsYPLldAGzNa9OP7AZwW20zU%2FO2DZq1yzIK3L3r0DFBfsUg0%2FX9lWx%2FzsAD4TDsbTteZAvv%2B%2FBmxRALmR1tPxAJ%2F%2FDPjNHRgupPPyq9KxK%2Fg4%2BqDwWF06z5UBi6EZv7kDv59xO%2FQofCSE4HC16HsU8eErRY3OVe1ryfGH29%2FzbxN%2BcwfkKFytc4iXUuw1C5irpXT8vSB8pfVKjj9jfnMHBvbUzXULjq93pMAI%2FzWT%2BCx3ag90%2Fu5FDshBEOS6BXkaxh0qPFb0ImcFsv2N%2F%2F43d0COQrSBP%2BPFCIFdhxaE6S3%2BzEf85fgz42%2FfBgiBxwZAVQzSV23dO2y7XSw39RCK5YF26hkc6IQeaUoIH2os8FB%2Bjv8jHEAbODQJRKMcyjax7oGBYk1v2QW1FyzZ%2FU4TfzP69m1AIQgKQWIPisPtFDSFh6JDUXvMKoKm%2FO3524fAE0rsQfoWI8cc%2B%2B96wD1A%2FbBJCV6T99jyswOYhQjByPZd8YkH52TXUslZXCp8PWOub49Qfky%2Fh%2FHrIXiyxsOX2VU%2BC%2BVBcUIODBW%2FnYuc6NVvlCezl%2BHYenpk%2BXUHaBJYNllAy5WisuUi3Yb304fbVEj4RoIEfNui7gf%2FIw3g%2FxXCAbJgORPFrSgIf7dJ%2FO3KJ4eUcIsPmi0JH%2Fw9wFchqPtg4CAFbqFUVt9lyWHITttN9DV7tDmcMoVe4u06vovqO4M6%2Fb%2F6gM99UFswHvpzuXisXlOT4jI9HbabJIwiTHka9lGYbLZ%2FTinQFXuZlVciM%2Bc%2B4z%2B8%2Bz8ZhmSBNZ5MvUxjZxqtnwtOOKed4W%2BUedPJ2CL8vqS%2F4ZcOsAUjdML8E4SGq%2FgoCjyz32iO7I9q%2FD6lv5FmwZPlIAaBy%2BRZtWPxCYufIxcy9ssNUHzHeuoxvrof0CxQMYAHNSsOBiqrt4FeFZ96v1%2Fp10OgLJAxIA%2BW86yF5kuil8XvOf7tMFAeTIa%2B55rAu54%2FnCh6lf1e4%2F9rl45VGAahKAyPRTBaCE6CQuhm3v%2F5evSeIkZKO1br2ZLt%2B73XM2ADa3KEFMP39hBTxhsr%2BiEe%2F5JAzoANGGE%2Fko%2Fuw7NHn46deOrL4w%2FDb85AGjCC0mZDBnQ4k%2FcxOhfKa4fgXIz%2BkU7IQd%2BMVsRTP8btdwnQoIkgFZTVJoe4I0UdPgE32qpib%2FAD6rsGiCAVkAEdMNUNPyEHvdiBH1vPBjVCrYAOebdm%2BJHl1S74ofVswAivCtJBUnBki5x24GfQ1whSgRlYoo5uocM%2BE76rwA7dKCd9MjxWRIC928z2fll5Qf8HfG1tbW1tbe2X9gRAleHFD7W%2FYQAAAABJRU5ErkJggg%3D%3D%22%2F%3E%3C%2Fsvg%3E" alt="Launchpad" draggable="false"><div class="hz-dock-dot"></div></li>
+        <li class="hz-dock-item" data-id="wallpapers" data-title="Wallpapers"><p class="hz-dock-tip">Wallpapers</p><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2230%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2086%20L38%2046%20L66%2086%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M42%2086%20L64%2058%20L88%2086%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Wallpapers" draggable="false"><div class="hz-dock-dot"></div></li>
+        <li class="hz-dock-item" data-id="notepad" data-title="Notepad"><p class="hz-dock-tip">Notepad</p><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%20fill%3D%22%23ffd60a%22%2F%3E%3Cpath%20d%3D%22M24%2032%20h48%20M24%2046%20h48%20M24%2060%20h30%22%20stroke%3D%22%23946a00%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.5%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M60%2086%20h26%20v-26%20Z%22%20fill%3D%22%23d9b103%22%2F%3E%3C%2Fsvg%3E" alt="Notepad" draggable="false"><div class="hz-dock-dot"></div></li>
     </ul></div>
 
 <script>
@@ -850,9 +1018,9 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
     document.getElementById('cal-next').addEventListener('click', e => { e.stopPropagation(); calMonth++; if (calMonth>11){calMonth=0;calYear++;} renderCalendar(); });
 
     
-    const apps = [{ name: 'Wallpapers', img: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20rx%3D%2210%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2222%22%20fill%3D%22%23e9eef2%22%2F%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2216%22%20width%3D%2276%22%20height%3D%2264%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2080%20L38%2042%20L66%2080%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M40%2080%20L62%2054%20L86%2080%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E' }];
+    const apps = [{ name: 'Wallpapers', img: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22wpc%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20clip-path%3D%22url(%23wpc)%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20fill%3D%22%2398c7e0%22%2F%3E%3Ccircle%20cx%3D%2263%22%20cy%3D%2230%22%20r%3D%228%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22M10%2086%20L38%2046%20L66%2086%20Z%22%20fill%3D%22%235b8c72%22%2F%3E%3Cpath%20d%3D%22M42%2086%20L64%2058%20L88%2086%20Z%22%20fill%3D%22%233d6b55%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E' }, { name: 'Notepad', img: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2276%22%20height%3D%2276%22%20rx%3D%2216%22%20fill%3D%22%23ffd60a%22%2F%3E%3Cpath%20d%3D%22M24%2032%20h48%20M24%2046%20h48%20M24%2060%20h30%22%20stroke%3D%22%23946a00%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.5%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M60%2086%20h26%20v-26%20Z%22%20fill%3D%22%23d9b103%22%2F%3E%3C%2Fsvg%3E' }];
     const appsView = document.getElementById('appsView'), appSearch = document.getElementById('appSearch');
-    function renderApps(f='') { appsView.innerHTML=''; const q=f.toLowerCase(); const filtered=apps.filter(a=>a.name.toLowerCase().includes(q)); if(!filtered.length){appsView.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--theme-secondary-fg)">no apps found</div>';return;} filtered.forEach(app=>{const el=document.createElement('div');el.className='app';const ic=app.img?`<img src="${app.img}" alt="">`:`<span class="material-symbols-outlined">${app.icon}</span>`;el.innerHTML=`<div class="app-icon-wrap">${ic}</div><div class="app-shortcut-name">${app.name}</div>`;el.addEventListener('click',e=>{e.stopPropagation();wpToggle();closeAllPanels();});appsView.appendChild(el);}); }
+    function renderApps(f='') { appsView.innerHTML=''; const q=f.toLowerCase(); const filtered=apps.filter(a=>a.name.toLowerCase().includes(q)); if(!filtered.length){appsView.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--theme-secondary-fg)">no apps found</div>';return;} filtered.forEach(app=>{const el=document.createElement('div');el.className='app';const ic=app.img?`<img src="${app.img}" alt="">`:`<span class="material-symbols-outlined">${app.icon}</span>`;el.innerHTML=`<div class="app-icon-wrap${app.img?' imgic':''}">${ic}</div><div class="app-shortcut-name">${app.name}</div>`;el.addEventListener('click',e=>{e.stopPropagation();openAppByName(app.name);closeAllPanels();});appsView.appendChild(el);}); }
     renderApps(); appSearch.addEventListener('input', e => renderApps(e.target.value));
     const wpWin = document.getElementById('wallpapersWindow');
     let zIndexCounter = 5;
@@ -863,11 +1031,12 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
     function wpToggle() { if (!wpWin.classList.contains('open')) { openWallpapers(); return; } if (wpWin.classList.contains('wp-min')) { wpWin.classList.remove('wp-min'); wpWin.style.zIndex=++zIndexCounter; void wpWin.offsetWidth; wpWin.classList.add('anim-opening'); clearTimeout(wpAnimT); wpAnimT=setTimeout(function(){ wpWin.classList.remove('anim-opening'); },330); requestAnimationFrame(function(){wpPaintDefer();}); return; } wpWin.style.zIndex=++zIndexCounter; }
     document.getElementById('wpClose').addEventListener('click', e=>{e.stopPropagation();closeWallpapers();});
     document.getElementById('wpMin').addEventListener('click', e=>{e.stopPropagation();minimizeWallpapers();});
-    document.getElementById('wpMax').addEventListener('click', e=>{e.stopPropagation();wpWin.classList.toggle('wp-max');requestAnimationFrame(function(){wpPaintDefer();});});
+    function hzWinTopFix(w){if(document.body.classList.contains('theme-macos')&&!w.classList.contains('wp-max')&&w.offsetTop<32)w.style.top='32px';}
+    document.getElementById('wpMax').addEventListener('click', e=>{e.stopPropagation();wpWin.classList.toggle('wp-max');hzWinTopFix(wpWin);requestAnimationFrame(function(){wpPaintDefer();});});
     let isDragging=false,dragOffX=0,dragOffY=0;
     const titlebar=document.getElementById('wpTitlebar');
     titlebar.addEventListener('mousedown',e=>{isDragging=true;wpWin.classList.add('dragging');wpWin.classList.remove('anim-opening','anim-closing','anim-minning');dragOffX=e.clientX-wpWin.offsetLeft;dragOffY=e.clientY-wpWin.offsetTop;wpWin.style.zIndex=++zIndexCounter;e.preventDefault();});
-    document.addEventListener('mousemove',e=>{if(!isDragging)return;wpWin.style.left=Math.max(0,Math.min(e.clientX-dragOffX,window.innerWidth-wpWin.offsetWidth))+'px';wpWin.style.top=Math.max(0,Math.min(e.clientY-dragOffY,window.innerHeight-48-wpWin.offsetHeight))+'px';});
+    document.addEventListener('mousemove',e=>{if(!isDragging)return;wpWin.style.left=Math.max(0,Math.min(e.clientX-dragOffX,window.innerWidth-wpWin.offsetWidth))+'px';wpWin.style.top=Math.max(document.body.classList.contains('theme-macos')?32:0,Math.min(e.clientY-dragOffY,window.innerHeight-48-wpWin.offsetHeight))+'px';});
     document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;wpWin.classList.remove('dragging');}});
     wpWin.addEventListener('mousedown',()=>{wpWin.style.zIndex=++zIndexCounter;wpSelected=true;});
     document.addEventListener('mousedown',function(e){ if(!e.target.closest('.window'))wpSelected=false; });
@@ -1058,12 +1227,12 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
     const dateContainer=document.getElementById('date-container'),taskinfoContainer=document.getElementById('taskinfo-container');
     const calPanel=document.getElementById('calendar'),qsPanel=document.getElementById('quickSettings');
     function closeAllPanels(){launcher.classList.remove('active');calPanel.classList.remove('active');qsPanel.classList.remove('active');}
-    function toggleLauncher(){if(launcher.classList.contains('active')){launcher.classList.remove('active');}else{calPanel.classList.remove('active');qsPanel.classList.remove('active');launcher.classList.add('active');setTimeout(()=>appSearch.focus(),perfMode?0:150);}}
+    function toggleLauncher(){if(launcher.classList.contains('active')){launcher.classList.remove('active');}else{calPanel.classList.remove('active');qsPanel.classList.remove('active');if(document.body.classList.contains('theme-macos')&&appsView){const lpIm=document.querySelector('#hz-dock li[data-id="launchpad"] img');if(lpIm){const ir=lpIm.getBoundingClientRect();let vx=0,vy=0,vn=appsView;while(vn){vx+=vn.offsetLeft;vy+=vn.offsetTop;vn=vn.offsetParent;}appsView.style.transformOrigin=(ir.left+ir.width/2-vx)+'px '+(ir.top+ir.height/2-vy)+'px';}}launcher.classList.add('active');setTimeout(()=>appSearch.focus(),perfMode?0:150);}}
     launcherBtn.addEventListener('click',e=>{e.stopPropagation();toggleLauncher();});
     dateContainer.addEventListener('click',e=>{e.stopPropagation();if(calPanel.classList.contains('active')){calPanel.classList.remove('active');}else{launcher.classList.remove('active');qsPanel.classList.remove('active');calPanel.classList.add('active');}});
     taskinfoContainer.addEventListener('click',e=>{e.stopPropagation();if(qsPanel.classList.contains('active')){qsPanel.classList.remove('active');}else{launcher.classList.remove('active');calPanel.classList.remove('active');qsPanel.classList.add('active');}});
     document.addEventListener('click',e=>{if(!launcher.contains(e.target)&&!calPanel.contains(e.target)&&!qsPanel.contains(e.target)&&!e.target.closest('footer')&&!e.target.closest('.window')&&!e.target.closest('.m3-dialog')&&!e.target.closest('#hz-winstart')&&!e.target.closest('#hz-widgetpane')&&!e.target.closest('#hz-widgetbtn')&&!e.target.closest('#hz-wbin')){closeAllPanels();var hzwpt=document.getElementById('hz-widgetpane');if(hzwpt)hzwpt.classList.remove('show');}});
-    document.addEventListener('keydown',e=>{if((e.key==='F11'&&e.shiftKey)||(e.ctrlKey&&e.altKey&&(e.key==='f'||e.key==='F'))){e.preventDefault();if(wpSelected&&wpWin.classList.contains('open')&&!wpWin.classList.contains('wp-min')){wpWin.classList.toggle('wp-max');requestAnimationFrame(function(){wpPaintDefer();});}return;}if(e.key==='Escape'){closeAllPanels();wpMenuClose();lowBatDialog.classList.remove('open');wpCloseOv();var hzwpt=document.getElementById('hz-widgetpane');if(hzwpt)hzwpt.classList.remove('show');return;}if(e.key==='`'&&launcherKeybind){if(document.activeElement===appSearch)return;e.preventDefault();toggleLauncher();}});
+    document.addEventListener('keydown',e=>{if((e.key==='F11'&&e.shiftKey)||(e.ctrlKey&&e.altKey&&(e.key==='f'||e.key==='F'))){e.preventDefault();if(wpSelected&&wpWin.classList.contains('open')&&!wpWin.classList.contains('wp-min')){wpWin.classList.toggle('wp-max');hzWinTopFix(wpWin);requestAnimationFrame(function(){wpPaintDefer();});}return;}if(e.key==='Escape'){closeAllPanels();wpMenuClose();lowBatDialog.classList.remove('open');wpCloseOv();var hzwpt=document.getElementById('hz-widgetpane');if(hzwpt)hzwpt.classList.remove('show');hzPanelsClose();return;}if(e.key==='`'&&launcherKeybind){if(document.activeElement===appSearch)return;e.preventDefault();toggleLauncher();}});
 
     const HZTheme = {
         key: 'hyperzos_theme',
@@ -1134,13 +1303,10 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
                 });
                 btn.addEventListener('click', function () { self.choose(btn.dataset.themeChoice); });
             });
-            const logo = document.querySelector('.hz-mb-logo');
+            const logo = document.querySelector('.hz-mb-apple');
             if (logo) {
                 logo.style.cursor = 'pointer';
-                logo.setAttribute('title', 'Change Style');
-                logo.setAttribute('role', 'button');
-                logo.setAttribute('aria-label', 'Change Style');
-                logo.addEventListener('click', function (e) { e.stopPropagation(); self.openSetup(); });
+                logo.addEventListener('click', function (e) { e.stopPropagation(); hzAppleToggle(); });
             }
             setInterval(function () { self.menubarTick(); }, 1000);
             window.addEventListener('load', function () {
@@ -1155,7 +1321,12 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
         const calP = document.getElementById('calendar'), qsP = document.getElementById('quickSettings'), lpP = document.getElementById('launcher');
 
         document.querySelectorAll('#hz-dock li.hz-dock-item').forEach(function (li) {
-            li.addEventListener('click', function (e) { e.stopPropagation(); wpToggle(); });
+            li.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (li.dataset.id === 'launchpad') { toggleLauncher(); return; }
+                if (li.dataset.id === 'notepad') { npToggle(); return; }
+                wpToggle();
+            });
         });
         const dockWpLi = document.querySelector('#hz-dock li[data-id="wallpapers"]');
         const wpWinEl = document.getElementById('wallpapersWindow');
@@ -1173,11 +1344,11 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
             };
         }
         const mbCC = document.getElementById('hz-mb-cc');
-        if (mbCC && qsP) mbCC.addEventListener('click', mbToggle(qsP, [lpP, calP]));
+        if (mbCC && qsP) mbCC.addEventListener('click', function (e) { e.stopPropagation(); if (document.body.classList.contains('theme-macos')) { hzCcToggle(); } else { mbToggle(qsP, [lpP, calP])(e); } });
         const mbClock = document.getElementById('hz-mb-clock');
-        if (mbClock && calP) mbClock.addEventListener('click', mbToggle(calP, [lpP, qsP]));
+        if (mbClock && calP) mbClock.addEventListener('click', function (e) { e.stopPropagation(); if (document.body.classList.contains('theme-macos')) { hzCalToggle(); } else { mbToggle(calP, [lpP, qsP])(e); } });
         const mbSpot = document.getElementById('hz-mb-spotlight');
-        if (mbSpot && launcherBtn) mbSpot.addEventListener('click', function (e) { e.stopPropagation(); launcherBtn.click(); });
+        if (mbSpot) mbSpot.addEventListener('click', function (e) { e.stopPropagation(); hzSlToggle(); });
 
         const dockUl = document.querySelector('#hz-dock ul');
         if (!dockUl) return;
@@ -1230,6 +1401,8 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
             e.stopPropagation();
             wpToggle();
         });
+        const nptb = document.getElementById('hz-npapp');
+        if (nptb) nptb.addEventListener('click', function (e) { e.stopPropagation(); npToggle(); });
 
         const wsearch = document.getElementById('hz-wsearch');
         if (wsearch) wsearch.addEventListener('click', function (e) { e.stopPropagation(); toggleLauncher(); });
@@ -1263,6 +1436,7 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
         });
         document.querySelectorAll('#hz-ws-grid .hz-wtile').forEach(function (t) {
             t.addEventListener('click', function () {
+                if (t.dataset.name === 'notepad') { npToggle(); closeAllPanels(); return; }
                 if (t.dataset.open) { wpToggle(); closeAllPanels(); }
                 else showToast(t.querySelector('.hz-wtilename').textContent + " isn't included in HyperZOS 4 Beta yet");
             });
@@ -1272,7 +1446,7 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
         const recBin = document.querySelector('.hz-wrec[data-rec="bin"]');
         if (recBin) recBin.addEventListener('click', function () { showToast('Recycle Bin is empty'); });
         const allApps = document.getElementById('hz-ws-allapps');
-        if (allApps) allApps.addEventListener('click', function (e) { e.stopPropagation(); showToast('Wallpapers is the only app installed in this Beta'); });
+        if (allApps) allApps.addEventListener('click', function (e) { e.stopPropagation(); showToast('Wallpapers and Notepad are the only apps in this Beta'); });
         const moreBtn = document.getElementById('hz-ws-more');
         if (moreBtn) moreBtn.addEventListener('click', function (e) { e.stopPropagation(); showToast('Nothing else recommended right now'); });
         const wsUser = document.getElementById('hz-ws-user');
@@ -1314,6 +1488,362 @@ body.theme-windows #calendar.active, body.theme-windows #quickSettings.active { 
         }
         winSlider(document.getElementById('brightnessSlider'));
         winSlider(document.getElementById('warmnessSlider'));
+    })();
+
+    const hzApplePanel = document.getElementById('hz-apple-menu');
+    const hzAboutPanel = document.getElementById('hz-about');
+    const hzSlPanel = document.getElementById('hz-spotlight');
+    const hzSlQ = document.getElementById('hz-sl-q');
+    const hzSlRes = document.getElementById('hz-sl-results');
+    const hzCcPanel = document.getElementById('hz-cc');
+    const hzMcPanel = document.getElementById('hz-maccal');
+    const hzSleepEl = document.getElementById('hz-sleep');
+    const npWin = document.getElementById('notepadWindow');
+    const npText = document.getElementById('npText');
+    let hzSlItems = [], hzSlSel = 0, npAnimT = 0, npSaveT = 0, npSavedShowT = 0, npDrag = false, npDx = 0, npDy = 0;
+
+    function hzPanelOut(el, ms) {
+        if (!el) return;
+        el.classList.remove('out');
+        void el.offsetWidth;
+        el.classList.add('out');
+        clearTimeout(el.hzOutT);
+        el.hzOutT = setTimeout(function () { el.classList.remove('out'); }, ms);
+    }
+    function hzAppleOpen() { hzSlClose(); hzCcClose(); hzCalClose(); hzApplePanel.classList.remove('out'); hzApplePanel.classList.add('active'); }
+    function hzAppleClose() { if (hzApplePanel && hzApplePanel.classList.contains('active')) { hzApplePanel.classList.remove('active'); hzPanelOut(hzApplePanel, 200); } }
+    function hzAppleToggle() { if (hzApplePanel.classList.contains('active')) { hzAppleClose(); } else { hzAppleOpen(); } }
+    if (hzApplePanel) {
+        hzApplePanel.querySelectorAll('.hz-am-item').forEach(function (it) {
+            it.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const act = it.dataset.act;
+                hzAppleClose();
+                if (act === 'about') { hzAboutOpen(); }
+                else if (act === 'sleep') { hzSleep('sleep'); }
+                else if (act === 'restart') { showToast('Restarting HyperZOS...'); setTimeout(function () { location.reload(); }, 900); }
+                else if (act === 'shutdown') { hzSleep('shutdown'); }
+            });
+        });
+    }
+    function hzAboutOpen() {
+        hzAppleClose();
+        const st = document.getElementById('hz-ab-style');
+        if (st) st.textContent = (HZTheme.names && HZTheme.names[HZTheme.current]) || 'ChromeOS';
+        hzAboutPanel.classList.remove('out');
+        hzAboutPanel.classList.add('active');
+    }
+    function hzAboutClose() { if (hzAboutPanel && hzAboutPanel.classList.contains('active')) { hzAboutPanel.classList.remove('active'); hzPanelOut(hzAboutPanel, 240); } }
+    const hzAbOk = document.getElementById('hz-ab-ok');
+    if (hzAbOk) hzAbOk.addEventListener('click', function (e) { e.stopPropagation(); hzAboutClose(); });
+    function hzSleep(mode) {
+        if (!hzSleepEl) return;
+        hzAppleClose();
+        hzSleepEl.dataset.mode = mode;
+        const tx = hzSleepEl.querySelector('.hz-slp-text');
+        if (tx) tx.textContent = mode === 'shutdown' ? 'Click anywhere to power on' : '';
+        hzSleepEl.classList.add('on');
+    }
+    if (hzSleepEl) hzSleepEl.addEventListener('click', function () {
+        const m = hzSleepEl.dataset.mode;
+        hzSleepEl.classList.remove('on');
+        if (m === 'shutdown') { setTimeout(function () { location.reload(); }, 450); }
+    });
+
+    function hzSlRender() {
+        if (!hzSlRes) return;
+        const q = (hzSlQ.value || '').trim().toLowerCase();
+        hzSlItems = apps.filter(function (a) { return a.name.toLowerCase().indexOf(q) !== -1; });
+        let h = '';
+        if (!hzSlItems.length) { h = '<div class="hz-sl-none">No Results</div>'; }
+        else {
+            hzSlItems.forEach(function (a, i) {
+                const ic = a.img ? '<img src="' + a.img + '" alt="">' : '<span class="material-symbols-outlined">' + a.icon + '</span>';
+                h += '<div class="hz-sl-item' + (i === hzSlSel ? ' sel' : '') + '" data-i="' + i + '"><span class="hz-sl-ic' + (a.img ? ' imgic' : '') + '">' + ic + '</span><span class="hz-sl-name">' + a.name + '</span><span class="hz-sl-kind">Application</span></div>';
+            });
+        }
+        hzSlRes.innerHTML = h;
+        hzSlRes.classList.add('show');
+        hzSlRes.querySelectorAll('.hz-sl-item').forEach(function (el) {
+            el.addEventListener('click', function () { hzSlLaunch(parseInt(el.dataset.i, 10) || 0); });
+        });
+        const sel = hzSlRes.querySelector('.hz-sl-item.sel');
+        if (sel) sel.scrollIntoView({ block: 'nearest' });
+    }
+    function hzSlLaunch(i) {
+        const a = hzSlItems[i];
+        if (!a) return;
+        hzSlClose();
+        openAppByName(a.name);
+    }
+    function hzSlOpen() { hzAppleClose(); hzCcClose(); hzCalClose(); hzSlSel = 0; hzSlPanel.classList.remove('out'); hzSlPanel.classList.add('active'); hzSlQ.value = ''; hzSlRender(); setTimeout(function () { hzSlQ.focus(); }, 80); }
+    function hzSlClose() { if (hzSlPanel && hzSlPanel.classList.contains('active')) { hzSlPanel.classList.remove('active'); hzPanelOut(hzSlPanel, 240); } if (hzSlQ) hzSlQ.blur(); }
+    function hzSlToggle() { if (hzSlPanel.classList.contains('active')) { hzSlClose(); } else { hzSlOpen(); } }
+    if (hzSlQ) {
+        hzSlQ.addEventListener('input', function () { hzSlSel = 0; hzSlRender(); });
+        hzSlQ.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowDown') { e.preventDefault(); if (hzSlItems.length) { hzSlSel = (hzSlSel + 1) % hzSlItems.length; hzSlRender(); } }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); if (hzSlItems.length) { hzSlSel = (hzSlSel - 1 + hzSlItems.length) % hzSlItems.length; hzSlRender(); } }
+            else if (e.key === 'Enter') { e.preventDefault(); hzSlLaunch(hzSlSel); }
+        });
+    }
+    const hzSlEsc = document.getElementById('hz-sl-esc');
+    if (hzSlEsc) hzSlEsc.addEventListener('click', function (e) { e.stopPropagation(); hzSlClose(); });
+    document.addEventListener('keydown', function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.code === 'Space' && document.body.classList.contains('theme-macos')) { e.preventDefault(); hzSlToggle(); }
+    });
+
+    function hzCcSync() {
+        const nl = document.getElementById('ccNL');
+        if (nl) { nl.classList.toggle('on', nightLightEnabled); const s = nl.querySelector('.s'); if (s) s.textContent = nightLightEnabled ? 'Warm' : 'Off'; }
+        const pf = document.getElementById('ccPerf');
+        if (pf) { pf.classList.toggle('on', perfMode); const s = pf.querySelector('.s'); if (s) s.textContent = perfMode ? 'On' : 'Off'; }
+        const kb = document.getElementById('ccKey');
+        if (kb) { kb.classList.toggle('on', launcherKeybind); const s = kb.querySelector('.s'); if (s) s.textContent = launcherKeybind ? 'On' : 'Off'; }
+        const stn = document.getElementById('ccStyleName');
+        if (stn) stn.textContent = (HZTheme.names && HZTheme.names[HZTheme.current]) || 'ChromeOS';
+        const cw = document.getElementById('cc-warm');
+        if (cw) { cw.value = warmnessSlider.value; cw.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.95) ' + cw.value + '%, rgba(255,255,255,0.22) ' + cw.value + '%)'; }
+        hzCcMarquee();
+    }
+    function hzMqApply(el) {
+        if (!el) return;
+        if (el.scrollWidth <= el.clientWidth + 1) {
+            if (el.dataset.mqText !== undefined) { el.textContent = el.dataset.mqText; delete el.dataset.mqText; }
+            el.classList.remove('marq');
+            return;
+        }
+        if (el.dataset.mqText === undefined) {
+            el.dataset.mqText = el.textContent;
+            const track = document.createElement('span');
+            track.className = 'hz-mq';
+            const one = document.createElement('span');
+            one.textContent = el.dataset.mqText;
+            track.appendChild(one);
+            track.appendChild(one.cloneNode(true));
+            el.textContent = '';
+            el.appendChild(track);
+        }
+        const one = el.querySelector('.hz-mq > span');
+        const w = one ? one.getBoundingClientRect().width : 0;
+        el.classList.add('marq');
+        el.style.setProperty('--hzmq-d', Math.max(6, w / 22).toFixed(2) + 's');
+    }
+    function hzCcMarquee() {
+        if (!hzCcPanel) return;
+        hzCcPanel.querySelectorAll('.hz-cc-sq .t, .hz-cc-sq .s').forEach(hzMqApply);
+    }
+    function hzCcOpen() { hzCalClose(); hzAppleClose(); hzSlClose(); hzCcSync(); hzCcPanel.classList.remove('out'); hzCcPanel.classList.add('active'); }
+    function hzCcClose() { if (hzCcPanel && hzCcPanel.classList.contains('active')) { hzCcPanel.classList.remove('active'); hzPanelOut(hzCcPanel, 280); } }
+    function hzCcToggle() { if (hzCcPanel.classList.contains('active')) { hzCcClose(); } else { hzCcOpen(); } }
+    if (hzCcPanel) {
+        const stT = document.getElementById('ccStyle');
+        if (stT) stT.addEventListener('click', function (e) { e.stopPropagation(); hzCcClose(); HZTheme.openSetup(); });
+        const nlT = document.getElementById('ccNL');
+        if (nlT) nlT.addEventListener('click', function (e) {
+            e.stopPropagation();
+            nightLightEnabled = !nightLightEnabled;
+            updateNightLight();
+            const t = qsTiles.find(function (x) { return x.id === 'nightlight'; }); if (t) t.active = nightLightEnabled;
+            hzCcSync();
+            showToast('Night Shift ' + (nightLightEnabled ? 'on' : 'off'));
+        });
+        const pfT = document.getElementById('ccPerf');
+        if (pfT) pfT.addEventListener('click', function (e) {
+            e.stopPropagation();
+            perfMode = !perfMode;
+            applyPerfMode();
+            const t = qsTiles.find(function (x) { return x.id === 'perfmode'; }); if (t) t.active = perfMode;
+            hzCcSync();
+            showToast('Performance mode ' + (perfMode ? 'on' : 'off'));
+        });
+        const kbT = document.getElementById('ccKey');
+        if (kbT) kbT.addEventListener('click', function (e) {
+            e.stopPropagation();
+            launcherKeybind = !launcherKeybind;
+            const t = qsTiles.find(function (x) { return x.id === 'keybind'; }); if (t) t.active = launcherKeybind;
+            hzCcSync();
+            showToast('Drawer keybind ' + (launcherKeybind ? 'on' : 'off'));
+        });
+        function hzCcFill(el) {
+            const min = parseFloat(el.min || '0'), max = parseFloat(el.max || '100');
+            const p = ((parseFloat(el.value) - min) / (max - min)) * 100;
+            el.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.95) ' + p + '%, rgba(255,255,255,0.22) ' + p + '%)';
+        }
+        const cb = document.getElementById('cc-bright');
+        if (cb) {
+            cb.addEventListener('input', function () {
+                brightnessOverlay.style.opacity = Math.max(0, (100 - parseInt(cb.value, 10)) / 100 * 0.85);
+                const bs = document.getElementById('brightnessSlider');
+                if (bs) bs.value = cb.value;
+                hzCcFill(cb);
+            });
+            hzCcFill(cb);
+        }
+        const cw2 = document.getElementById('cc-warm');
+        if (cw2) {
+            cw2.addEventListener('input', function () {
+                if (!nightLightEnabled) {
+                    nightLightEnabled = true;
+                    const t = qsTiles.find(function (x) { return x.id === 'nightlight'; });
+                    if (t) t.active = true;
+                }
+                warmnessSlider.value = cw2.value;
+                updateNightLight();
+                hzCcSync();
+            });
+        }
+    }
+
+    let mcY = new Date().getFullYear(), mcM = new Date().getMonth();
+    function renderMacCal() {
+        const g = document.getElementById('mcGrid');
+        if (!g) return;
+        const now = new Date();
+        let h = '';
+        ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(function (d) { h += '<span class="hz-mc-wd">' + d + '</span>'; });
+        const d1 = new Date(mcY, mcM, 1).getDay(), ld = new Date(mcY, mcM + 1, 0).getDate(), de = new Date(mcY, mcM, ld).getDay(), mld = new Date(mcY, mcM, 0).getDate();
+        const cells = [];
+        let i;
+        for (i = d1; i > 0; i--) cells.push([mld - i + 1, 1]);
+        for (i = 1; i <= ld; i++) cells.push([i, 0]);
+        for (i = de; i < 6; i++) cells.push([i - de + 1, 1]);
+        cells.forEach(function (c) {
+            const isToday = c[1] === 0 && c[0] === now.getDate() && mcM === now.getMonth() && mcY === now.getFullYear();
+            h += '<span class="hz-mc-day' + (c[1] ? ' out' : '') + (isToday ? ' today' : '') + '"><i>' + c[0] + '</i></span>';
+        });
+        g.innerHTML = h;
+        const ml = document.getElementById('mcMonth');
+        if (ml) ml.textContent = months[mcM] + ' ' + mcY;
+        const dw = document.getElementById('mcDow');
+        if (dw) dw.textContent = now.toLocaleDateString('en-US', { weekday: 'long' });
+        const bg = document.getElementById('mcBig');
+        if (bg) bg.textContent = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    }
+    function hzCalOpen() { hzCcClose(); hzAppleClose(); hzSlClose(); renderMacCal(); hzMcPanel.classList.remove('out'); hzMcPanel.classList.add('active'); }
+    function hzCalClose() { if (hzMcPanel && hzMcPanel.classList.contains('active')) { hzMcPanel.classList.remove('active'); hzPanelOut(hzMcPanel, 280); } }
+    function hzCalToggle() { if (hzMcPanel.classList.contains('active')) { hzCalClose(); } else { hzCalOpen(); } }
+    const mcPrev = document.getElementById('mcPrev'), mcNext = document.getElementById('mcNext');
+    if (mcPrev) mcPrev.addEventListener('click', function (e) { e.stopPropagation(); mcM--; if (mcM < 0) { mcM = 11; mcY--; } renderMacCal(); });
+    if (mcNext) mcNext.addEventListener('click', function (e) { e.stopPropagation(); mcM++; if (mcM > 11) { mcM = 0; mcY++; } renderMacCal(); });
+
+    function hzPanelsClose() { hzAppleClose(); hzSlClose(); hzCcClose(); hzCalClose(); hzAboutClose(); }
+    document.addEventListener('click', function (e) {
+        if (!hzApplePanel || !hzSlPanel || !hzCcPanel || !hzMcPanel || !hzAboutPanel) return;
+        if (hzApplePanel.classList.contains('active') && !e.target.closest('#hz-apple-menu') && !e.target.closest('.hz-mb-apple')) hzAppleClose();
+        if (hzSlPanel.classList.contains('active') && !e.target.closest('#hz-spotlight') && !e.target.closest('#hz-mb-spotlight')) hzSlClose();
+        if (hzCcPanel.classList.contains('active') && !e.target.closest('#hz-cc') && !e.target.closest('#hz-mb-cc')) hzCcClose();
+        if (hzMcPanel.classList.contains('active') && !e.target.closest('#hz-maccal') && !e.target.closest('#hz-mb-clock')) hzCalClose();
+        if (hzAboutPanel.classList.contains('active') && !e.target.closest('#hz-about')) hzAboutClose();
+    });
+
+    function openAppByName(name) { if (name === 'Notepad') { npToggle(); return; } wpToggle(); }
+    function npOpen() {
+        npWin.style.zIndex = ++zIndexCounter;
+        clearTimeout(npAnimT);
+        npWin.classList.remove('anim-opening', 'anim-closing', 'anim-minning', 'wp-min');
+        void npWin.offsetWidth;
+        npWin.classList.add('open', 'anim-opening');
+        npAnimT = setTimeout(function () { npWin.classList.remove('anim-opening'); }, 330);
+        setTimeout(function () { npText.focus(); }, 340);
+    }
+    function npClose() {
+        if (!npWin.classList.contains('open') || npWin.classList.contains('wp-min')) { npWin.classList.remove('open', 'anim-opening', 'anim-closing', 'anim-minning'); return; }
+        clearTimeout(npAnimT);
+        npWin.classList.remove('anim-opening');
+        void npWin.offsetWidth;
+        npWin.classList.add('anim-closing');
+        npAnimT = setTimeout(function () { npWin.classList.remove('open', 'anim-closing'); }, 220);
+    }
+    function npMinimize() {
+        if (!npWin.classList.contains('open') || npWin.classList.contains('wp-min')) return;
+        clearTimeout(npAnimT);
+        npWin.classList.remove('anim-opening', 'anim-closing');
+        void npWin.offsetWidth;
+        npWin.classList.add('anim-minning');
+        npAnimT = setTimeout(function () { npWin.classList.remove('anim-minning'); npWin.classList.add('wp-min'); }, 200);
+    }
+    function npToggle() {
+        if (!npWin.classList.contains('open')) { npOpen(); return; }
+        if (npWin.classList.contains('wp-min')) {
+            npWin.classList.remove('wp-min');
+            npWin.style.zIndex = ++zIndexCounter;
+            void npWin.offsetWidth;
+            npWin.classList.add('anim-opening');
+            clearTimeout(npAnimT);
+            npAnimT = setTimeout(function () { npWin.classList.remove('anim-opening'); }, 330);
+            return;
+        }
+        npWin.style.zIndex = ++zIndexCounter;
+        npText.focus();
+    }
+    const npCloseBtn = document.getElementById('npClose'), npMinBtn = document.getElementById('npMin'), npMaxBtn = document.getElementById('npMax'), npTb = document.getElementById('npTitlebar');
+    if (npCloseBtn) npCloseBtn.addEventListener('click', function (e) { e.stopPropagation(); npClose(); });
+    if (npMinBtn) npMinBtn.addEventListener('click', function (e) { e.stopPropagation(); npMinimize(); });
+    if (npMaxBtn) npMaxBtn.addEventListener('click', function (e) { e.stopPropagation(); npWin.classList.toggle('wp-max'); hzWinTopFix(npWin); });
+    if (npTb) npTb.addEventListener('mousedown', function (e) {
+        npDrag = true;
+        npWin.classList.add('dragging');
+        npWin.classList.remove('anim-opening', 'anim-closing', 'anim-minning');
+        npDx = e.clientX - npWin.offsetLeft;
+        npDy = e.clientY - npWin.offsetTop;
+        npWin.style.zIndex = ++zIndexCounter;
+        e.preventDefault();
+    });
+    document.addEventListener('mousemove', function (e) {
+        if (!npDrag) return;
+        npWin.style.left = Math.max(0, Math.min(e.clientX - npDx, window.innerWidth - npWin.offsetWidth)) + 'px';
+        npWin.style.top = Math.max(document.body.classList.contains('theme-macos') ? 32 : 0, Math.min(e.clientY - npDy, window.innerHeight - 48 - npWin.offsetHeight)) + 'px';
+    });
+    document.addEventListener('mouseup', function () { if (npDrag) { npDrag = false; npWin.classList.remove('dragging'); } });
+    if (npWin) npWin.addEventListener('mousedown', function () { npWin.style.zIndex = ++zIndexCounter; });
+    function npStats() {
+        const v = npText.value;
+        const sel = npText.selectionStart || 0;
+        const lines = v.slice(0, sel).split('\n');
+        const pos = document.getElementById('npPos');
+        if (pos) pos.textContent = 'Ln ' + lines.length + ', Col ' + (lines[lines.length - 1].length + 1);
+        const words = v.trim() ? v.trim().split(/\s+/).length : 0;
+        const info = document.getElementById('npInfo');
+        if (info) info.textContent = words + ' words · ' + v.length + ' chars';
+    }
+    function npQueueSave() {
+        clearTimeout(npSaveT);
+        npSaveT = setTimeout(function () {
+            try { localStorage.setItem('hyperzos_notepad_v1', npText.value); } catch (e) {}
+            const s = document.getElementById('npSaved');
+            if (s) {
+                s.classList.add('show');
+                clearTimeout(npSavedShowT);
+                npSavedShowT = setTimeout(function () { s.classList.remove('show'); }, 900);
+            }
+        }, 600);
+    }
+    if (npText) {
+        try { npText.value = localStorage.getItem('hyperzos_notepad_v1') || ''; } catch (e) {}
+        npText.addEventListener('input', function () { npStats(); npQueueSave(); });
+        npText.addEventListener('keyup', npStats);
+        npText.addEventListener('click', npStats);
+        npStats();
+    }
+    document.querySelectorAll('#npMenubar span').forEach(function (m) {
+        m.addEventListener('click', function () { showToast(m.textContent + ' menu is decorative in this Beta'); });
+    });
+    (function () {
+        const li = document.querySelector('#hz-dock li[data-id="notepad"]');
+        if (npWin && 'MutationObserver' in window) {
+            const s = function () { const on = npWin.classList.contains('open'); if (li) li.classList.toggle('open', on); document.body.classList.toggle('np-win-open', on); };
+            new MutationObserver(s).observe(npWin, { attributes: true, attributeFilter: ['class'] });
+            s();
+        }
+    })();
+    (function () {
+        const inp = document.getElementById('appSearch');
+        if (!inp || !('MutationObserver' in window)) return;
+        const ORIG = 'Search your tabs, files, apps, and more...';
+        const sync = function () { inp.placeholder = document.body.classList.contains('theme-macos') ? 'Search' : ORIG; };
+        new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        sync();
     })();
 </script>
 </body>
